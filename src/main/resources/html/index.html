@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="keywords" content="哲人镇, 陈安廉, 陈濂, 哲学论坛, java, 人工智能, 机器学习">
+    <meta name="description" content="哲人镇是一个计算机编程、哲学交流论坛">
+    <meta name="Robots" content="all">
+    <title>哲人镇</title>
+    <link rel="shortcut icon" href="/static/img/favicon.ico?v=2019092701"/>
+    <link href="/static/bootstrap-3.3.7-dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/css/public.css?v=2019092701" rel="stylesheet">
+    <link href="/static/css/index.css?v=2019092701" rel="stylesheet">
+    <script src="/static/js/jquery-3.3.1.min.js"></script>
+
+
+</head>
+<body style="padding-top: 60px">
+<!-- 顶部导航拦开始 -->
+<nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse"
+                    data-target="#example-navbar-collapse">
+                <span class="sr-only">切换导航</span> <span class="icon-bar"></span> <span
+                    class="icon-bar"></span> <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/" target="_self"> <img
+                    class="logo-img img-rounded" title="首页" alt="logo"
+                    src="/static/img/logo.png" style="height: 30px;"/>
+            </a>
+            <!-- 全文搜索
+            <div class="container" style="width: 200px;margin-top:8px;">
+                <form class="bs-example bs-example-form" role="form">
+                    <div class="row">
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="Search" id="searchKey">
+                            <span class="input-group-btn">
+									<button type="submit" class="btn btn-default"
+                                            onclick="return search()">全文搜索</button>
+								</span>
+                        </div>
+                    </div>
+                </form>
+            </div>-->
+        </div>
+
+        <div class="collapse navbar-collapse" id="example-navbar-collapse">
+
+            <div></div>
+            <ul class="nav navbar-nav navbar-right" id="userCenterUl">
+                <li><a class="btn btn-default" data-toggle="modal" data-target="#login"> 登录 <span></span> </a></li>
+                <li><a class="btn btn-default" data-toggle="modal" data-target="#register"> 注册 <span></span> </a></li>
+                <!--<li><a class="btn btn-default" href="/download/zrzhen2.0.0.apk" download="zrzhen_Android_2.0.0.apk"
+                       id="contact_weixin">下载APP</a></li>-->
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- 弹出框 模态框登录 -->
+<div class="modal fade" id="login" tabindex="-1" role="dialog"
+     aria-labelledby="myModalLabel_login">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"
+                        aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="myModalLabel_login">登 录</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group htitle">
+                    <label for="exampleInputEmail1">邮箱</label>
+                    <input type="email" name="email" required="required" class="form-control" id="login-email"
+                           placeholder="邮箱">
+                </div>
+                <div class="form-group htitle">
+                    <label for="exampleInputPassword1">密码</label>
+                    <input type="password" name="password" required="required" class="form-control" id="login-password"
+                           placeholder="密码">
+                </div>
+                <div class="form-group htitle" id="div-authCode-login">
+                    <label for="login-authCode">验证码</label>
+                    <input type="text" name="authCode" class="form-control" id="login-authCode" required="required"
+                           placeholder="验证码" onkeyup="if(this.value.length>3){checkloginauthCode()}"/>
+                    <img id="img-authCode-login" alt="点击刷新" title="点击刷新" src=""
+                         onclick="refreshPcrimg();">
+                </div>
+                <div class="modal-footer">
+                    <a href="/user/findPassword" style="float: left;">找回密码</a>
+                    <button type="button" onclick="login();" class="btn btn-primary">登录</button>
+                    <button type="reset" class="btn btn-danger">重置</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 弹出框 模态框注册 -->
+<div class="modal fade" id="register" tabindex="-1" role="dialog"
+     aria-labelledby="myModalLabel_register">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"
+                        aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="myModalLabel_register">注 册</h4>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group htitle" id="div-email">
+                        <label for="register-email">邮箱</label>
+                        <input type="email" name="email" required="required" class="form-control" id="register-email"
+                               placeholder="邮箱">
+                    </div>
+                    <div class="form-group htitle" id="div-nickName">
+                        <label for="register-nickName">昵称</label>
+                        <input type="text" name="nickName" class="form-control" id="register-nickName"
+                               required="required" min="1" maxlength="20" placeholder="用户名(1-20位中英文、数字。下划线)"/>
+                    </div>
+                    <div class="form-group htitle" id="div-password1">
+                        <label for="password1">密码</label>
+                        <input type="password" required="required" class="form-control" id="password1" name="password"
+                               min="6" maxlength="20" placeholder="密码(6-20位数字、英文)">
+                    </div>
+                    <div class="form-group htitle" id="div-password2">
+                        <label for="password2">确认密码</label>
+                        <input type="password" required="required" class="form-control" id="password2"
+                               placeholder="确认密码">
+                    </div>
+                    <div class="form-group htitle" id="div-authCode">
+                        <label for="register-authCode">验证码</label>
+                        <input type="text" name="authCode" class="form-control" id="register-authCode"
+                               required="required" placeholder="验证码"/>
+                        <img id="img-authCode-register" alt="点击刷新" title="点击刷新" src="" class="form-code-img"
+                             onclick="refreshPcrimg();">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" onclick="register()">注册</button>
+                        <button type="reset" class="btn btn-danger">重置</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!--新增网书-->
+<div class="modal fade" id="addBookModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="addBookModalLabel">新增网书</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal" role="form">
+                    <div class="form-group">
+                        <label for="book-name" class="col-sm-2 control-label">书名</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="book-name" placeholder="请输入书籍名字">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="book-description" class="col-sm-2 control-label">简介</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="book-description" placeholder="请输入书籍简介">
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary" onclick="addBook()">提交</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+<!-- 导航栏结束 -->
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="panel panel-info">
+                <div class="panel-heading">发表文章</div>
+                <input type="text" name="title" id="title" placeholder="标题" style="width: 85%;"/>
+                <!--<select id="tag" style="float: right; width: 15%;">
+                    <option value="philosophy">哲学</option>
+                    <option value="IT">IT</option>
+                    <option value="ai">人工智能</option>
+                    <option value="other">其它</option>
+                </select>-->
+                <br>
+                <textarea name="content" id="content" placeholder="内容"
+                          style="width: 100%;"></textarea>
+                <br>
+                <button class="button" type="submit" onclick="addArticle();"
+                        style="width: 80px; height: 35px; font-size: 20px; float: right">提交
+                </button>
+            </div>
+
+            <div style="margin-top:60px;">
+                <div id="tagList" style="margin: 20px;"></div>
+                <div id="tableList" class="articleList"></div>
+                <div id="foot" style="text-align: center;margin-top: 50px"></div>
+                <div id="foot2" class="font_div" style="margin-top: 100px"></div>
+            </div>
+
+            <div style="margin-top:10px;border-radius:15px;background:#e0e0f4;">
+            </div>
+        </div>
+        <!-- 右边拦 -->
+        <div class="col-md-4">
+            <h3>网络书籍</h3>
+            <div class="login-show" style="display: none">
+                <div>
+                    <a href="javascript:void(0);" onclick="showAddBookModal()" style="float: right"><span
+                            class="glyphicon glyphicon-plus-sign"></span>新增书籍</a>
+                </div>
+            </div>
+            <div class="line"></div>
+
+            <div id="bookList"></div>
+
+            <!--<div id="slrsDiv"
+                 style="margin-top:10px;overflow:hidden;">
+                <div style="overflow:hidden;">
+                    <a href="/public/slrs.html" target="_blank">
+                        <img alt="精神生活读书会" title="点击进入精神生活读书会专题" src="/img/dshHb2.jpg" style="max-width: 100%;">
+                    </a>
+                </div>
+            </div>
+            <br>
+            <hr>
+            <div class="questionList">
+                <div style="float:right;">
+                    <span>置顶文章</span>
+                </div>
+                <hr>
+                <div style="">
+
+
+                    <div style="float:right;">
+                        <a href="/questionlist.html" target="_blank">>>查看更多</a><br>
+                    </div>
+                </div>
+            </div>
+            -->
+        </div>
+    </div>
+</div>
+<br><br>
+
+<div id="link">
+    <!--  <div id="link_left">友情链接：</div>
+    <div id="link_right">
+    <a href="http://www.baidu.com" target="_blank">百度</a>|
+    <a href="http://www.google.com" target="_blank">谷歌</a>
+    </div>  -->
+</div>
+<br>
+
+<div style="color: #007878; clear: both; text-align: center; margin-top: 50px;margin-bottom:50px;">
+    <a href="http://www.zrzhen.com">哲人镇</a> | 粤ICP备16076474号<br>
+    Copyright ©2016 Powered By zrzhen Version 2.1.0<br>
+    转载本站原创文章，需经授权，联系方式：a@zrzhen.com
+</div>
+
+<script src="/static/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="/static/js/jenel.js?v=2019092701"></script>
+<script type="text/javascript" src="/static/js/index.js?v=2019092701"></script>
+<!-- 百度统计 -->
+<script>
+    var _hmt = _hmt || [];
+    (function () {
+        var hm = document.createElement("script");
+        hm.src = "https://hm.baidu.com/hm.js?7796ba6f18a506ae7816b32def84c32c";
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+</body>
+</html>

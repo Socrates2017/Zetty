@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head></head>
+<body>
+<script type="text/javascript">
+    function fn1() {
+        //发送异步请求
+        //1.创建ajax引擎对象----所有操作都是由ajax引擎完成
+        var xmlHttp = new XMLHttpRequest();
+        //2.为引擎对象绑定监听事件
+        xmlHttp.onreadystatechange = function () {
+            //当状态变化时处理的事情
+            if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
+                //5.接收响应信息
+                var data = xmlHttp.responseText;
+                //alert(data);
+                document.getElementById("span1").innerHTML = data;
+            }
+        }
+        //3.绑定服务器地址
+        //第一个参数：请求方式GET/POST
+        //第二个参数：后台服务器地址
+        //第三个参数：是否是异步 true--异步   false--同步
+        xmlHttp.open("GET", "${pageContext.request.contextPath}/ajaxServlet?username=zhangsan",true);
+        //4.发送请求
+        xmlHttp.send();
+    }
+
+</script>
+
+
+<input type="button" value="异步请求服务器" onclick="fn1()"><span id="span1"></span><br>
+
+
+</body>
+</html>

@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="keywords" content="哲人镇, 陈安廉, 陈濂, 哲学论坛, java, 人工智能, 机器学习">
+    <meta name="description" content="哲人镇是一个计算机编程、哲学交流论坛">
+    <meta name="Robots" content="all">
+    <title>zebook</title>
+    <link rel="shortcut icon" href="/static/img/favicon.ico?v=2019092701"/>
+    <link href="/static/bootstrap-3.3.7-dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/css/public.css?v=2019092701" rel="stylesheet">
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+        }
+    </style>
+    <script src="/static/js/jquery-3.3.1.min.js"></script>
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row">
+        <div id="left" class="col-sm-3 col-md-3 col-lg-3 " style="padding:0px">
+            <input type="hidden" id="bookId">
+            <h1 id="bookName"></h1>
+            作者：<span id="bookCreator"></span><br>
+            摘要：<span id="bookDescription"></span><br>
+            <div class="user-show" style="display: none">
+                <a href="javascript:void(0);" onclick="showUpdateBookModal()">修改本书摘要<span
+                        class="glyphicon glyphicon-pencil"></span></a>&emsp;&emsp;
+                <a href="javascript:void(0);" onclick="showDeleteBookModal()">删除本书<span
+                        class="glyphicon glyphicon-minus-sign"></span></a><br><br>
+                <a href="javascript:void(0);" onclick="showAddIndexModal(0)">添加首层章节<span
+                        class="glyphicon glyphicon-plus-sign"></span></a><br>
+            </div>
+            <div id="index_0" style="border-right: 5px solid deepskyblue;"></div>
+        </div>
+        <div id="right" class="col-sm-9 col-md-9 col-lg-9">
+            <div id="new-window-content" style="float: right"></div>
+            <iframe id="content" frameborder="0" width='100%' height='100%' scrolling="auto" allowfullscreen
+                    seamless></iframe>
+        </div>
+    </div>
+</div>
+<!-- 模态框（Modal） -->
+<div class="modal fade" id="addIndexModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">新增章节</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal" role="form">
+                    <input type="hidden" class="form-control" id="parentId">
+                    <div class="form-group">
+                        <label for="add-index-order" class="col-sm-2 control-label">排序</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="add-index-order" placeholder="排序">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="url" class="col-sm-2 control-label">链接</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="url" placeholder="url">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="childTitle" class="col-sm-2 control-label">标题</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="childTitle" placeholder="请输入标题">
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary" onclick="addIndex()">提交</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+
+<div class="modal fade" id="updateIndexModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="updateIndexModalLabel">修改章节</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal" role="form">
+                    <input type="hidden" class="form-control" id="update-pid">
+                    <input type="hidden" class="form-control" id="updateIndexId" disabled>
+                    <div class="form-group">
+                        <label for="update-index-order" class="col-sm-2 control-label">排序</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="update-index-order" placeholder="排序">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="updateIndexModalUrl" class="col-sm-2 control-label">链接</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="updateIndexModalUrl" placeholder="url">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="updateIndexModalTitle" class="col-sm-2 control-label">标题</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="updateIndexModalTitle" placeholder="请输入标题">
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary" onclick="updateIndex()">提交</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+<!--删除模态框-->
+<div class="modal fade" id="deleteIndexModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="deleteIndexModalLabel">删除章节</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal" role="form">
+                    <div class="form-group">
+                        <label for="deleteIndexParentTitle" class="col-sm-2 control-label">标题</label>
+                        <div class="col-sm-10">
+                            <input type="hidden" class="form-control" id="deleteIndexParentId">
+                            <input type="hidden" class="form-control" id="deleteIndexId">
+                            <input type="text" class="form-control" id="deleteIndexParentTitle"
+                                   placeholder="请输入要删除章节标题">
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary" onclick="deleteIndex()">提交</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+
+<!--删除模态框-->
+<div class="modal fade" id="deleteBookModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="deleteBookModalLabel">删除本书</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal" role="form">
+                    <div class="form-group">
+                        <label for="deleteBookName" class="col-sm-2 control-label">书名</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="deleteBookName"
+                                   placeholder="请输入要删除的书本名字">
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary" onclick="deleteBook()">提交</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+
+<div class="modal fade" id="updateBookModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="updateBookModalLabel">删除本书</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal" role="form">
+                    <div class="form-group">
+                        <label for="updateBookName" class="col-sm-2 control-label">书名</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="updateBookName"
+                                   placeholder="书本名字">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="updateBookDescription" class="col-sm-2 control-label">摘要</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="updateBookDescription" placeholder="摘要">
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary" onclick="updateBook()">提交</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+<script src="/static/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="/static/js/jenel.js?v=2019092701"></script>
+<script type="text/javascript" src="/static/js/book.js?v=2019110801"></script>
+</body>
+</html>

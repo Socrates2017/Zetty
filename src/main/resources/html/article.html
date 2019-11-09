@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="Robots" content="all">
+    <meta name="description" content="文章详情">
+    <title>${title}</title>
+    <link rel="shortcut icon" href="/static/img/favicon.ico?v=2019092701"/>
+    <link href="/static/css/public.css?v=2019092701" rel="stylesheet">
+    <script src="/static/js/jquery-3.3.1.min.js"></script>
+    <script type="text/javascript" src="/static/js/jenel.js?v=2019092701"></script>
+
+    <style>
+        p {
+            text-indent: 2em;
+        }
+
+        p img {
+            text-indent: 0;
+        }
+    </style>
+</head>
+<body>
+
+<input type="hidden" id="id" value="${id}" name="id"/>
+<input type="hidden" id="userid" value="${userid}" name="userid"/>
+
+<h1 style="text-align:center;">${title}</h1>
+<h3 style="text-align:center;">${username}</h3>
+<h3 style="text-align:center;">${ctime}</h3>
+${content}
+
+<div id="updateQue" style="float:right;">
+</div>
+
+
+<script>
+
+    $(function () {
+        var useridInCookie = getCookie("100")
+        var useridInArticle = $("#userid").val();
+        if ($.isBlank(useridInCookie) || $.isBlank(useridInArticle)) {
+
+        } else if (useridInCookie == useridInArticle) {
+
+            var id = $("#id").val();
+            //显示问题修改连接
+            var updateQue = '<a href="/article/update/' + id + '" target="_blank" style="font-weight:bold;">修改问题</a>';
+            $('#updateQue').html(updateQue);
+        }
+
+
+    });
+</script>
+</body>
+</html>

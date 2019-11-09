@@ -1,0 +1,51 @@
+@charset "utf-8";
+
+img {
+	display: inline-block;
+	height: auto;
+	max-width: 100%; 
+	margin: 0px;
+	padding:0px;
+}
+
+div{
+	margin: 0px;
+	padding:0px;
+	border:0;
+}
+
+body {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.428571429;
+  color: #333333;
+  background-color: #ffffff;
+  margin:0;
+  padding:0;
+}
+a{
+	text-decoration: none;
+}
+a:focus {
+  color: #2a6496;
+  text-decoration: underline;
+}
+
+a:focus {
+  outline: thin dotted #333;
+  outline: 5px auto -webkit-focus-ring-color;
+  outline-offset: -2px;
+}
+p {
+	text-indent: 2em;
+}
+
+/**横线*/
+.line {
+	height: 1px;
+	line-height: 3px;
+	border-bottom: 2px solid #e5e5e5;
+      margin:0 auto;
+    }
+.clear{ clear:both}
+

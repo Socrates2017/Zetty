@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>download</title>
+    <script src="/static/js/jquery-3.3.1.min.js"></script>
+    <script src="/static/js/jenel.js?v=2019092701"></script>
+</head>
+<body>
+<div id="parent" style="text-align: center;"></div>
+<div id="group" style="text-align: center;"></div>
+
+<div id="fileList" style="text-align: center;"></div>
+
+<script>
+
+    /**
+     * 展示数据
+     * @param result
+     * @param dom
+     */
+    function showData(result, dir) {
+        var directoryList = result.data.directoryList;
+        var fileList = result.data.fileList;
+        var group = result.data.group;
+
+        var parentHtml = '返回上一级：';
+
+        if (group == '/') {
+            parentHtml += '已经是顶级目录';
+        } else {
+            var tem =group;
+            var lastIndex = tem.lastIndexOf("/");
+            if (!tem.endWith("/")) {
+            }else {
+                tem =tem.substr(0, lastIndex);
+                lastIndex = tem.lastIndexOf("/");
+            }
+            var parent = tem.substr(0, lastIndex);
+            if (parent==""){
+                parent="/"
+            }
+            parentHtml += '<a  href="#" onclick="requestFileList(\'' + parent + '\');return false;" >' + parent + '</a>';
+
+        }
+        $("#parent").html(parentHtml);
+
+        var gruopHtml = '文件夹路径：' + group;
+        var html = '<table border="1" cellpadding="15" style="margin: auto" > <tr><td>序号</td> <td>文件名</td></tr>'
+        html += '<tr><td colspan="2">文件夹</td></tr>';
+
+        for (var i in directoryList) {
+            var file = group;
+            if (group.endWith("/")) {
+                file = file + directoryList[i];
+            } else {
+                file = file + "/" + directoryList[i];
+            }
+            var index = parseInt(i) + 1;
+            html += '<tr><td>' + index + '</td><td><a  href="#" onclick="requestFileList(\'' + file + '\');return false;" >' + file + '</a></td></tr>';
+        }
+
+        html += '<tr><td colspan="2">文件</td></tr>';
+
+        for (var i in fileList) {
+            var file = fileList[i]
+            var index = parseInt(i) + 1;
+            html += '<tr><td>' + index + '</td><td><a href="/file/download/' + file + '?group=' + group + '" target="_blank">' + file + '</a></td></tr>';
+        }
+
+        html += '</table>'
+        $("#fileList").html(html);
+        $("#group").html(gruopHtml);
+
+    }
+
+    function requestFileList(group) {
+        showReflesh();
+        try {
+            var url = "/file/fileList" + "?group=" + group;
+
+            $.ajax({
+                url: url,
+                type: "GET",
+                datatype: "json",
+                success: function (result) {
+                    showData(result, group)
+                },
+                error: function () {
+                    removeReflesh();
+                    $.MsgBox.Confirm("提示", "系统繁忙，请重试", function () {
+                    });
+                }
+            });
+        } catch (err) {
+        } finally {
+            removeReflesh();
+        }
+    }
+
+    $(function () {
+        requestFileList('/')
+    });
+</script>
+
+</body>
+</html>

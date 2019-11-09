@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>加密解密</title>
+    <link href="/static/css/public.css?v=2019092701" rel="stylesheet">
+    <style>
+        .activeTag {
+            background-color: #4CAF50;
+        }
+
+        button.tagList {
+            width: 80px;
+            height: 50px;
+            font-size: 25px;
+        }
+    </style>
+    <script src="/static/js/jquery-3.3.1.min.js"></script>
+    <script type="text/javascript" src="/static/js/jenel.js?v=2019092701"></script>
+    <script>
+
+        function changeTag(e) {
+
+            $(".tagList").each(function () {
+                $(this).removeClass("activeTag");
+            });
+            $(e).addClass("activeTag")
+
+            var tag = $(".activeTag").attr('id');
+            if ($.isBlank(tag)) {
+                tag = 'aes';
+            }
+
+            $(".divList").each(function () {
+                $(this).hide();
+            });
+            var divId = tag + 'Div';
+            $(document.getElementById(divId)).show();
+        }
+
+
+        function rsaGenKey() {
+            var keySizeRsa = $("#keySizeRsa").val();
+            if ($.isBlank(keySizeRsa)) {
+                keySizeRsa = 1024;
+            }
+            var url = "/rsa/genKey?keySize=" + keySizeRsa;
+            $.ajax({
+                url: url,
+                type: "GET",
+                datatype: "json",
+                success: function (result) {
+                    if (result.code == 10000) {
+                        var data = result.data;
+                        var html = '密钥对生成成功!<br><br>公钥：<br>' + data.public + '<br>私钥：<br>' + data.private;
+                        $("#resultRsaGenKey").html(html);
+                    } else {
+                        $.MsgBox.Confirm("提示", result.message, function () {
+                        });
+                    }
+                },
+                error: function () {
+                    $.MsgBox.Confirm("提示", "系统繁忙，请重试", function () {
+                    });
+                }
+            });
+
+        }
+
+        function rsaEncrypt() {
+            var dataRsaEncrypt = $("#dataRsaEncrypt").val();
+            var keyRsaEncrypt = $("#keyRsaEncrypt").val();
+            if (dataRsaEncrypt == "") {
+                $.MsgBox.Confirm("提示", "加密数据不能为空！", function () {
+                });
+                return false;
+            }
+            if (keyRsaEncrypt == "") {
+                $.MsgBox.Confirm("提示", "加密秘钥不能为空！", function () {
+                });
+                return false;
+            }
+
+            var dataObj = {};
+            dataObj.data = dataRsaEncrypt;
+            dataObj.publicKey = keyRsaEncrypt;
+            showReflesh();//显示缓冲图标
+            $.ajax({
+                url: urlRootContext() + "/rsa/encrypt",
+                type: "POST",
+                contentType: "application/json;charset=utf-8",
+                dataType: "json",
+                data: JSON.stringify(dataObj),
+                success: function (result) {
+                    removeReflesh();//移除缓冲图标
+                    if (result.code == 10000) {
+                        var data = result.data;
+                        var html = '加密成功：<br><br>' + data;
+                        $("#resultRsaEncrypt").html(html);
+                    } else {
+                        $.MsgBox.Confirm("提示", result.message, function () {
+                        });
+                    }
+                },
+                error: function () {
+                    removeReflesh();
+                    $.MsgBox.Confirm("提示", "系统异常，稍后重试", function () {
+                    });
+                }
+            });
+
+        }
+
+        function rsaDecrypt() {
+            var dataRsaDecrypt = $("#dataRsaDecrypt").val();
+            var keyRsaDecrypt = $("#keyRsaDecrypt").val();
+            if (dataRsaDecrypt == "") {
+                $.MsgBox.Confirm("提示", "解密数据不能为空！", function () {
+                });
+                return false;
+            }
+            if (keyRsaDecrypt == "") {
+                $.MsgBox.Confirm("提示", "解密秘钥不能为空！", function () {
+                });
+                return false;
+            }
+
+            var dataObj = {};
+            dataObj.data = dataRsaDecrypt;
+            dataObj.privateKey = keyRsaDecrypt;
+            showReflesh();//显示缓冲图标
+            $.ajax({
+                url: urlRootContext() + "/rsa/decrypt",
+                type: "POST",
+                contentType: "application/json;charset=utf-8",
+                dataType: "json",
+                data: JSON.stringify(dataObj),
+                success: function (result) {
+                    removeReflesh();//移除缓冲图标
+                    if (result.code == 10000) {
+                        var data = result.data;
+                        var html = '解密成功：<br><br>' + data;
+                        $("#resultRsaDecrypt").html(html);
+                    } else {
+                        $.MsgBox.Confirm("提示", result.message, function () {
+                        });
+                    }
+                },
+                error: function () {
+                    removeReflesh();
+                    $.MsgBox.Confirm("提示", "系统异常，稍后重试", function () {
+                    });
+                }
+            });
+
+        }
+
+        function aesEncrypt() {
+            var dataAesEncrypt = $("#dataAesEncrypt").val();
+            var keyAesEncrypt = $("#keyAesEncrypt").val();
+            if (dataAesEncrypt == "") {
+                $.MsgBox.Confirm("提示", "加密数据不能为空！", function () {
+                });
+                return false;
+            }
+            if (keyAesEncrypt == "") {
+                $.MsgBox.Confirm("提示", "加密秘钥不能为空！", function () {
+                });
+                return false;
+            }
+
+            var dataObj = {};
+            dataObj.data = dataAesEncrypt;
+            dataObj.key = keyAesEncrypt;
+            showReflesh();//显示缓冲图标
+            $.ajax({
+                url: urlRootContext() + "/aes/encrypt",
+                type: "POST",
+                contentType: "application/json;charset=utf-8",
+                dataType: "json",
+                data: JSON.stringify(dataObj),
+                success: function (result) {
+                    removeReflesh();//移除缓冲图标
+                    if (result.code == 10000) {
+                        var data = result.data;
+                        var html = '加密成功：<br><br>' + data;
+                        $("#resultAesEncrypt").html(html);
+                    } else {
+                        $.MsgBox.Confirm("提示", result.message, function () {
+                        });
+                    }
+                },
+                error: function () {
+                    removeReflesh();
+                    $.MsgBox.Confirm("提示", "系统异常，稍后重试", function () {
+                    });
+                }
+            });
+
+        }
+
+        function aesDecrypt() {
+            var dataAesDecrypt = $("#dataAesDecrypt").val();
+            var keyAesDecrypt = $("#keyAesDecrypt").val();
+            if (dataAesDecrypt == "") {
+                $.MsgBox.Confirm("提示", "解密数据不能为空！", function () {
+                });
+                return false;
+            }
+            if (keyAesDecrypt == "") {
+                $.MsgBox.Confirm("提示", "解密秘钥不能为空！", function () {
+                });
+                return false;
+            }
+
+            var dataObj = {};
+            dataObj.data = dataAesDecrypt;
+            dataObj.key = keyAesDecrypt;
+            showReflesh();//显示缓冲图标
+            $.ajax({
+                url: urlRootContext() + "/aes/decrypt",
+                type: "POST",
+                contentType: "application/json;charset=utf-8",
+                dataType: "json",
+                data: JSON.stringify(dataObj),
+                success: function (result) {
+                    removeReflesh();//移除缓冲图标
+
+                    if (result.code == 10000) {
+                        var data = result.data;
+                        var html = '解密成功：<br><br>' + data;
+                        $("#resultAesDecrypt").html(html);
+                    } else {
+                        $.MsgBox.Confirm("提示", result.message, function () {
+                        });
+                    }
+
+
+                },
+                error: function () {
+                    removeReflesh();
+                    $.MsgBox.Confirm("提示", "系统异常，稍后重试", function () {
+                    });
+                }
+            });
+
+        }
+
+        /**
+         * 文档加载完毕即执行
+         */
+        $(function () {
+            changeTag($('#aes'));
+
+        });
+    </script>
+</head>
+<body>
+
+<div style="text-align:center">
+<button class="button tagList" id="aes" onclick="changeTag(this);">
+    AES
+</button>
+<button class="button tagList" id="rsa" onclick="changeTag(this);" >
+    RSA
+</button>
+</div>
+<div id="aesDiv" class="divList">
+    <h1 style="text-align: center">AES</h1>
+    <div class="line"></div>
+    <h3 style="text-align: center">加密</h3>
+    <input type="text" name="dataAesEncrypt" id="dataAesEncrypt" placeholder="数据"/><br>
+    <input type="password" name="keyAesEncrypt" id="keyAesEncrypt" placeholder="秘钥"/><br>
+    <button class="button" type="submit" onclick="aesEncrypt();"
+            style="width: 80px; height: 35px; font-size: 20px;">加密
+    </button>
+    <br><br>
+    <div id="resultAesEncrypt"></div>
+    <br>
+    <br>
+    <div class="line"></div>
+    <h3 style="text-align: center">解密</h3>
+    <input type="text" name="dataAesDecrypt" id="dataAesDecrypt" placeholder="数据"/><br>
+    <input type="password" name="keyAesDecrypt" id="keyAesDecrypt" placeholder="秘钥"/><br>
+    <button class="button" type="submit" onclick="aesDecrypt();"
+            style="width: 80px; height: 35px; font-size: 20px;">解密
+    </button>
+    <br><br>
+    <div id="resultAesDecrypt"></div>
+
+</div>
+
+
+<div id="rsaDiv" class="divList">
+    <h1 style="text-align: center">RSA</h1>
+    <div class="line"></div>
+    <h3 style="text-align: center">加密</h3>
+    <textarea name="dataRsaEncrypt" id="dataRsaEncrypt" placeholder="数据" style="width: 100%;"></textarea>
+    <textarea name="keyRsaEncrypt" id="keyRsaEncrypt" placeholder="公钥" style="width: 100%;"></textarea>
+
+    <button class="button" type="submit" onclick="rsaEncrypt();"
+            style="width: 80px; height: 35px; font-size: 20px;">加密
+    </button>
+    <br><br>
+    <div id="resultRsaEncrypt"></div>
+    <br>
+    <br>
+    <div class="line"></div>
+    <h3 style="text-align: center">解密</h3>
+    <textarea name="dataRsaEncrypt" id="dataRsaDecrypt" placeholder="数据" style="width: 100%;"></textarea>
+    <textarea name="keyRsaEncrypt" id="keyRsaDecrypt" placeholder="私钥" style="width: 100%;"></textarea>
+
+    <button class="button" type="submit" onclick="rsaDecrypt();"
+            style="width: 80px; height: 35px; font-size: 20px;">解密
+    </button>
+    <br><br>
+    <div id="resultRsaDecrypt"></div>
+    <br>
+    <br>
+    <div class="line"></div>
+    <h3 style="text-align: center">生成公私密钥对</h3>
+    <input type="text" name="keySizeRsa" id="keySizeRsa" placeholder="秘钥长度"/><br>
+
+    <button class="button" type="submit" onclick="rsaGenKey();"
+            style="width: 120px; height: 35px; font-size: 14px;">生成公私秘钥
+    </button>
+    <br><br>
+    <div id="resultRsaGenKey"></div>
+</div>
+
+
+</body>
+</html>
