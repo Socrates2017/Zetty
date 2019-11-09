@@ -17,11 +17,14 @@ function getContent(url) {
 function changeFrameHeight() {
     var ifm = document.getElementById("content");
     ifm.height = document.documentElement.clientHeight - 56;
+    $("#left").height(document.documentElement.clientHeight);
 }
 
 window.onresize = function () {
     changeFrameHeight();
 }
+
+
 
 
 /**
@@ -612,6 +615,7 @@ function getBookInfo() {
 }
 
 $(function () {
+    $("#left").height(document.documentElement.clientHeight);
     var uri = window.location.pathname;
     var bookId = uri.substr(6);
     $("#bookId").val(bookId);
