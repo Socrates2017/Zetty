@@ -125,6 +125,36 @@ public class BookIndexController {
     }
 
     /**
+     * 更新章节
+     *
+     * @param params
+     * @return
+     */
+    @BeforeAdviceAction(id = "loginBeforeAdvice,checkBookCreatorBeforeAdvice")
+    @ContentType(ContentTypeEnum.JSON)
+    @RequestMapping("/updatePid")
+    public Result updatePid(@RequestJsonBody JsonNode params) {
+
+        String id = JsonUtil.getString(params, "id").trim();
+        String pid = JsonUtil.getString(params, "pid").trim();
+
+        if (StringUtils.isBlank(id)) {
+            return ResultGen.genResult(ResultCode.ARG_NEED, "id");
+        } else if (StringUtils.isBlank(pid)) {
+            return ResultGen.genResult(ResultCode.ARG_NEED, "pid");
+        } else {
+            Integer idInt = Integer.valueOf(id);
+            Integer pidInt = Integer.valueOf(pid);
+            Map<String, Object> valueMap = new HashMap<>();
+            valueMap.put("parent", pidInt);
+
+            Map<String, Object> whereMap = new HashMap<>();
+            whereMap.put("id", idInt);
+            return ResultGen.genResult(ResultCode.SUCCESS, BookIndexDao.update(BookIndexDao.tableName, valueMap, whereMap));
+        }
+    }
+
+    /**
      * 删除章节
      * @param params
      * @return

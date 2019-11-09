@@ -282,9 +282,69 @@ function updateIndex() {
             if (result.code == 10000) {
                 $.MsgBox.Confirm("提示", "修改成功！", function () {
                     //$("#name-" + parentId).html(name)
-                    getIndex(pid);
                 });
+                getIndex(pid);
+            } else {
+                $.MsgBox.Confirm("提示", result.message, function () {
+                });
+            }
+            $('#updateIndexModal').modal('hide')
+        },
+        error: function () {
+            removeReflesh();
+            $('#updateIndexModal').modal('hide')
+            $.MsgBox.Confirm("提示", "系统异常，稍后重试", function () {
+            });
+        }
+    });
+}
 
+/**
+ * 更新
+ * @returns {boolean}
+ */
+function updateIndexPid(pid, id) {
+    pid = parseInt(pid)
+    id = parseInt(id)
+    var bookId = $("#bookId").val();
+    if ($.isBlank(bookId)) {
+        $.MsgBox.Confirm("提示", "错误：bookId 为空！", function () {
+        });
+        return false;
+    }
+
+    if (isNaN(pid)) {
+        $.MsgBox.Confirm("提示", "错误：pid 为空，请拖放到标题上！", function () {
+        });
+        return false;
+    }
+    if (isNaN(id)) {
+        $.MsgBox.Confirm("提示", "错误：id 为空，请按住标题左边的空白处开始拖动", function () {
+        });
+        return false;
+    }
+
+
+    var dataObj = {};
+    dataObj.id = id;
+    dataObj.pid = pid;
+    dataObj.bookId = bookId;
+
+    showReflesh();
+    $.ajax({
+        url: "/bookIndex/updatePid",
+        type: "POST",
+        contentType: "application/json;charset=utf-8",
+        dataType: "json",
+        data: JSON.stringify(dataObj),
+        success: function (result) {
+            removeReflesh();
+            if (result.code == 10000) {
+                $.MsgBox.Confirm("提示", "修改成功！", function () {
+                    //$("#name-" + parentId).html(name)
+
+                });
+                getIndex(pid);
             } else {
                 $.MsgBox.Confirm("提示", result.message, function () {
                 });
@@ -415,6 +475,33 @@ function showUpdateBookModal() {
 }
 
 /**
+ *
+ * @param ev
+ */
+function drag(ev) {
+    ev.dataTransfer.setData("Text", ev.target.id);
+}
+
+function allowDrop(ev) {
+    ev.preventDefault();
+}
+
+function drop(ev) {
+    ev.preventDefault();
+    var li = ev.target.parentNode.parentNode;
+    var pid = li.id;
+
+    if (pid.substr(0, 3) == "li-") {
+        pid = pid.substr(3);
+    } else if (pid.substr(0, 6) == "index_") {
+        pid = pid.substr(6);
+    }
+    var id = ev.dataTransfer.getData("Text");
+    id = id.substr(3);
+    updateIndexPid(pid, id);
+}
+
+/**
  * 获取节点目录并局部刷新
  * @param id
  */
@@ -437,11 +524,11 @@ function getIndex(id) {
 
             if ((code == 10000) || (code == 40102)) {
                 var data = result.data;
-                var html = '<ul class="">';
+                var html = '<ul class="" id="ul-' + id + '" >';
                 for (var i in data) {
                     var bookIndex = data[i];
 
-                    html += '<li id="li-' + bookIndex.id + '" class="" style="margin-top:20px;"><div style="display: inline" id="show-' + bookIndex.id
+                    html += '<li id="li-' + bookIndex.id + '" class="" draggable="true" ondragstart="drag(event)" ondrop="drop(event)" ondragover="allowDrop(event)" style="margin-top:20px;"><div style="display: inline" id="show-' + bookIndex.id
                         + '"><a href="javascript:void(0);" onclick="getIndex(' + bookIndex.id +
                         ')"><span class="glyphicon glyphicon-chevron-right"></span></a></div>&emsp;<a href="javascript:void(0);" onclick="getContent(\'' + bookIndex.url + '\')"><span id="name-' + bookIndex.id + '">' + bookIndex.name +
                         '</span></a>';
@@ -451,7 +538,7 @@ function getIndex(id) {
                             + ')"><span class="glyphicon glyphicon-plus-sign"></span></a><a href="javascript:void(0);" onclick="showDeleteIndexModal(' + id + "," + bookIndex.id +
                             ')"><span class="glyphicon glyphicon-minus-sign"></span></a></div></li> ';
                     }
-                    html += '<div id="index_' + bookIndex.id + '" style="padding-left:20px;"></div>';
+                    html += '<div id="index_' + bookIndex.id + '" style="padding-left:20px;" ></div>';
                 }
                 html += '</ul>'
                 $("#index_" + id).html(html);
