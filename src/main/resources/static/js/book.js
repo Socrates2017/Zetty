@@ -25,8 +25,6 @@ window.onresize = function () {
 }
 
 
-
-
 /**
  * 隐藏章节目录
  * @param id
@@ -306,7 +304,7 @@ function updateIndex() {
  * 更新
  * @returns {boolean}
  */
-function updateIndexPid(pid, id) {
+function updateIndexPid(pid, id, soucePid) {
     pid = parseInt(pid)
     id = parseInt(id)
     var bookId = $("#bookId").val();
@@ -348,6 +346,8 @@ function updateIndexPid(pid, id) {
 
                 });
                 getIndex(pid);
+                getIndex(soucePid);
+
             } else {
                 $.MsgBox.Confirm("提示", result.message, function () {
                 });
@@ -482,7 +482,10 @@ function showUpdateBookModal() {
  * @param ev
  */
 function drag(ev) {
-    ev.dataTransfer.setData("Text", ev.target.id);
+    var sourceId = ev.target.id;
+    var sourcePid = ev.target.parentNode.id;
+
+    ev.dataTransfer.setData("Text", sourceId + "#" + sourcePid);
 }
 
 function allowDrop(ev) {
@@ -499,9 +502,10 @@ function drop(ev) {
     } else if (pid.substr(0, 6) == "index_") {
         pid = pid.substr(6);
     }
-    var id = ev.dataTransfer.getData("Text");
-    id = id.substr(3);
-    updateIndexPid(pid, id);
+    var data = ev.dataTransfer.getData("Text").split("#");
+    var souceId = data[0].substr(3);
+    var soucePid = data[1].substr(3);
+    updateIndexPid(pid, souceId, soucePid);
 }
 
 /**
