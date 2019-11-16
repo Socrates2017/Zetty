@@ -19,6 +19,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigInteger;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
@@ -94,7 +95,7 @@ public class UserService {
         } else {
             Map<String, Object> user = UserDao.idByEmailAndPwd(email, password);
             if (user != null) {
-                Long id = (Long) user.get("id");
+                Long id = ((BigInteger) user.get("id")).longValue();
                 /*获得openid*/
                 Long openid = UserOpenidDao.selectOpenidByKey(HeaderUtil.SYSCODE, String.valueOf(id));
                 if (openid != null) {
@@ -241,7 +242,7 @@ public class UserService {
     public static Long getUserid() {
         String sessionid = HeaderUtil.getSession();
         if (StringUtils.isBlank(sessionid)) {
-            log.warn(ResultCode.SESSION_NULL_CLIENT.getMessage() + " sessionid:" + sessionid);
+            //log.warn(ResultCode.SESSION_NULL_CLIENT.getMessage() + " sessionid:" + sessionid);
             return null;
         } else {
             return SessionService.getUseridBySessionid(HeaderUtil.SYSCODE, sessionid);

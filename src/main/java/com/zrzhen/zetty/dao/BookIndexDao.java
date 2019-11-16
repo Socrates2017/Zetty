@@ -18,13 +18,13 @@ public class BookIndexDao extends MysqlFirstBaseDao {
 
 
     public static List<Map<String, Object>> listByParent(Long book, Integer parent) {
-        String sql = "select id,parent,name,url,index_order as indexOrder FROM " + tableName + " WHERE book = ? and parent = ? ORDER BY indexOrder";
-        Object[] bindArgs = new Object[]{book,parent};
+        String sql = "select id,parent,name,url,index_order as indexOrder,is_leaf as isLeaf FROM " + tableName + " WHERE book = ? and parent = ? ORDER BY indexOrder";
+        Object[] bindArgs = new Object[]{book, parent};
         return getList(sql, bindArgs);
     }
 
     public static List<Map<String, Object>> listByParent(Integer parent) {
-        String sql = "select id,parent,name,url,index_order as indexOrder FROM " + tableName + " WHERE parent = ? ORDER BY indexOrder";
+        String sql = "select id,parent,name,url,index_order as indexOrder,is_leaf as isLeaf FROM " + tableName + " WHERE parent = ? ORDER BY indexOrder";
         Object[] bindArgs = new Object[]{parent};
         return getList(sql, bindArgs);
     }

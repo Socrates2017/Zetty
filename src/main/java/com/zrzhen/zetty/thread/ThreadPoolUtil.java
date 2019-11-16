@@ -12,7 +12,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class ThreadPoolUtil {
 
-    private static final Logger log = LoggerFactory.getLogger(AesUtil.class);
+    private static final Logger log = LoggerFactory.getLogger(ThreadPoolUtil.class);
 
 
     /**
@@ -23,7 +23,7 @@ public class ThreadPoolUtil {
             Runtime.getRuntime().availableProcessors() * 2 + 1,
             1,
             TimeUnit.MINUTES,
-            new ArrayBlockingQueue<>(10),
+            new ArrayBlockingQueue<>(1000),
             new ThreadFactory() {
                 private AtomicInteger count = new AtomicInteger(0);
 

@@ -301,13 +301,10 @@ function login() {
         success: function (result) {
             removeReflesh();//移除缓冲图标
             if (result.code == 10000) {
-                //location.reload(true);//刷新当前页面
-                //checkLogin()
                 $('#login').modal('hide');
                 refreshPcrimg("checkLogin");
             } else {
                 $.MsgBox.Confirm("提示", result.message, function () {
-                    //$("#img-authCode-login").click();
                     console.log("登录失败")
                 });
             }
@@ -338,14 +335,10 @@ function logout() {
         datatype: "json",
         data: JSON.stringify(dataObj),
         success: function (result) {
-            //location.reload(true);//刷新当前页面
             if (result.code == 10000) {
                 location.reload(true);//刷新当前页面
-                //checkLogin()
-                //refreshPcrimg("checkLogin");
             } else {
                 $.MsgBox.Confirm("提示", result.message, function () {
-                    //$("#img-authCode-login").click();
                     console.log("退出失败")
                 });
             }
@@ -408,7 +401,6 @@ function checkLogin() {
 
                 $('#userCenterUl').html(ulHtml);
 
-                $('.login-show').show();
             } else if (code == 40103) {
                 console.log("未登录")
             } else {
@@ -776,7 +768,23 @@ function bookList() {
 }
 
 function showAddBookModal() {
-    $('#addBookModal').modal('show')
+    $.ajax({
+        url: urlRootContext() + "/user/checkLogin",
+        type: "GET",
+        datatype: "json",
+        async: true,
+        success: function (result) {
+            var code = result.code;
+            if (code == 10000) {
+                $('#addBookModal').modal('show')
+            } else {
+                $.MsgBox.Confirm("提示", "请先登录！", function () {
+                });
+            }
+        }
+    });
+
+
 }
 
 function addBook() {

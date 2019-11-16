@@ -16,6 +16,33 @@
     <!--这里加载的语言文件会覆盖你在配置项目里添加的语言类型，比如你在配置项目里配置的是英文，这里加载的中文，那最后就是中文-->
     <script type="text/javascript" charset="utf-8" src="/static/ueditor/lang/zh-cn/zh-cn.js"></script>
 
+    <style>
+        .button2 {
+            padding: 16px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            -webkit-transition-duration: 0.4s; /* Safari */
+            transition-duration: 0.4s;
+            cursor: pointer;
+            border-radius: 10%;
+
+            background-color: whitesmoke;
+            color: black;
+            border: 2px solid #008CBA;
+        }
+
+        .button2:hover {
+            background-color: #008CBA;
+            color: white;
+        }
+
+
+
+    </style>
+
 </head>
 <body>
 
@@ -32,26 +59,28 @@
     <button onclick="addNewTag()">新增新标签</button>
     <div style="margin: 20px;">
         <span>点击删除标签</span>
-        <div id="tagsInArticleListHtml" ></div>
+        <div id="tagsInArticleListHtml"></div>
         <span>点击添加标签</span>
-        <div id="tagsNotInArticleListHtml" ></div>
+        <div id="tagsNotInArticleListHtml"></div>
     </div>
 
     <script id="uEditor" type="text/plain"></script>
-
-    <button type="submit" onclick="updateArtile()">提&nbsp;&nbsp;&nbsp;&nbsp;交</button>
+    <div style="float:right;">
+        <button type="submit" class="button2" onclick="updateArtile()" >提&nbsp;&nbsp;&nbsp;&nbsp;交
+        </button>
+    </div>
 </div>
 
-<textarea name="content" id="content"  style="display:none">${content}</textarea>
-<script >
-    var content =$("#content").val();
+<textarea name="content" id="content" style="display:none">${content}</textarea>
+<script>
+    var content = $("#content").val();
     var uEditor = UE.getEditor('uEditor');
     uEditor.ready(function () {//监听编辑器实例化完成的事件
         uEditor.setContent(content);
     });
 </script>
 
-<script type="text/javascript" src="/static/js/jenel.js"></script>
+<script type="text/javascript" src="/static/js/jenel.min.js"></script>
 <script>
 
     function updateArtile() {
@@ -258,13 +287,13 @@
                         for (var i in tagsInArticleList) {
                             var tag = tagsInArticleList[i]
                             tagsInArticleListHtml += '<button class="button tagList" id="idIn' + tag + '" onclick="deleteTag(this);"style="height: 30px; font-size: 14px;">' +
-                                tag + '</button>'
+                                tag + '</button>&nbsp;'
                         }
 
                         for (var i in tagsNotInArticleList) {
                             var tag = tagsNotInArticleList[i]
                             tagsNotInArticleListHtml += '<button class="button tagList" id="idNotIn' + tag + '" onclick="addTag(this);"style="height: 30px; font-size: 14px;">' +
-                                tag + '</button>'
+                                tag + '</button>&nbsp;'
                         }
 
                         $("#tagsInArticleListHtml").html(tagsInArticleListHtml);

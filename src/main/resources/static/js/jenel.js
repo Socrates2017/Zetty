@@ -503,6 +503,101 @@ function getsec(str) {
 
 (function ($) {
     $.isBlank = function (obj) {
-        return (!obj || $.trim(obj) === "" );
+        return (!obj || $.trim(obj) === "");
     };
 })(jQuery);
+
+
+(function () {
+    var startTime = Math.ceil(new Date().getTime() / 1000);//单位秒
+    var getDuration = function () {
+        var endTime = Math.ceil(new Date().getTime() / 1000);
+        return endTime - startTime;
+    };
+
+    window.onbeforeunload = function (e) {
+        var duration = getDuration();
+        var uri = location.pathname;
+        $.ajax({
+            url: "/log/duration?duration=" + duration + "&uri=" + uri,
+            type: "GET",
+            datatype: "json",
+            async: true,
+            success: function (result) {
+
+            },
+            error: function () {
+
+            }
+        });
+    };
+})();
+
+/**
+ * 文档加载完毕启动位置定位
+ */
+$(document).ready(function () {
+    initLocationProcedure();
+})
+
+function initLocationProcedure() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(displayAndWatch, locError, {
+            enableHighAccuracy: true,
+            timeout: 60000,
+            maximumAge: 60000
+        });
+    } else {
+        //alert("Your phone does not support the Geolocation API");
+    }
+}
+
+function locError(error) {
+    // the current position could not be located
+    //alert("The current position could not be found!");
+}
+
+function displayAndWatch(position) {
+    // set current position
+    setUserLocation(position);
+    // watch position
+    //watchCurrentPosition();
+}
+
+function setUserLocation(position) {
+    // marker for userLocation
+    positionLog(position.coords.latitude, position.coords.longitude, position.coords.altitude, position.coords.accuracy,
+        position.coords.altitudeAccuracy, position.coords.heading, position.coords.speed, position.coords.timestamp);
+}
+
+function watchCurrentPosition() {
+    var positionTimer = navigator.geolocation.watchPosition(function (position) {
+        positionLog(position.coords.latitude, position.coords.longitude, position.coords.altitude, position.coords.accuracy,
+            position.coords.altitudeAccuracy, position.coords.heading, position.coords.speed, position.coords.timestamp);
+    });
+}
+
+function positionLog(latitude, longitude, altitude, accuracy, altitudeAccuracy, heading, speed, timestamp) {
+    var dataObj = {};
+    dataObj.latitude = latitude;
+    dataObj.longitude = longitude;
+
+    dataObj.altitude = altitude;
+    dataObj.accuracy = accuracy;
+    dataObj.altitudeAccuracy = altitudeAccuracy;
+    dataObj.heading = heading;
+    dataObj.speed = speed;
+    dataObj.timestamp = timestamp;
+
+    $.ajax({
+        url: "/log/position",
+        type: "POST",
+        contentType: "application/json;charset=utf-8",
+        dataType: "json",
+        data: JSON.stringify(dataObj),
+        success: function (result) {
+        },
+        error: function () {
+        }
+    });
+}

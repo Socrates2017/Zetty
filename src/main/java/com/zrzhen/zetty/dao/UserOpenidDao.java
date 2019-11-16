@@ -3,6 +3,7 @@ package com.zrzhen.zetty.dao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigInteger;
 import java.util.Map;
 
 /**
@@ -33,7 +34,7 @@ public class UserOpenidDao extends MysqlFirstBaseDao {
 
         Map<String, Object> out = getOne(sql,args);
         if (out != null) {
-            return (Long) out.get("openid");
+            return ((BigInteger)out.get("openid")).longValue();
         } else {
             return null;
         }

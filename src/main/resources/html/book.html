@@ -13,8 +13,8 @@
     <link href="/static/css/public.css?v=2019092701" rel="stylesheet">
     <style>
         * {
-            padding: 0;
-            margin: 0;
+            padding: 0px;
+            margin: 0px;
         }
     </style>
     <script src="/static/js/jquery-3.3.1.min.js"></script>
@@ -22,25 +22,47 @@
 <body>
 <div class="container-fluid">
     <div class="row">
-        <div id="left" class="col-sm-3 col-md-3 col-lg-3 " style="padding:0px;overflow-y:scroll;">
-            <div style="text-align:center;">
-                <input type="hidden" id="bookId">
-                <h1 id="bookName"></h1>
-                <span>作者：</span><span id="bookCreator"></span><br>
-                <span>摘要：</span><span id="bookDescription"></span><br><br>
-                <div class="user-show" style="display: none">
-                    <a href="javascript:void(0);" onclick="showUpdateBookModal()">修改本书摘要<span
-                            class="glyphicon glyphicon-pencil"></span></a>&emsp;&emsp;
-                    <a href="javascript:void(0);" onclick="showDeleteBookModal()">删除本书<span
-                            class="glyphicon glyphicon-minus-sign"></span></a><br><br>
-                    <a href="javascript:void(0);" onclick="showAddIndexModal(0)">添加首层章节<span
-                            class="glyphicon glyphicon-plus-sign"></span></a><br>
-                </div>
+        <div id="left" class="col-sm-3 col-md-3 col-lg-3" style="padding:0px;">
+            <div>
+                <a class="" href="/" target="_blank"> <img class="logo-img img-rounded" title="首页" alt="logo"
+                                                           src="/static/img/logo.png" style="height: 30px;"/>
+                </a>&nbsp;
+                <a class="" href="/" target="_blank">制作属于自己的书籍！
+                </a>
+                <div style="display: inline;float: right"><a href="javascript:void(0);" onclick="indentLeft()"><span
+                        class="glyphicon glyphicon-chevron-left"></span></a>&emsp;</div>
+
             </div>
-            <div id="index_0"></div>
+            <div id="left-scroll" style="padding:0px;overflow-y:scroll;">
+                <div style="text-align:center;">
+                    <input type="hidden" id="bookId">
+                    <h1 id="bookName"></h1>
+                    <span>作者：</span><span id="bookCreator"></span><br>
+                    <span>摘要：</span><span id="bookDescription"></span><br><br>
+                    <div class="user-show" style="display: none">
+                        <a href="javascript:void(0);" onclick="showUpdateBookModal()">修改本书摘要<span
+                                class="glyphicon glyphicon-pencil"></span></a>&emsp;&emsp;
+                        <a href="javascript:void(0);" onclick="showDeleteBookModal()">删除本书<span
+                                class="glyphicon glyphicon-minus-sign"></span></a><br><br>
+                        <a href="javascript:void(0);" onclick="showAddIndexModal(0)">添加首层章节<span
+                                class="glyphicon glyphicon-plus-sign"></span></a><br>
+                    </div>
+                </div>
+                <div id="index_0"></div>
+            </div>
         </div>
-        <div id="right" class="col-sm-9 col-md-9 col-lg-9">
-            <div id="new-window-content" style="float: right"></div>
+        <div id="right" class="col-sm-9 col-md-9 col-lg-9" style="padding:0px;">
+
+            <div>
+                <div style="display: inline;float: left"><a href="javascript:void(0);" id="indentRight"
+                                                            onclick="indentRight()"><span
+                        class="glyphicon glyphicon-chevron-right"></span></a></div>
+                <div style="display: inline;float: left"><span>&emsp;</span></div>
+                <div style="display: inline;float: left"><a href="javascript:void(0);" id="hideLeft"
+                                                            onclick="hideOrShowLeft()"><span
+                        class="glyphicon glyphicon-th-list"></span></a></div>
+                <div id="new-window-content" style="display: inline;float: right"></div>
+            </div>
             <iframe id="content" frameborder="0" width='100%' height='100%' scrolling="auto" allowfullscreen
                     seamless></iframe>
         </div>
@@ -63,6 +85,15 @@
                         <div class="col-sm-10">
                             <input type="text" class="form-control" id="add-index-order" placeholder="排序">
                         </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="add-isLeaf" class="col-sm-2 control-label">是否是目录章节</label>
+                        <label class="radio-inline">
+                            <input type="radio" name="add-isLeaf" id="add-isLeaf" value="0" checked>是
+                        </label>
+                        <label class="radio-inline">
+                            <input type="radio" name="add-isLeaf" id="add-isLeaf2" value="1">否
+                        </label>
                     </div>
                     <div class="form-group">
                         <label for="url" class="col-sm-2 control-label">链接</label>
@@ -105,6 +136,15 @@
                         <div class="col-sm-10">
                             <input type="text" class="form-control" id="update-index-order" placeholder="排序">
                         </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="update-isLeaf" class="col-sm-2 control-label">是否是目录章节</label>
+                        <label class="radio-inline">
+                            <input type="radio" name="update-isLeaf" id="update-isLeaf" value="0">是
+                        </label>
+                        <label class="radio-inline">
+                            <input type="radio" name="update-isLeaf" id="update-isLeaf2" value="1">否
+                        </label>
                     </div>
                     <div class="form-group">
                         <label for="updateIndexModalUrl" class="col-sm-2 control-label">链接</label>
@@ -222,7 +262,7 @@
     </div><!-- /.modal -->
 </div>
 <script src="/static/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
-<script type="text/javascript" src="/static/js/jenel.js?v=2019092701"></script>
-<script type="text/javascript" src="/static/js/book.js?v=2019110801"></script>
+<script type="text/javascript" src="/static/js/jenel.min.js?v=2019111507"></script>
+<script type="text/javascript" src="/static/js/book.min.js?v=2019111302"></script>
 </body>
 </html>

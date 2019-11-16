@@ -1,8 +1,8 @@
 var isCreator = false;
 
 /**
- * 获取内容
- * @param article
+ * 访问url并写到frame中
+ * @param url
  */
 function getContent(url) {
     $('#content').attr('src', url);
@@ -13,13 +13,17 @@ function getContent(url) {
 
 /**
  * iframe高度自适应
+ * 左边目录栏高度自适应
  */
 function changeFrameHeight() {
     var ifm = document.getElementById("content");
-    ifm.height = document.documentElement.clientHeight - 56;
-    $("#left").height(document.documentElement.clientHeight);
+    ifm.height = document.documentElement.clientHeight - 30;
+    $("#left-scroll").height(document.documentElement.clientHeight - 30);
 }
 
+/**
+ * 窗口高度改变时触发
+ */
 window.onresize = function () {
     changeFrameHeight();
 }
@@ -45,6 +49,7 @@ function deleteIndex() {
     var deleteIndexParentTitle = $("#deleteIndexParentTitle").val().trim();
 
     var bookId = $("#bookId").val();
+
     if ($.isBlank(bookId)) {
         $.MsgBox.Confirm("提示", "错误：bookId 为空！", function () {
         });
@@ -52,10 +57,13 @@ function deleteIndex() {
     }
 
     if ($.isBlank(deleteIndexId)) {
-
+        $.MsgBox.Confirm("提示", "错误：要删除的目录Id为空！", function () {
+        });
         return false;
     }
     if ($.isBlank(deleteIndexParentTitle)) {
+        $.MsgBox.Confirm("提示", "请输入要删除的章节目录名字！", function () {
+        });
         return false;
     }
 
@@ -63,9 +71,9 @@ function deleteIndex() {
     var title = deleteDom.text();
 
     if (title != deleteIndexParentTitle) {
-        $.MsgBox.Confirm("提示", "输入标题不正确！", function () {
+        $.MsgBox.Confirm("提示", "输入的章节目录名字不一致！", function () {
         });
-        return;
+        return false;
     }
 
     var dataObj = {};
@@ -110,7 +118,7 @@ function deleteBook() {
     if ($.isBlank(bookId)) {
         $.MsgBox.Confirm("提示", "错误：bookId 为空！", function () {
         });
-        return;
+        return false;
     }
 
     var deleteBookName = $("#deleteBookName").val().trim();
@@ -171,6 +179,8 @@ function addIndex() {
     var childTitle = $("#childTitle").val();
     var bookId = $("#bookId").val();
     var indexOrder = $("#add-index-order").val();
+    var isLeaf = $("input[name=add-isLeaf]:checked").val();
+
 
     if ($.isBlank(indexOrder)) {
         indexOrder = 0;
@@ -197,6 +207,11 @@ function addIndex() {
         });
         return false;
     }
+    if ($.isBlank(isLeaf)) {
+        $.MsgBox.Confirm("提示", "请选择是否为目录章节！", function () {
+        });
+        return false;
+    }
 
     var dataObj = {};
     dataObj.parentId = parentId;
@@ -204,6 +219,7 @@ function addIndex() {
     dataObj.childTitle = childTitle;
     dataObj.bookId = bookId;
     dataObj.indexOrder = indexOrder;
+    dataObj.isLeaf = isLeaf;
     showReflesh();
     $.ajax({
         url: "/bookIndex/add",
@@ -243,6 +259,7 @@ function updateIndex() {
     var url = $("#updateIndexModalUrl").val();
     var name = $("#updateIndexModalTitle").val();
     var indexOrder = $("#update-index-order").val();
+    var isLeaf = $("input[name=update-isLeaf]:checked").val();
 
     if ($.isBlank(indexOrder)) {
         indexOrder = 0;
@@ -256,12 +273,23 @@ function updateIndex() {
     }
 
     if ($.isBlank(id)) {
+        $.MsgBox.Confirm("提示", "错误：id 为空！", function () {
+        });
         return false;
     }
     if ($.isBlank(url)) {
+        $.MsgBox.Confirm("提示", "错误：url 为空！", function () {
+        });
         return false;
     }
     if ($.isBlank(name)) {
+        $.MsgBox.Confirm("提示", "错误：name 为空！", function () {
+        });
+        return false;
+    }
+    if ($.isBlank(isLeaf)) {
+        $.MsgBox.Confirm("提示", "错误：isLeaf 为空！", function () {
+        });
         return false;
     }
 
@@ -271,6 +299,7 @@ function updateIndex() {
     dataObj.name = name;
     dataObj.bookId = bookId;
     dataObj.indexOrder = indexOrder;
+    dataObj.isLeaf = isLeaf;
     showReflesh();
     $.ajax({
         url: "/bookIndex/update",
@@ -282,7 +311,6 @@ function updateIndex() {
             removeReflesh();
             if (result.code == 10000) {
                 $.MsgBox.Confirm("提示", "修改成功！", function () {
-                    //$("#name-" + parentId).html(name)
                 });
                 getIndex(pid);
             } else {
@@ -342,8 +370,6 @@ function updateIndexPid(pid, id, soucePid) {
             removeReflesh();
             if (result.code == 10000) {
                 $.MsgBox.Confirm("提示", "修改成功！", function () {
-                    //$("#name-" + parentId).html(name)
-
                 });
                 getIndex(pid);
                 getIndex(soucePid);
@@ -408,9 +434,8 @@ function updateBook() {
             removeReflesh();
             if (result.code == 10000) {
                 $.MsgBox.Confirm("提示", "修改成功！", function () {
-                    getBookInfo();
                 });
-
+                getBookInfo();
             } else {
                 $.MsgBox.Confirm("提示", result.message, function () {
                 });
@@ -441,12 +466,18 @@ function showAddIndexModal(id) {
  * @param name
  * @param url
  */
-function showUpdateIndexModal(pid, id, name, url, order) {
+function showUpdateIndexModal(pid, id, name, url, order, isLeaf) {
     $("#update-pid").val(pid);
     $("#updateIndexId").val(id);
     $("#updateIndexModalTitle").val(name);
     $("#updateIndexModalUrl").val(url);
     $("#update-index-order").val(order);
+
+    if (isLeaf == 0) {
+        $("input[name='update-isLeaf'][value=0]").prop("checked", true);
+    } else {
+        $("input[name='update-isLeaf'][value=1]").prop("checked", true);
+    }
     $('#updateIndexModal').modal('show')
 }
 
@@ -478,7 +509,7 @@ function showUpdateBookModal() {
 }
 
 /**
- *
+ * 开始拖动的源事件
  * @param ev
  */
 function drag(ev) {
@@ -488,12 +519,48 @@ function drag(ev) {
     ev.dataTransfer.setData("Text", sourceId + "#" + sourcePid);
 }
 
-function allowDrop(ev) {
-    ev.preventDefault();
+/**
+ * 拖动完毕后的源事件
+ * @param event
+ */
+function dragEnd(event) {
+
 }
 
+/**
+ * 当被鼠标拖动的对象进入其容器范围内时触发此事件
+ * @param ev
+ */
+function dragEnter(ev) {
+    ev.preventDefault();
+    ev.target.style.border = "3px dotted red";
+}
+
+/**
+ *当某被拖动的对象在另一对象容器范围内拖动时触发此事件
+ * @param event
+ */
+function allowDrop(event) {
+    event.preventDefault();
+}
+
+/**
+ * 当被鼠标拖动的对象离开其容器范围内时触发此事件
+ * @param event
+ */
+function dragLeave(event) {
+    event.preventDefault();
+    event.target.style.border = "";
+}
+
+/**
+ * 在一个拖动过程中，释放鼠标键时触发此事件
+ * @param ev
+ */
 function drop(ev) {
     ev.preventDefault();
+    ev.target.style.border = "";
+
     var li = ev.target.parentNode.parentNode;
     var pid = li.id;
 
@@ -509,7 +576,130 @@ function drop(ev) {
 }
 
 /**
- * 获取节点目录并局部刷新
+ * 缩小右边栏
+ */
+function indentRight() {
+    var classes = document.getElementById("left").classList;
+    var leftNum = 3;
+
+    for (var j = 0, len = classes.length; j < len; j++) {
+        var className = classes[j];
+        if (className.substr(0, 7) == "col-sm-") {
+            leftNum = parseInt(className.substr(7))
+            break;
+        }
+    }
+
+    var numRight = 12 - leftNum;
+    var leftClassOld = 'col-sm-' + leftNum + ' col-md-' + leftNum + ' col-lg-' + leftNum;
+    var rightClassOld = 'col-sm-' + numRight + ' col-md-' + numRight + ' col-lg-' + numRight;
+
+    var newNum = leftNum + 1;
+    var newNumRight = 12 - newNum;
+    var leftClassNew = 'col-sm-' + newNum + ' col-md-' + newNum + ' col-lg-' + newNum;
+    var rightClassNew = 'col-sm-' + newNumRight + ' col-md-' + newNumRight + ' col-lg-' + newNumRight;
+
+    $("#left").removeClass(leftClassOld);
+    $("#left").addClass(leftClassNew)
+    $("#right").removeClass(rightClassOld);
+    $("#right").addClass(rightClassNew)
+
+}
+
+/**
+ * 缩小左边栏
+ */
+function indentLeft() {
+    var classes = document.getElementById("left").classList;
+    var leftNum = 3;
+    for (var j = 0, len = classes.length; j < len; j++) {
+        var className = classes[j];
+        if (className.substr(0, 7) == "col-sm-") {
+            leftNum = parseInt(className.substr(7))
+            break;
+        }
+    }
+
+    var numRight = 12 - leftNum;
+    var leftClassOld = 'col-sm-' + leftNum + ' col-md-' + leftNum + ' col-lg-' + leftNum;
+    var rightClassOld = 'col-sm-' + numRight + ' col-md-' + numRight + ' col-lg-' + numRight;
+
+    var newNum = leftNum - 1;
+    var newNumRight = 12 - newNum;
+    var leftClassNew = 'col-sm-' + newNum + ' col-md-' + newNum + ' col-lg-' + newNum;
+    var rightClassNew = 'col-sm-' + newNumRight + ' col-md-' + newNumRight + ' col-lg-' + newNumRight;
+
+    $("#left").removeClass(leftClassOld);
+    $("#left").addClass(leftClassNew)
+    $("#right").removeClass(rightClassOld);
+    $("#right").addClass(rightClassNew)
+
+}
+
+/**
+ * 隐藏左边栏
+ */
+function hideLeft() {
+    var classes = document.getElementById("left").classList;
+    var leftNum = 3;
+    for (var j = 0, len = classes.length; j < len; j++) {
+        var className = classes[j];
+        if (className.substr(0, 7) == "col-sm-") {
+            leftNum = parseInt(className.substr(7))
+            break;
+        }
+    }
+    var numRight = 12 - leftNum;
+    var rightClassOld = 'col-sm-' + numRight + ' col-md-' + numRight + ' col-lg-' + numRight;
+
+    $("#left").hide()
+    $("#right").removeClass(rightClassOld);
+    $("#right").addClass('col-sm-12 col-md-12 col-lg-12')
+
+    $("#indentRight").hide()
+}
+
+
+/**
+ * 显示左边栏
+ */
+function showLeft() {
+    var classes = document.getElementById("left").classList;
+    var leftNumOld = 3;
+    for (var j = 0, len = classes.length; j < len; j++) {
+        var className = classes[j];
+        if (className.substr(0, 7) == "col-sm-") {
+            leftNumOld = parseInt(className.substr(7))
+            break;
+        }
+    }
+
+    var newNumRight = 12 - leftNumOld;
+    var rightClassNew = 'col-sm-' + newNumRight + ' col-md-' + newNumRight + ' col-lg-' + newNumRight;
+
+    $("#left").show()
+    $("#right").removeClass('col-sm-12 col-md-12 col-lg-12');
+    $("#right").addClass(rightClassNew)
+
+    $("#indentRight").show()
+
+}
+
+/**
+ * 控制隐藏或显示左边栏
+ */
+function hideOrShowLeft() {
+    var ishide = $("#indentRight").is(':hidden');
+    if (ishide) {
+        showLeft()
+    } else {
+        hideLeft()
+    }
+}
+
+/**
+ * 获取章节目录并局部刷新
+ *
  * @param id
  */
 function getIndex(id) {
@@ -529,28 +719,39 @@ function getIndex(id) {
         success: function (result) {
             var code = result.code;
 
-            if ((code == 10000) || (code == 40102)) {
+            if (code == 10000) {
                 var data = result.data;
                 var html = '<ul class="" id="ul-' + id + '" >';
                 for (var i in data) {
                     var bookIndex = data[i];
+                    var isLeaf = bookIndex.isLeaf;
 
-                    html += '<li id="li-' + bookIndex.id + '" class="" draggable="true" ondragstart="drag(event)" ondrop="drop(event)" ondragover="allowDrop(event)" style="margin-top:20px;"><div style="display: inline" id="show-' + bookIndex.id
-                        + '"><a href="javascript:void(0);" onclick="getIndex(' + bookIndex.id +
-                        ')"><span class="glyphicon glyphicon-chevron-right"></span></a></div>&emsp;<a href="javascript:void(0);" onclick="getContent(\'' + bookIndex.url + '\')"><span id="name-' + bookIndex.id + '">' + bookIndex.name +
-                        '</span></a>';
+                    html += '<li id="li-' + bookIndex.id + '" class=""  style="margin-top:20px;" draggable="true" ondragstart="drag(event)" ';
+
+                    if (isLeaf == 0) {
+                        html += 'ondrop="drop(event)" ondragenter="dragEnter(event)" ondragleave="dragLeave(event)" ondragover="allowDrop(event)">';
+                        html += '<div style="display: inline" id="show-' + bookIndex.id + '"><a href="javascript:void(0);" onclick="getIndex(' + bookIndex.id + ')"><span class="glyphicon glyphicon-chevron-right"></span></a></div>';
+                    } else {
+                        html += '>';
+                    }
+
+                    html += '&emsp;<a href="javascript:void(0);" onclick="getContent(\'' + bookIndex.url + '\')"><span id="name-' + bookIndex.id + '">' + bookIndex.name + '</span></a>';
                     if (isCreator) {
-                        html += '&emsp;&emsp;<div style="display: inline" id="opear-' + bookIndex.id + '"><a href="javascript:void(0);" onclick="showUpdateIndexModal(' + id + "," + bookIndex.id + ",\'" + bookIndex.name + "\',\'" + bookIndex.url + '\',' + bookIndex.indexOrder
-                            + ')"><span class="glyphicon glyphicon-pencil"></span></a><a href="javascript:void(0);" onclick="showAddIndexModal(' + bookIndex.id
-                            + ')"><span class="glyphicon glyphicon-plus-sign"></span></a><a href="javascript:void(0);" onclick="showDeleteIndexModal(' + id + "," + bookIndex.id +
-                            ')"><span class="glyphicon glyphicon-minus-sign"></span></a></div></li> ';
+                        html += '&emsp;&emsp;<div style="display: inline" id="opear-' + bookIndex.id + '"><a href="javascript:void(0);" onclick="showUpdateIndexModal(' + id + "," + bookIndex.id + ",\'" + bookIndex.name + "\',\'" + bookIndex.url + '\',' + bookIndex.indexOrder + ',' + isLeaf
+                            + ')"><span class="glyphicon glyphicon-pencil"></span></a>';
+
+                        if (isLeaf == 0) {
+                            html += '<a href="javascript:void(0);" onclick="showAddIndexModal(' + bookIndex.id + ')"><span class="glyphicon glyphicon-plus-sign"></span></a>';
+                        }
+
+                        html += '<a href="javascript:void(0);" onclick="showDeleteIndexModal(' + id + "," + bookIndex.id + ')"><span class="glyphicon glyphicon-minus-sign"></span></a></div></li> ';
                     }
                     html += '<div id="index_' + bookIndex.id + '" style="padding-left:20px;" ></div>';
                 }
                 html += '</ul>'
                 $("#index_" + id).html(html);
 
-                var showHtml = '<a href="javascript:void(0);" onclick="hideIndex(' + id + ')"><span class="glyphicon glyphicon-chevron-down"></span></a>'
+                var showHtml = '<a href="javascript:void(0);" onclick="hideIndex(' + id + ')"><span class="glyphicon glyphicon-chevron-down"></span></a>';
                 $("#show-" + id).html(showHtml);
 
             } else {
@@ -562,9 +763,9 @@ function getIndex(id) {
 
 /**
  * 检测当前用户是否为书籍作者
- * @returns
+ * @param callback 回调函数，获取首层目录
  */
-function checkUser() {
+function checkUser(callback) {
 
     var bookId = $("#bookId").val();
     if ($.isBlank(bookId)) {
@@ -586,10 +787,17 @@ function checkUser() {
             } else {
                 $('.user-show').hide();
             }
+            callback(0);
+        },
+        error: function () {
+            callback(0);
         }
     });
 }
 
+/**
+ * 获取书籍信息
+ */
 function getBookInfo() {
 
     var bookId = $("#bookId").val();
@@ -611,19 +819,24 @@ function getBookInfo() {
                 $("#bookName").html(data.name);
                 $("#bookCreator").html(data.creator);
                 $("#bookDescription").html(data.description);
+                document.title=data.name;
             } else {
-
+                $.MsgBox.Confirm("提示", result.message, function () {
+                });
             }
+        },
+        error: function () {
+            $.MsgBox.Confirm("提示", "系统异常，请稍后重试", function () {
+            });
         }
     });
 }
 
 $(function () {
-    $("#left").height(document.documentElement.clientHeight);
+    $("#left-scroll").height(document.documentElement.clientHeight - 30);
     var uri = window.location.pathname;
     var bookId = uri.substr(6);
     $("#bookId").val(bookId);
     getBookInfo();
-    checkUser();
-    getIndex(0);
+    checkUser(getIndex);
 });

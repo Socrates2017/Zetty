@@ -10,7 +10,7 @@
     <link rel="shortcut icon" href="/static/img/favicon.ico?v=2019092701"/>
     <link href="/static/css/public.css?v=2019092701" rel="stylesheet">
     <script src="/static/js/jquery-3.3.1.min.js"></script>
-    <script type="text/javascript" src="/static/js/jenel.js?v=2019092701"></script>
+    <script type="text/javascript" src="/static/js/jenel.min.js?v=2019111507"></script>
 
     <style>
         p {
@@ -47,7 +47,7 @@ ${content}
 
             var id = $("#id").val();
             //显示问题修改连接
-            var updateQue = '<a href="/article/update/' + id + '" target="_blank" style="font-weight:bold;">修改问题</a>';
+            var updateQue = '<a href="/article/update/' + id + '" target="_self" style="font-weight:bold;">修改问题</a>';
             $('#updateQue').html(updateQue);
         }
 

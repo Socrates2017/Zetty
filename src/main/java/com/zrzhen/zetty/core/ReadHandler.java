@@ -2,6 +2,7 @@ package com.zrzhen.zetty.core;
 
 
 import com.zrzhen.zetty.core.http.*;
+import com.zrzhen.zetty.core.util.ExecutorUtil;
 import com.zrzhen.zetty.core.util.FileUtil;
 import com.zrzhen.zetty.core.util.JsonUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -10,6 +11,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.URLDecoder;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousSocketChannel;
@@ -65,6 +68,11 @@ public class ReadHandler implements CompletionHandler<Integer, ByteBuffer> {
             MvcUtil.closeChannel(ch);
             return;
         }
+        ExecutorUtil.readExecutor.submit(new ReadThread(this, attachment));
+    }
+
+
+    public void execute(ByteBuffer attachment) {
         attachment.flip();
         try {
             if (socketStatus.equals(SKIP_CONTROL_CHARS)) {
@@ -120,7 +128,7 @@ public class ReadHandler implements CompletionHandler<Integer, ByteBuffer> {
                 socketStatus = HttpSocketStatus.PROCESSING;
                 parseCookie(request);
                 parseConnection(request);
-
+                parseHost(request, ch);
                 /**
                  * 至此，http请求消息已经解析完毕，可以进行业务逻辑处理
                  */
@@ -560,6 +568,28 @@ public class ReadHandler implements CompletionHandler<Integer, ByteBuffer> {
 
     }
 
+    public static void parseHost(Request request, AsynchronousSocketChannel ch) {
+        /**
+         * 如果中间层有HTTP代理需要从client-ip或则x-forwarded-for中取客户端IP
+         */
+        String clientIp = request.getHeaders().get("Client-IP");
+        if (clientIp == null) {
+            clientIp = request.getHeaders().get("X-Forwarded-For");
+            if (clientIp == null) {
+                try {
+                    InetAddress remoteAddress = ((InetSocketAddress) ch.getRemoteAddress()).getAddress();
+                    if (remoteAddress.isLinkLocalAddress()) {
+                        clientIp = "127.0.0.1";
+                    } else {
+                        clientIp = remoteAddress.getHostAddress();
+                    }
+                } catch (IOException e) {
+                    log.warn(e.getMessage(), e);
+                }
 
+            }
+        }
+        request.setHost(clientIp);
+    }
 
 }

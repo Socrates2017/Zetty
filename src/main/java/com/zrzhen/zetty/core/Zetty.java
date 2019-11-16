@@ -53,7 +53,7 @@ public class Zetty {
 
             Long httpServerStart = System.currentTimeMillis();
 
-            ExecutorService channelExcutor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()+1);
+            ExecutorService channelExcutor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() + 1);
             AsynchronousChannelGroup channelGroup = AsynchronousChannelGroup.withCachedThreadPool(channelExcutor, 1);
 
             /*创建监听套接字*/

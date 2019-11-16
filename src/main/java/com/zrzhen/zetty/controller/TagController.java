@@ -55,7 +55,7 @@ public class TagController {
 
         if (articleInDb == null) {
             return ResultGen.genResult(ResultCode.FAIL, "文章不存在");
-        } else if (!articleInDb.get("userid").equals(userid)) {
+        } else if (!articleInDb.get("userid").toString().equals(userid.toString())) {
             return ResultGen.genResult(ResultCode.FAIL, "权限不足");
         } else {
 
@@ -98,7 +98,7 @@ public class TagController {
             if (articleInDb == null) {
                 return ResultGen.genResult(ResultCode.FAIL, "文章不存在");
 
-            } else if (!articleInDb.get("userid").equals(userid)) {
+            } else if (!articleInDb.get("userid").toString().equals(userid.toString())) {
                 return ResultGen.genResult(ResultCode.FAIL, "权限不足");
             } else {
                 Map<String, Object> valueMap = new HashMap<>();
@@ -138,7 +138,7 @@ public class TagController {
             if (articleInDb == null) {
                 return ResultGen.genResult(ResultCode.FAIL, "文章不存在");
 
-            } else if (!articleInDb.get("userid").equals(userid)) {
+            } else if (!articleInDb.get("userid").toString().equals(userid.toString())) {
                 return ResultGen.genResult(ResultCode.FAIL, "权限不足");
             } else {
                 Map<String, Object> whereMap = new HashMap<>();

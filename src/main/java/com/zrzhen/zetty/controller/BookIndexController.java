@@ -59,6 +59,7 @@ public class BookIndexController {
         String childTitle = JsonUtil.getString(params, "childTitle").trim();
         String book = JsonUtil.getString(params, "bookId").trim();
         String indexOrder = JsonUtil.getString(params, "indexOrder").trim();
+        String isLeaf = JsonUtil.getString(params, "isLeaf").trim();
 
 
         if (StringUtils.isBlank(parentId)) {
@@ -70,7 +71,8 @@ public class BookIndexController {
         } else if (StringUtils.isBlank(book)) {
             return ResultGen.genResult(ResultCode.ARG_NEED, "book");
         } else {
-            int order = StringUtils.isBlank(indexOrder)?0:Integer.valueOf(indexOrder);
+            float order = StringUtils.isBlank(indexOrder)?0:Float.valueOf(indexOrder);
+            int isLeafInt = StringUtils.isBlank(isLeaf)?0:Integer.valueOf(isLeaf);
 
             Integer parent = Integer.valueOf(parentId);
             Long bookId = Long.valueOf(book);
@@ -81,6 +83,8 @@ public class BookIndexController {
             valueMap.put("name", childTitle);
             valueMap.put("book", bookId);
             valueMap.put("index_order", order);
+            valueMap.put("is_leaf", isLeafInt);
+
             return ResultGen.genResult(ResultCode.SUCCESS, BookIndexDao.insert(BookIndexDao.tableName, valueMap));
 
         }
@@ -102,6 +106,7 @@ public class BookIndexController {
         String url = JsonUtil.getString(params, "url").trim();
         String name = JsonUtil.getString(params, "name").trim();
         String indexOrder = JsonUtil.getString(params, "indexOrder").trim();
+        String isLeaf = JsonUtil.getString(params, "isLeaf").trim();
 
         if (StringUtils.isBlank(parentId)) {
             return ResultGen.genResult(ResultCode.ARG_NEED, "parentId");
@@ -110,13 +115,15 @@ public class BookIndexController {
         } else if (StringUtils.isBlank(name)) {
             return ResultGen.genResult(ResultCode.ARG_NEED, "name");
         } else {
-            int order = StringUtils.isBlank(indexOrder)?0:Integer.valueOf(indexOrder);
+            float order = StringUtils.isBlank(indexOrder)?0:Float.valueOf(indexOrder);
+            int isLeafInt = StringUtils.isBlank(isLeaf)?0:Integer.valueOf(isLeaf);
 
             Integer parent = Integer.valueOf(parentId);
             Map<String, Object> valueMap = new HashMap<>();
             valueMap.put("url", url);
             valueMap.put("name", name);
             valueMap.put("index_order", order);
+            valueMap.put("is_leaf", isLeafInt);
 
             Map<String, Object> whereMap = new HashMap<>();
             whereMap.put("id", parent);

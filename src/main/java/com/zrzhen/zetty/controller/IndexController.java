@@ -37,4 +37,10 @@ public class IndexController {
         return "codec.html";
     }
 
+    @RequestMapping("love/20190613")
+    @ContentType(ContentTypeEnum.HTML)
+    public String huiyan20190613() {
+        return "huiyan-20190613.html";
+    }
+
 }
