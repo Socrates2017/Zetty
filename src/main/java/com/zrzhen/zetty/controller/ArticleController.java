@@ -1,14 +1,15 @@
 package com.zrzhen.zetty.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.zrzhen.zetty.core.mvc.ContentTypeEnum;
+import com.zrzhen.zetty.core.mvc.Model;
+import com.zrzhen.zetty.core.mvc.anno.*;
 import com.zrzhen.zetty.core.util.JsonUtil;
 import com.zrzhen.zetty.dao.ArticleDao;
 import com.zrzhen.zetty.pojo.result.Result;
 import com.zrzhen.zetty.pojo.result.ResultCode;
 import com.zrzhen.zetty.pojo.result.ResultGen;
-import com.zrzhen.zetty.core.mvc.ContentTypeEnum;
-import com.zrzhen.zetty.core.mvc.Model;
-import com.zrzhen.zetty.core.mvc.anno.*;
+import com.zrzhen.zetty.service.ArticleService;
 import com.zrzhen.zetty.service.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -41,28 +42,18 @@ public class ArticleController {
 
         Map<String, Object> result = ArticleDao.oneByKey(id);
         if (null != result) {
-            model.setPath("article.html");
-            model.setMap(result);
+            if (ArticleService.permission(result)) {
+                model.setPath("article.html");
+                model.setMap(result);
+            } else {
+                model.setPath("403.html");
+            }
         } else {
             model.setPath("404.html");
         }
         return model;
     }
 
-    /**
-     * 查看一篇文章
-     *
-     * @param id
-     * @return
-     */
-    @ContentType(ContentTypeEnum.JSON)
-    @RequestMapping("res/detail/{id}")
-    public Result resDetail(@PathVariable Integer id) {
-
-        Map<String, Object> result = ArticleDao.oneByKey(id);
-
-        return ResultGen.genResult(ResultCode.SUCCESS, result);
-    }
 
     /**
      * 返回更新文章页面
@@ -78,14 +69,18 @@ public class ArticleController {
 
         Map<String, Object> result = ArticleDao.oneByKey(id);
         if (null != result) {
-            model.setPath("articleUpdate.html");
-            model.setMap(result);
+            if (ArticleService.permission(result)) {
+                model.setPath("articleUpdate.html");
+                model.setMap(result);
+            } else {
+                model.setPath("403.html");
+            }
         } else {
             model.setPath("404.html");
         }
+
         return model;
     }
-
 
     /**
      * 分页查询
@@ -99,13 +94,22 @@ public class ArticleController {
     @RequestMapping("page")
     public Result page(@RequestParam(name = "pageNum", defaultValue = "1") Integer pageNum,
                        @RequestParam(name = "pageSide", defaultValue = "15") Integer pageSide,
-                       @RequestParam(name = "tag") String tag) {
+                       @RequestParam(name = "tag") String tag,
+                       @RequestParam(name = "userId", required = false) Long userId) {
 
-        List<Map<String, Object>> list = new ArrayList<>();
+        List<Map<String, Object>> list;
         if (StringUtils.isBlank(tag)) {
-            list = ArticleDao.getList2((pageNum - 1) * pageSide, pageSide);
+            if (userId == null) {
+                list = ArticleDao.getList2((pageNum - 1) * pageSide, pageSide);
+            } else {
+                list = ArticleDao.getList2((pageNum - 1) * pageSide, pageSide, userId);
+            }
         } else {
-            list = ArticleDao.listByPageTag(tag, (pageNum - 1) * pageSide, pageSide);
+            if (userId == null) {
+                list = ArticleDao.listByPageTag(tag, (pageNum - 1) * pageSide, pageSide);
+            } else {
+                list = ArticleDao.listByPageTag(tag, (pageNum - 1) * pageSide, pageSide, userId);
+            }
         }
 
         Map<String, Object> data = new HashMap<>();
@@ -116,6 +120,29 @@ public class ArticleController {
         return ResultGen.genResult(ResultCode.SUCCESS, data);
     }
 
+    /**
+     * 分页查询
+     *
+     * @param pageNum
+     * @param pageSide
+     * @return
+     */
+    @BeforeAdviceAction(id = "loginBeforeAdvice,userCenterBeforeAdvice")
+    @ContentType(ContentTypeEnum.JSON)
+    @RequestMapping("private")
+    public Result privateActicle(@RequestParam(name = "pageNum", defaultValue = "1") Integer pageNum,
+                                 @RequestParam(name = "pageSide", defaultValue = "15") Integer pageSide,
+                                 @RequestParam(name = "userId", required = true) Long userId) {
+
+        List<Map<String, Object>> list = ArticleDao.listPrivate((pageNum - 1) * pageSide, pageSide, userId);
+
+        Map<String, Object> data = new HashMap<>(5);
+        data.put("data", list);
+        data.put("pageNum", pageNum);
+        data.put("pageSide", pageSide);
+
+        return ResultGen.genResult(ResultCode.SUCCESS, data);
+    }
 
     /**
      * 新增文章
@@ -130,8 +157,9 @@ public class ArticleController {
 
         Long userid = UserService.getUserid();
 
-        String title = JsonUtil.getString(params,"title");
-        String content = JsonUtil.getString(params,"content");
+        String title = JsonUtil.getString(params, "title");
+        String content = JsonUtil.getString(params, "content");
+        String status = JsonUtil.getString(params, "status");
 
         if (StringUtils.isBlank(title)) {
             return ResultGen.genResult(ResultCode.ARG_NEED, "title");
@@ -142,6 +170,9 @@ public class ArticleController {
             valueMap.put("title", title);
             valueMap.put("content", content);
             valueMap.put("userid", userid);
+            if (StringUtils.isNotBlank(status)) {
+                valueMap.put("status", Integer.valueOf(status));
+            }
             return ResultGen.genResult(ResultCode.SUCCESS, ArticleDao.insert(ArticleDao.tableName, valueMap));
         }
     }
@@ -158,9 +189,10 @@ public class ArticleController {
     public Result update2Db(@RequestJsonBody JsonNode params) {
 
         Long userid = UserService.getUserid();
-        String id = JsonUtil.getString(params,"id").trim();
-        String title = JsonUtil.getString(params,"title");
-        String content = JsonUtil.getString(params,"content");
+        String id = JsonUtil.getString(params, "id").trim();
+        String title = JsonUtil.getString(params, "title");
+        String content = JsonUtil.getString(params, "content");
+        String status = JsonUtil.getString(params, "status");
 
         if (StringUtils.isBlank(id)) {
             return ResultGen.genResult(ResultCode.ARG_NEED, "id");
@@ -183,6 +215,10 @@ public class ArticleController {
                 Map<String, Object> valueMap = new HashMap<>();
                 valueMap.put("title", title);
                 valueMap.put("content", content);
+
+                if (StringUtils.isNotBlank(status)) {
+                    valueMap.put("status", Integer.valueOf(status));
+                }
 
                 Map<String, Object> whereMap = new HashMap<>();
                 whereMap.put("id", articleId);

@@ -59,8 +59,13 @@ public class BookController {
      */
     @ContentType(ContentTypeEnum.JSON)
     @RequestMapping("/infoList")
-    public Result infoList() {
-        List<Map<String, Object>> list = BookDao.bookList();
+    public Result infoList(@RequestParam(name = "userId", required = false) Long userId) {
+        List<Map<String, Object>> list;
+        if (userId == null) {
+            list = BookDao.bookList();
+        } else {
+            list = BookDao.bookList(userId);
+        }
         return ResultGen.genResult(ResultCode.SUCCESS, list);
     }
 

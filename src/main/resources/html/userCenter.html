@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="keywords" content="哲人镇, 陈安廉, 陈濂, 哲学论坛, java, 人工智能, 机器学习">
+    <meta name="description" content="哲人镇是一个计算机编程、哲学交流论坛">
+    <meta name="Robots" content="all">
+    <title>用户中心</title>
+    <link rel="shortcut icon" href="/static/img/favicon.ico?v=2019092701"/>
+    <link href="/static/bootstrap-3.3.7-dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/css/public.css?v=2019092701" rel="stylesheet">
+    <link href="/static/css/index.css?v=2019092701" rel="stylesheet">
+    <script src="/static/js/jquery-3.3.1.min.js"></script>
+</head>
+<body>
+<input type="hidden" id="user-id">
+<div style="width:100%;background-color:#444444;margin-bottom:10px;">
+    <a href="/" style="color:#ffffff;font-size:80%;"> ←返回首页</a>
+</div>
+<div>
+    <h1 align="center"><span id="user-name"></span></h1>
+</div>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8">
+            <div>
+                <h3><span></span>文章</h3>
+            </div>
+            <div class="line"></div>
+            <div style="margin-top:60px;">
+                <div id="tagList" style="margin: 20px;"></div>
+                <div id="article-private" style="display: none;margin: 20px;">
+                    <button class="button tagList" id="id-private"  onclick="changeTag(this);"style="height: 30px; font-size: 14px;">未公开文章</button>
+                </div>
+                <div id="tableList" class="articleList"></div>
+                <div id="foot" style="text-align: center;margin-top: 50px"></div>
+                <div id="foot2" class="font_div" style="margin-top: 100px"></div>
+            </div>
+
+            <div style="margin-top:10px;border-radius:15px;background:#e0e0f4;">
+            </div>
+        </div>
+
+        <!-- 右边拦 -->
+        <div class="col-md-4">
+            <div class="login-show" style="display: block">
+                <div>
+                    <h3>网书</h3>
+                </div>
+            </div>
+            <div class="line"></div>
+            <div id="bookList"></div>
+        </div>
+    </div>
+</div>
+<br><br>
+
+<br>
+
+<div style="color: #007878; clear: both; text-align: center; margin-top: 50px;margin-bottom:50px;">
+    <a href="http://www.zrzhen.com">哲人镇</a> | 粤ICP备16076474号<br>
+    Copyright ©2016 Powered By zrzhen Version 2.1.0<br>
+    转载本站原创文章，需经授权，联系方式：a@zrzhen.com
+</div>
+
+<script src="/static/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="/static/js/jenel.min.js?v=2019111902"></script>
+<script type="text/javascript" src="/static/js/userCenter.min.js?v=2019112201"></script>
+
+</body>
+</html>

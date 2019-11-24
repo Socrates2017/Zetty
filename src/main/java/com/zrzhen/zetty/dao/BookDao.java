@@ -23,8 +23,16 @@ public class BookDao extends MysqlFirstBaseDao {
     }
 
     public static List<Map<String, Object>> bookList() {
-        String sql = "select a.id,a.name,a.description,b.name as creator FROM " + tableName + " a left join user b on a.creator = b.id  ORDER BY id limit ?";
+        String sql = "select a.id,a.name,a.description,a.creator as creatorId,b.name as creator FROM " + tableName
+                + " a left join user b on a.creator = b.id  ORDER BY id limit ?";
         Object[] bindArgs = new Object[]{100};
+        return getList(sql, bindArgs);
+    }
+
+    public static List<Map<String, Object>> bookList(Long userId) {
+        String sql = "select a.id,a.name,a.description,a.creator as creatorId,b.name as creator FROM " + tableName
+                + " a left join user b on a.creator = b.id where a.creator = ? ORDER BY id limit ?";
+        Object[] bindArgs = new Object[]{userId, 100};
         return getList(sql, bindArgs);
     }
 

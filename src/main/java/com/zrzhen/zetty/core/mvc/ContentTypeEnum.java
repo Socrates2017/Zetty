@@ -56,6 +56,8 @@ public enum ContentTypeEnum {
     PNG("image/png;", "png"),
 
     ICO("image/png; charset=UTF-8", "ico"),
+
+    AUDIO_MP3("audio/mpeg; ", "mp3"),
     ;
 
     private String type;

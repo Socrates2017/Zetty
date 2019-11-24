@@ -148,7 +148,7 @@ public class MvcUtil {
         }
 
         if (controllerMethod == null) {
-            response.setStatus(HttpResponseStatus.NOT_FOUND);
+            dealWithNotFoundHtml(response);
         } else {
 
             /*前增强器*/
@@ -181,9 +181,7 @@ public class MvcUtil {
 
                 if (contentTypeEnum.equals(ContentTypeEnum.HTML)) {
                     /*如果内容类型为html，根据返回结果（文件路径）读取文件*/
-
                     String responseBody = null;
-
                     if (result instanceof Model) {
                         Model model = (Model) result;
                         String htmlPath = model.getPath();
@@ -200,11 +198,11 @@ public class MvcUtil {
                     }
 
                     if (null == responseBody) {
-                        response.setStatus(HttpResponseStatus.NOT_FOUND);
+                        dealWithNotFoundHtml(response);
                     } else {
                         response.setBody(FileUtil.str2Byte(responseBody));
+                        setContentType(response, contentTypeEnum);
                     }
-                    setContentType(response, contentTypeEnum);
                     setConnetion(response, request);
                 } else if (contentTypeEnum.equals(ContentTypeEnum.JSON)) {
                     /*如果内容类型为json，则对结果进行转换，主要是实体类会转成json字符串*/
@@ -225,6 +223,12 @@ public class MvcUtil {
 
     }
 
+    private static void dealWithNotFoundHtml(Response response){
+        byte[] body = FileUtil.file2ByteByRelativePath("/html/404.html");
+        response.setBody(body);
+        response.setStatus(HttpResponseStatus.NOT_FOUND);
+        setContentType(response, ContentTypeEnum.HTML);
+    }
 
     /**
      * 获取并缓存静态文件字节数组

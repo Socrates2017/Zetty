@@ -4,7 +4,7 @@
 function search() {
     var searchKey = $("#searchKey").val();
     var url = "/article/search?q=" + searchKey;
-    window.open(getRootPath() + url);
+    window.open(url);
     return false;
 }
 
@@ -26,7 +26,7 @@ $("#register-email").blur(function () {
         var dataObj = {};
         dataObj.email = email;
         $.ajax({
-            url: urlRootContext() + "/user/checkEmail",
+            url: "/user/checkEmail",
             type: "POST",
             cache: false,
             contentType: "application/json;charset=utf-8",
@@ -134,7 +134,7 @@ $("#register-authCode").blur(function () {
         var dataObj = {};
         dataObj.authCode = authCode;
         $.ajax({
-            url: urlRootContext() + "/checkAuthCode",
+            url: "/checkAuthCode",
             type: "POST",
             cache: false,
             contentType: "application/json;charset=utf-8",
@@ -183,7 +183,7 @@ function checkloginauthCode() {
         var dataObj = {};
         dataObj.authCode = authCode;
         $.ajax({
-            url: urlRootContext() + "/checkAuthCode",
+            url: "/checkAuthCode",
             type: "POST",
             cache: false,
             contentType: "application/json;charset=utf-8",
@@ -253,7 +253,7 @@ function register() {
     dataObj.authCode = authCode;
     showReflesh();//显示缓冲图标
     $.ajax({
-        url: urlRootContext() + "/user/register",
+        url: "/user/register",
         type: "post",
         contentType: "application/json;charset=utf-8",
         datatype: "json",
@@ -293,7 +293,7 @@ function login() {
     dataObj.authCode = authCode;
     showReflesh();//显示缓冲图标
     $.ajax({
-        url: urlRootContext() + "/user/login",
+        url: "/user/login",
         type: "post",
         contentType: "application/json;charset=utf-8",
         datatype: "json",
@@ -329,7 +329,7 @@ function login() {
 function logout() {
     var dataObj = {};
     $.ajax({
-        url: urlRootContext() + "/user/logout",
+        url: "/user/logout",
         type: "post",
         contentType: "application/json;charset=utf-8",
         datatype: "json",
@@ -373,7 +373,7 @@ function refreshPcrimg(callback) {
 function checkLogin() {
 
     $.ajax({
-        url: urlRootContext() + "/user/checkLogin",
+        url: "/user/checkLogin",
         type: "GET",
         datatype: "json",
         async: true,
@@ -395,7 +395,7 @@ function checkLogin() {
                     ulHtml += user.headImg;
                 }
                 ulHtml += 'class="center-block img-circle" alt="图片无效"></a><ul class="dropdown-menu"><li><a href="';
-                ulHtml += '/user/' + user.id + '" target="_blank">';
+                ulHtml += '/user/center/' + user.id + '" target="_blank">';
                 ulHtml += user.name + '<span class="glyphicon glyphicon-cog"></span></a> <a onclick="logout()"> 退出登录 <span class="glyphicon glyphicon-off"></span></a></li></ul></li>';
                 /**ulHtml += '<li> <a class="btn btn-default" href="/download/zrzhen2.0.0.apk" download="zrzhen_Android_2.0.0.apk" id="contact_weixin">下载APP</a></li>';*/
 
@@ -419,7 +419,8 @@ function checkLogin() {
 function addArticle() {
     var title = $("#title").val();
     var content = $("#content").val();
-    var tag = $("#tag option:selected").val();
+    var status = $("input[name=article-status]:checked").val();
+
     if (title == "") {
         $.MsgBox.Confirm("提示", "标题不能为空！", function () {
         });
@@ -436,10 +437,10 @@ function addArticle() {
         var dataObj = {};
         dataObj.title = title;
         dataObj.content = v;
-        dataObj.tag = tag;
-        showReflesh();//显示缓冲图标
+        dataObj.status = status;
+        showReflesh();
         $.ajax({
-            url: urlRootContext() + "/article/add",
+            url: "/article/add",
             type: "POST",
             contentType: "application/json;charset=utf-8",
             dataType: "json",
@@ -448,10 +449,8 @@ function addArticle() {
                 removeReflesh();//移除缓冲图标
                 if (result.code == 10000) {
                     $.MsgBox.Confirm("提示", "发布成功！", function () {
-                        //location.reload(true);//刷新当前页面
-                        toSearch(null)
                     });
-
+                    toSearch(null)
                 } else {
                     $.MsgBox.Confirm("提示", result.message, function () {
                     });
@@ -466,10 +465,6 @@ function addArticle() {
     }
 }
 
-//设置提问框高度自动增加
-var text = document.getElementById("content");
-autoTextarea(text);
-
 
 /**
  * lucene中查询分页
@@ -479,7 +474,7 @@ autoTextarea(text);
  */
 function questionListFromLucene(pageIndex, tag) {
     $.ajax({
-        url: urlRootContext() + "/getQuestionListFromLucene?pageIndex=" + pageIndex + "&tag=" + tag,
+        url: "/getQuestionListFromLucene?pageIndex=" + pageIndex + "&tag=" + tag,
         type: "GET",//查询数据，用get方式
         contentType: "application/json;charset=utf-8",
         datatype: "json",
@@ -492,7 +487,7 @@ function questionListFromLucene(pageIndex, tag) {
 
             var questions = result.respData.questions;
             for (var i = 0; i < questions.length; i++) {
-                pagehtml += '<a href="' + urlRootContext() + '/question/' + questions[i].id + '" target="_blank" style="font-weight:bold;">' + questions[i].title + '</a>';
+                pagehtml += '<a href="' + '/question/' + questions[i].id + '" target="_blank" style="font-weight:bold;">' + questions[i].title + '</a>';
                 pagehtml += '<div style="float:right;font-size:12px;color:#888888;">' + questions[i].createdTimeStr + '</div>';
                 pagehtml += '<hr>';
             }
@@ -504,7 +499,7 @@ function questionListFromLucene(pageIndex, tag) {
 }
 
 /**
- * 可操作表列表
+ * 获取文章列表
  */
 function tableList(tag, dom, pageNum, pageSide) {
     showReflesh();
@@ -515,8 +510,12 @@ function tableList(tag, dom, pageNum, pageSide) {
             type: "GET",
             datatype: "json",
             success: function (result) {
-                showDataDiv(result, dom)
-
+                try {
+                    showDataDiv(result, dom)
+                } catch (err) {
+                } finally {
+                    removeReflesh();
+                }
             },
             error: function () {
                 removeReflesh();
@@ -525,11 +524,14 @@ function tableList(tag, dom, pageNum, pageSide) {
             }
         });
     } catch (err) {
-    } finally {
-        removeReflesh();
     }
 }
 
+/**
+ * 展示文章列表
+ * @param result
+ * @param dom
+ */
 function showDataDiv(result, dom) {
     var data = result.data.data;
     var start = result.data.pageNum;
@@ -545,43 +547,21 @@ function showDataDiv(result, dom) {
         var user = article.username;
         var index = (start - 1) * row + parseInt(i) + 1;
 
-        html += '<a href="' + urlRootContext() + '/article/detail/' + id + '" target="_blank" style="font-weight:bold;">' + title + '</a>';
+        html += '<a href="' + '/article/detail/' + id + '" target="_blank" style="font-weight:bold;">' + title + '</a>';
         html += '<div style="float:right;font-size:12px;color:#888888;">' + ctime + '</div>';
         html += '<hr>';
     }
     $("#" + dom).html(html);
 }
 
+
 /**
- * 展示数据
- * @param result
- * @param dom
+ * 分页查询
+ * @param e 点击的分页元素
  */
-function showData(result, dom, pageNum, pageSide) {
-    var data = result.data.data;
-    var start = result.data.pageNum;
-    var row = result.data.pageSide;
-    var html = '<table border="1" cellpadding="15" style="margin: auto" id="' + "table" + dom + '"> <tr><td>序号</td> <td>标题</td><td>作者</td><td>时间</td></tr>';
-
-
-    for (var i in data) {
-        var article = data[i]
-        var id = article.id;
-        var title = article.title;
-        var ctime = new Date(article.ctime).Format("yyyy-MM-dd hh:mm:ss");
-        var user = article.username;
-        var index = (start - 1) * row + parseInt(i) + 1;
-        html += '<tr><td>' + index + '</td><td><a href="/article/detail/' + id + '" target="_blank">' + title + '</a></td><td>' + user + '</td><td>' + ctime + '</td></tr>';
-    }
-    html += '</table>'
-    $("#" + dom).html(html);
-}
-
-
 function toSearch(e) {
     showReflesh();
     try {
-        //var q = $("#q").val();//查询参数
         var pageNum = 1;//所选页序,默认为1
         var eo = $(e);//js对象转jquery对象
         var pageNumS = eo.html();
@@ -661,10 +641,6 @@ function toSearch(e) {
             eo.addClass("active");//赋予所选项为活跃页序
         }
 
-        // if (pageNum > 1) {
-        //     url += "&pageNum=" + (pageNum - 1) * 10;
-        // }
-
         var dom = "tableList"
         var tag = $(".activeTag").html();
 
@@ -677,10 +653,14 @@ function toSearch(e) {
     } catch (err) {
 
     } finally {
-        removeReflesh();//移除缓冲图标
+        removeReflesh();
     }
 }
 
+/**
+ * 点击标签
+ * @param e
+ */
 function changeTag(e) {
 
     $(".tagList").each(function () {
@@ -692,7 +672,7 @@ function changeTag(e) {
 }
 
 /**
- *获取表数据
+ *获取标签列表
  */
 function allTags() {
     try {
@@ -731,7 +711,7 @@ function allTags() {
 }
 
 /**
- *书
+ * 获取网书列表
  */
 function bookList() {
     try {
@@ -746,8 +726,10 @@ function bookList() {
                     var html = ''
                     for (var i in data) {
                         var book = data[i]
-                        html += '<a href="/book/' + book.id + '" target="_blank" style="font-size: 20px">《' + book.name + '》</a>&emsp;<span style="font-size: 20px">' + book.creator + '</span><p style="font-size: 16px;background: #F8F8FF">' +
-                            book.description + "</p>";
+                        html += '<a href="/book/' + book.id + '" target="_blank" style="font-size: 20px">《' + book.name
+                            + '》</a>&emsp;<a href="/user/center/' + book.creatorId
+                            + '" target="_blank" style="font-size: 20px">'+book.creator + '</a><p style="font-size: 16px;background: #F8F8FF">'
+                            + book.description + "</p>";
                     }
 
                     $("#bookList").html(html);
@@ -767,9 +749,12 @@ function bookList() {
     }
 }
 
+/**
+ * 弹出新增网书表单
+ */
 function showAddBookModal() {
     $.ajax({
-        url: urlRootContext() + "/user/checkLogin",
+        url: "/user/checkLogin",
         type: "GET",
         datatype: "json",
         async: true,
@@ -787,6 +772,10 @@ function showAddBookModal() {
 
 }
 
+/**
+ * 新增网书
+ * @returns {boolean}
+ */
 function addBook() {
     var name = $("#book-name").val();
     var description = $("#book-description").val();
@@ -839,6 +828,10 @@ function addBook() {
  * 文档加载完毕即执行
  */
 $(function () {
+    //设置提问框高度自动增加
+    var text = document.getElementById("content");
+    autoTextarea(text);
+
     refreshPcrimg("checkLogin");
     allTags();
     toSearch(null);

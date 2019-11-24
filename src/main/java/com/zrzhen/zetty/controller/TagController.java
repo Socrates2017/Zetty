@@ -1,6 +1,8 @@
 package com.zrzhen.zetty.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.zrzhen.zetty.core.mvc.ContentTypeEnum;
+import com.zrzhen.zetty.core.mvc.anno.*;
 import com.zrzhen.zetty.core.util.JsonUtil;
 import com.zrzhen.zetty.dao.ArticleDao;
 import com.zrzhen.zetty.dao.ArticleTagDao;
@@ -8,8 +10,6 @@ import com.zrzhen.zetty.dao.TagDao;
 import com.zrzhen.zetty.pojo.result.Result;
 import com.zrzhen.zetty.pojo.result.ResultCode;
 import com.zrzhen.zetty.pojo.result.ResultGen;
-import com.zrzhen.zetty.core.mvc.ContentTypeEnum;
-import com.zrzhen.zetty.core.mvc.anno.*;
 import com.zrzhen.zetty.service.UserService;
 import org.apache.commons.lang3.StringUtils;
 
@@ -31,8 +31,13 @@ public class TagController {
      */
     @ContentType(ContentTypeEnum.JSON)
     @RequestMapping("all")
-    public Result all() {
-        List<String> list = TagDao.allTags();
+    public Result all(@RequestParam(name = "userId", required = false) Long userId) {
+        List<String> list;
+        if (userId == null) {
+            list = TagDao.allTags();
+        } else {
+            list = TagDao.tagsByUser(userId);
+        }
         return ResultGen.genResult(ResultCode.SUCCESS, list);
     }
 
@@ -83,8 +88,8 @@ public class TagController {
     public Result add(@RequestJsonBody JsonNode params) {
 
         Long userid = UserService.getUserid();
-        String id = JsonUtil.getString(params,"id").trim();
-        String tag = JsonUtil.getString(params,"tag");
+        String id = JsonUtil.getString(params, "id").trim();
+        String tag = JsonUtil.getString(params, "tag");
 
         if (StringUtils.isBlank(id)) {
             return ResultGen.genResult(ResultCode.ARG_NEED, "id");
@@ -123,8 +128,8 @@ public class TagController {
 
         Long userid = UserService.getUserid();
 
-        String id = JsonUtil.getString(params,"id").trim();
-        String tag = JsonUtil.getString(params,"tag");
+        String id = JsonUtil.getString(params, "id").trim();
+        String tag = JsonUtil.getString(params, "tag");
 
         if (StringUtils.isBlank(id)) {
             return ResultGen.genResult(ResultCode.ARG_NEED, "id");

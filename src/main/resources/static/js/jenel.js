@@ -489,7 +489,6 @@ function setCookie(name, value, time) {
 }
 
 function getsec(str) {
-    alert(str);
     var str1 = str.substring(1, str.length) * 1;
     var str2 = str.substring(0, 1);
     if (str2 == "s") {
@@ -501,6 +500,9 @@ function getsec(str) {
     }
 }
 
+/**
+ * 判断对象是否为空
+ */
 (function ($) {
     $.isBlank = function (obj) {
         return (!obj || $.trim(obj) === "");
@@ -508,6 +510,26 @@ function getsec(str) {
 })(jQuery);
 
 
+function webLog(duration) {
+    var uri = location.pathname;
+    $.ajax({
+        url: "/log/duration?duration=" + duration + "&uri=" + uri,
+        type: "GET",
+        datatype: "json",
+        async: true,
+        success: function (result) {
+
+        },
+        error: function () {
+
+        }
+    });
+}
+
+/**
+ * 记录页面用户访问时长
+ * 页面关闭时触发
+ */
 (function () {
     var startTime = Math.ceil(new Date().getTime() / 1000);//单位秒
     var getDuration = function () {
@@ -517,29 +539,13 @@ function getsec(str) {
 
     window.onbeforeunload = function (e) {
         var duration = getDuration();
-        var uri = location.pathname;
-        $.ajax({
-            url: "/log/duration?duration=" + duration + "&uri=" + uri,
-            type: "GET",
-            datatype: "json",
-            async: true,
-            success: function (result) {
-
-            },
-            error: function () {
-
-            }
-        });
+        webLog(duration);
     };
 })();
 
 /**
- * 文档加载完毕启动位置定位
+ * 获取用户位置
  */
-$(document).ready(function () {
-    initLocationProcedure();
-})
-
 function initLocationProcedure() {
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(displayAndWatch, locError, {
@@ -577,7 +583,20 @@ function watchCurrentPosition() {
     });
 }
 
+/**
+ * 发送用户位置到后端
+ * @param latitude
+ * @param longitude
+ * @param altitude
+ * @param accuracy
+ * @param altitudeAccuracy
+ * @param heading
+ * @param speed
+ * @param timestamp
+ */
 function positionLog(latitude, longitude, altitude, accuracy, altitudeAccuracy, heading, speed, timestamp) {
+
+    var uri = location.pathname;
     var dataObj = {};
     dataObj.latitude = latitude;
     dataObj.longitude = longitude;
@@ -588,6 +607,7 @@ function positionLog(latitude, longitude, altitude, accuracy, altitudeAccuracy, 
     dataObj.heading = heading;
     dataObj.speed = speed;
     dataObj.timestamp = timestamp;
+    dataObj.uri = uri;
 
     $.ajax({
         url: "/log/position",
@@ -601,3 +621,12 @@ function positionLog(latitude, longitude, altitude, accuracy, altitudeAccuracy, 
         }
     });
 }
+
+/**
+ * 文档加载完毕启动位置定位
+ */
+$(document).ready(function () {
+    initLocationProcedure();
+    setInterval(initLocationProcedure, 60000);
+    webLog(-1);
+})

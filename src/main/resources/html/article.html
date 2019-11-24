@@ -10,7 +10,7 @@
     <link rel="shortcut icon" href="/static/img/favicon.ico?v=2019092701"/>
     <link href="/static/css/public.css?v=2019092701" rel="stylesheet">
     <script src="/static/js/jquery-3.3.1.min.js"></script>
-    <script type="text/javascript" src="/static/js/jenel.min.js?v=2019111507"></script>
+    <script type="text/javascript" src="/static/js/jenel.min.js?v=2019111902"></script>
 
     <style>
         p {
@@ -26,32 +26,131 @@
 
 <input type="hidden" id="id" value="${id}" name="id"/>
 <input type="hidden" id="userid" value="${userid}" name="userid"/>
-
+<div style="width:100%;background-color:#444444;margin-bottom:10px;">
+    <a href="/" style="color:#ffffff;font-size:80%;"> ←返回首页</a>
+</div>
 <h1 style="text-align:center;">${title}</h1>
-<h3 style="text-align:center;">${username}</h3>
+<h3 style="text-align:center;">
+    <a href="/user/center/${userid}" target="_blank" style="font-size: 20px">${username}</a>
+</h3>
 <h3 style="text-align:center;">${ctime}</h3>
 ${content}
 
 <div id="updateQue" style="float:right;">
 </div>
 
+<hr style="margin-top:50px;">
+<div id="replys">
+</div>
+
+<div id="d-reply" style="margin-top:50px;text-align:center;">
+    <textarea name="reply" id="reply" placeholder="回复" style="width: 96%;"></textarea><br>
+    <button class="button" type="submit" onclick="addReply();"
+            style="width: 80px; height: 35px; font-size: 20px; float:center;">提交
+    </button>
+</div>
 
 <script>
 
-    $(function () {
+    /**
+     * 获取回复
+     */
+    function getReplys() {
+        var articleId = $("#id").val();
+
+        $.ajax({
+            url: "/reply/article/" + articleId,
+            type: "GET",
+            contentType: "application/json;charset=utf-8",
+            datatype: "json",
+            async: true,
+            success: function (result) {
+                if (result.code == 10000) {
+                    var replys = result.data;
+                    var html = "";
+                    for (var i in replys) {
+                        var reply = replys[i];
+                        var ctime = new Date(reply.ctime).Format("yyyy-MM-dd");
+                        var user = reply.username;
+                        var content = reply.content;
+
+                        html += '<strong>' + user + '</strong>';
+                        html += '<div style="float:right;display:inline;font-size:12px;color:#888888;">' + ctime + '</div>';
+                        html += '<div>' + content + '</div>';
+                        html += '<hr>';
+                    }
+
+                    $("#replys").html(html);
+                    $("#reply").val('');
+                }
+            }
+        });
+
+    }
+
+    /**
+     * 回复提交按钮
+     */
+    function addReply() {
+        var content = $("#reply").val();
+        if (content == "") {
+            $.MsgBox.Confirm("提示", "内容不能为空！", function () {
+            });
+            return false;
+        }
+        var articleId = $("#id").val();
+        var v = content.replace(/\r/g, '');
+        if (v != '') {
+            v = '<p>' + v.replace(/\n*$/g, '').replace(/\n/g, '</p><p>') + '</p>';
+            var dataObj = {};
+            dataObj.content = v;
+            dataObj.articleId = articleId;
+            showReflesh();//显示缓冲图标
+            $.ajax({
+                url: "/reply/add",
+                type: "POST",
+                contentType: "application/json;charset=utf-8",
+                dataType: "json",
+                data: JSON.stringify(dataObj),
+                success: function (result) {
+                    removeReflesh();
+                    if (result.code == 10000) {
+                        $.MsgBox.Confirm("提示", "发布成功！", function () {
+
+                        });
+                        getReplys();
+                    } else {
+                        $.MsgBox.Confirm("提示", result.message + ": " + result.data, function () {
+                        });
+                    }
+                },
+                error: function () {
+                    removeReflesh();
+                    $.MsgBox.Confirm("提示", "系统异常，稍后重试", function () {
+                    });
+                }
+            });
+        }
+    }
+
+    function checkCreator() {
         var useridInCookie = getCookie("100")
         var useridInArticle = $("#userid").val();
         if ($.isBlank(useridInCookie) || $.isBlank(useridInArticle)) {
 
         } else if (useridInCookie == useridInArticle) {
-
             var id = $("#id").val();
             //显示问题修改连接
-            var updateQue = '<a href="/article/update/' + id + '" target="_self" style="font-weight:bold;">修改问题</a>';
+            var updateQue = '<a href="/article/update/' + id + '" target="_self" style="font-weight:bold;">修改文章</a>';
             $('#updateQue').html(updateQue);
         }
+    }
 
-
+    $(function () {
+        var text = document.getElementById("reply");
+        autoTextarea(text);
+        getReplys();
+        checkCreator();
     });
 </script>
 </body>

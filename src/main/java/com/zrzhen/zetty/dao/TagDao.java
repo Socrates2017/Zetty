@@ -17,6 +17,12 @@ public class TagDao extends MysqlFirstBaseDao {
 
     public static final String tableName = "tag";
 
+    public static List<String> tagsByUser(Long userId) {
+        String sql = "SELECT DISTINCT(tag) FROM article_tag where uuser = ?";
+        Object[] args = new Object[]{userId};
+        List<Map<String, Object>> list = getList(sql, args);
+        return map2String(list);
+    }
 
     public static List<String> allTags() {
         String sql = "SELECT DISTINCT(tag) FROM article_tag";
@@ -47,7 +53,6 @@ public class TagDao extends MysqlFirstBaseDao {
         }
         return out;
     }
-
 
 
 }

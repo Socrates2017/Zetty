@@ -15,6 +15,17 @@ public class UserDao extends MysqlFirstBaseDao {
 
     public static final String tableName = "user";
 
+    public static String nameById(Long id) {
+        String sql = "select name from `user` where id = ? limit 1";
+        Object[] args = new Object[]{id};
+        Map<String, Object> map = getOne(sql, args);
+        if (map != null) {
+            return (String) map.get("name");
+        } else {
+            return null;
+        }
+    }
+
     public static Integer statusById(Long id) {
         String sql = "select status from `user` where id = ? limit 1";
         Object[] args = new Object[]{id};

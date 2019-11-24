@@ -34,6 +34,34 @@ public class UserController {
 
     private static final Logger log = LoggerFactory.getLogger(UserController.class);
 
+    /**
+     * 个人中心
+     *
+     * @return
+     */
+    @RequestMapping("center/{id}")
+    @ContentType(ContentTypeEnum.HTML)
+    public String center(@PathVariable Long id) {
+        return "userCenter.html";
+    }
+
+    /**
+     * 获取用户信息
+     * @param id
+     * @return
+     */
+    @RequestMapping("info/{id}")
+    @ContentType(ContentTypeEnum.JSON)
+    public Result info(@PathVariable Long id) {
+        String userName = UserDao.nameById(id);
+        Long userId = UserService.getUserid();
+        boolean isUserSelf = userId != null && userId.equals(id);
+        Map map = new HashMap(5);
+        map.put("userName", userName);
+        map.put("isUserSelf", isUserSelf);
+
+        return ResultGen.genResult(ResultCode.SUCCESS, map);
+    }
 
     /**
      * 返回Email的数量，为0则该Email尚未注册
@@ -44,7 +72,7 @@ public class UserController {
     @ContentType(ContentTypeEnum.JSON)
     @RequestMapping("checkEmail")
     public Result checkEmail(@RequestJsonBody JsonNode params) {
-        String email = JsonUtil.getString(params,"email");
+        String email = JsonUtil.getString(params, "email");
         if (StringUtils.isBlank(email)) {
             return ResultGen.genResult(ResultCode.ARG_NEED, "email");
         } else {
@@ -78,7 +106,7 @@ public class UserController {
     @RequestMapping("login")
     public Result login(@RequestJsonBody JsonNode params) {
         String sessionid = HeaderUtil.getSession();
-        String authCode = JsonUtil.getString(params,"authCode");
+        String authCode = JsonUtil.getString(params, "authCode");
         if (StringUtils.isBlank(authCode)) {
             return ResultGen.genResult(ResultCode.ARG_NEED, "authCode");
         }
@@ -106,7 +134,7 @@ public class UserController {
                         Long userid = SessionService.getUseridByOpenid(HeaderUtil.SYSCODE, openid);
                         if (userid != null) {
                             /*添加用户id*/
-                            HeaderUtil.setUser( userid);
+                            HeaderUtil.setUser(userid);
                             return ResultGen.genResult(ResultCode.SUCCESS, "已经登录，无需重复登录");
                         } else {
                             log.error("账户为空，openid:{}", openid);
@@ -148,7 +176,7 @@ public class UserController {
     @RequestMapping("register")
     public Result register(@RequestJsonBody JsonNode params) {
         String sessionid = HeaderUtil.getSession();
-        String authCode = JsonUtil.getString(params,"authCode");
+        String authCode = JsonUtil.getString(params, "authCode");
         if (StringUtils.isBlank(authCode)) {
             return ResultGen.genResult(ResultCode.ARG_NEED, "authCode");
         }
@@ -170,9 +198,9 @@ public class UserController {
                     return ResultGen.genResult(ResultCode.SSO_FAIL, "验证码错误");
                 } else {
 
-                    String email = JsonUtil.getString(params,"email");
-                    String password = JsonUtil.getString(params,"password");
-                    String name = JsonUtil.getString(params,"name");
+                    String email = JsonUtil.getString(params, "email");
+                    String password = JsonUtil.getString(params, "password");
+                    String name = JsonUtil.getString(params, "name");
                     if (StringUtils.isBlank(email)) {
                         return ResultGen.genResult(ResultCode.ARG_NEED, "email");
                     } else if (StringUtils.isBlank(password)) {
