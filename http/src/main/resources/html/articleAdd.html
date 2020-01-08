@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="keywords" content="哲人镇, 哲学, 哲学家, 哲学论坛, java技术, 古希腊哲学家, 中国哲学">
+    <meta name="Robots" content="none">
+    <title>新增文章</title>
+    <link rel="shortcut icon" href="/static/img/favicon.ico?v=2019092701"/>
+    <link href="/static/bootstrap-3.3.7-dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/css/public.css?v=2019092701" rel="stylesheet">
+    <script src="/static/js/jquery-3.3.1.min.js"></script>
+
+    <script type="text/javascript" charset="utf-8" src="/static/ueditor/ueditor.config.js"></script>
+    <script type="text/javascript" charset="utf-8" src="/static/ueditor/ueditor.all.js"></script>
+    <!--建议手动加在语言，避免在ie下有时因为加载语言失败导致编辑器加载失败-->
+    <!--这里加载的语言文件会覆盖你在配置项目里添加的语言类型，比如你在配置项目里配置的是英文，这里加载的中文，那最后就是中文-->
+    <script type="text/javascript" charset="utf-8" src="/static/ueditor/lang/zh-cn/zh-cn.js"></script>
+
+    <style>
+        .button2 {
+            padding: 16px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            -webkit-transition-duration: 0.4s; /* Safari */
+            transition-duration: 0.4s;
+            cursor: pointer;
+            border-radius: 10%;
+            background-color: whitesmoke;
+            color: black;
+            border: 2px solid #008CBA;
+        }
+        .button2:hover {
+            background-color: #008CBA;
+            color: white;
+        }
+    </style>
+
+</head>
+<body>
+<input type="hidden" id="bookId" value=${bookId} name="bookId"/>
+<input type="hidden" id="parentId" value=${parentId} name="parentId"/>
+<input type="hidden" id="indexOrder" value=${indexOrder} name="indexOrder"/>
+<input type="hidden" id="isLeaf" value=${isLeaf} name="isLeaf"/>
+
+<div style="width:100%;background-color:#444444;margin-bottom:10px;">
+    <a href="/" style="color:#ffffff;font-size:80%;"> ←返回首页</a>
+</div>
+<h2 align="center">新增文章</h2>
+
+<form class="form-horizontal" role="form">
+    <div class="form-group">
+        <label for="title" class="col-sm-2 col-md-2 col-lg-1 control-label">标题</label>
+        <div class="col-sm-10 col-md-10 col-lg-11">
+            <input type="text" class="form-control" id="title" placeholder="请输入标题" >
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="article-status" class="col-sm-2 col-md-2 col-lg-1 control-label">是否公开</label>
+        <label class="radio-inline">
+            <input type="radio" name="article-status" id="article-status" value="0" checked>是
+        </label>
+        <label class="radio-inline">
+            <input type="radio" name="article-status" id="article-status2" value="1">否
+        </label>
+    </div>
+</form>
+
+<div style="margin-left:5px;margin-right:5px;">
+    <script id="uEditor" type="text/plain"></script>
+    <div style="float:right;">
+        <button type="submit" class="button2" onclick="addArtile()">提&nbsp;&nbsp;&nbsp;&nbsp;交
+        </button>
+    </div>
+</div>
+
+<textarea name="content" id="content" style="display:none">${content}</textarea>
+<script>
+    var uEditor = UE.getEditor('uEditor');
+    uEditor.ready(function () {
+    });
+</script>
+
+<script src="/static/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="/static/js/jenel.min.js?v=2019111902"></script>
+<script>
+
+    function addArtile() {
+        var bookId = $("#bookId").val();
+        var parentId = $("#parentId").val();
+        var indexOrder = $("#indexOrder").val();
+        var isLeaf = $("#isLeaf").val();
+        var title = $("#title").val();
+        var content = UE.getEditor('uEditor').getContent();
+        var status = $("input[name=article-status]:checked").val();
+
+        if (bookId == "") {
+            $.MsgBox.Confirm("提示", "bookId不能为空！", function () {
+            });
+            return false;
+        }
+        if (parentId == "") {
+            $.MsgBox.Confirm("提示", "parentId不能为空！", function () {
+            });
+            return false;
+        }
+        if (indexOrder == "") {
+            $.MsgBox.Confirm("提示", "indexOrder不能为空！", function () {
+            });
+            return false;
+        }
+        if (isLeaf == "") {
+            $.MsgBox.Confirm("提示", "isLeaf不能为空！", function () {
+            });
+            return false;
+        }
+
+        if (title == "") {
+            $.MsgBox.Confirm("提示", "标题不能为空！", function () {
+            });
+            return false;
+        }
+        if (content == "") {
+            $.MsgBox.Confirm("提示", "内容不能为空！", function () {
+            });
+            return false;
+        }
+
+        var dataObj = {};
+        dataObj.parentId = parentId;
+        dataObj.bookId = bookId;
+        dataObj.indexOrder = indexOrder;
+        dataObj.isLeaf = isLeaf;
+        dataObj.title = title;
+        dataObj.content = content;
+        dataObj.status = status;
+        showReflesh();//显示缓冲图标
+        $.ajax({
+            url: "/article/addArticleAndBookIndex",
+            type: "POST",
+            contentType: "application/json;charset=utf-8",
+            dataType: "json",
+            data: JSON.stringify(dataObj),
+            success: function (result) {
+                removeReflesh();
+                if (result.code == 10000) {
+                    $.MsgBox.Confirm("提示", "发布成功！", function () {
+                        window.location.href = '/article/detail/' + result.data;
+                    });
+
+                } else {
+                    $.MsgBox.Confirm("提示", result.message, function () {
+                    });
+                }
+            },
+            error: function () {
+                removeReflesh();
+                $.MsgBox.Confirm("提示", "系统异常，稍后重试", function () {
+                });
+            }
+        });
+
+    }
+
+
+    $(function () {
+
+
+
+    });
+
+</script>
+</body>
+</html>

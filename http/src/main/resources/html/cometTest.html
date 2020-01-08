@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comet Test</title>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="keywords" content="哲人镇, 哲学, 哲学家, 哲学论坛, java技术, 古希腊哲学家, 中国哲学">
+    <meta name="Robots" content="all">
+</head>
+<body>
+<button onclick="comet()">comet</button>
+
+<script>
+
+
+    function comet() {
+        var xhr = new XMLHttpRequest();
+        received = 0;	//最新消息在响应消息的位置
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState == 3) {
+                result = xhr.responseText.substring(received);
+                console.log(result);
+                received += result.length;
+            } else if (xhr.readyState == 4) {
+                console.log("完成消息推送");
+            }
+        }
+        xhr.open('get', 'http://192.168.118.183/file/download/article.sql?group=/');
+        xhr.send(null);
+    }
+
+
+</script>
+
+</body>
+
+</html>
