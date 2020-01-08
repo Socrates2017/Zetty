@@ -2,22 +2,40 @@
 
   以本框架开发的系统示例：[哲人镇](http://www.zrzhen.com)
 
-### 部署
+### 项目结构
+
+  code包：AIO网络通信封装
+  http包：轻量级web服务开发框架示例
+  im包：即时通信服务开发示例
+  
+### 网络通信包（code包）使用说明
+
+  实例化ZettyServer或ZettyClient，配置读取消息后的处理类，该类必须实现com.zrzhen.zetty.core.SocketReadHandler。可以在该类中进行
+  协议解析和业务处理。ZettyClient可返回com.zrzhen.zetty.core.SocketSession，利用它可以进行灵活的、全双工的、长连接的网络通信。示例：
+        
+        ZettyServer.config()
+                .port(8080)
+                .readHandlerClass(ImReadHandler.class)
+                .socketReadTimeout(Long.MAX_VALUE)
+                .buildServer()
+                .start();
+  
+  
+### http服务示例部署
 
   直接jar包启动，或者执行启动脚本（在doc文件夹下有参考的shell脚本）：sh dev.sh start  
   jar包启动命令：java -jar E:\github\zetty\target\zetty-0.0.1.jar server.profiles.active=dev。其中server.profiles.active=后面
   的dev表示将以dev环境启动，加载后缀为_dev的properties文件（类似springboot）。
 
-#### 设计说明
+#### web框架设计说明
 
-  基于java原生的Aio搭建socket通信，放弃Bio模式。  
-  基于jdbc进行数据库操作，放弃对象关系映射（orm）模式。   
+  基于java原生的Aio搭建socket通信。  
+  基于jdbc进行数据库操作。   
   自己解析http协议，放弃servlet规范。  
   模仿springboot，实现了基于注解的编程，实现了AOP、请求静态页面、请求json数据、文件上传下载等功能。   
-  Zetty力求轻量级，servlet和orm是jsp时代的产物，在前后端分离的场景中并不适合。  
     
     
-#### 路由说明
+#### web框架路由说明
 
   js、css、img等静态文件需要放在resources下的static文件夹下，引用路径需以“/static/”开头，此类请求不经由controller处理。  
   html文件需要放在resources下的html文件夹下，在返回结果中返回文件的路径，如“index.html”，且要在方法头加@ContentType(ContentTypeEnum.HTML)。     
@@ -25,7 +43,7 @@
   其他使用要点可以参考测试例子（代码中包含了一个完整的论坛网站功能）。文档说明后续会进一步补充。  
 
 
-####  控制类编码示例
+####  web框架控制类编码示例
 
         package com.zrzhen.zetty.controller;
         
