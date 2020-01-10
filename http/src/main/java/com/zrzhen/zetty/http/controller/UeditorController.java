@@ -1,14 +1,15 @@
 package com.zrzhen.zetty.http.controller;
 
 
+import com.zrzhen.zetty.common.FileUtil;
 import com.zrzhen.zetty.http.http.http.HttpHeaders;
 import com.zrzhen.zetty.http.http.http.Multipart;
 import com.zrzhen.zetty.http.http.http.Request;
 import com.zrzhen.zetty.http.http.http.Response;
 import com.zrzhen.zetty.http.http.mvc.anno.*;
-import com.zrzhen.zetty.http.http.util.FileUtil;
 import com.zrzhen.zetty.http.http.util.ProUtil;
-import com.zrzhen.zetty.http.util.TimeUtil;
+import com.zrzhen.zetty.http.http.util.ServerUtil;
+import com.zrzhen.zetty.common.TimeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,7 +67,7 @@ public class UeditorController {
     public Response download(@PathVariable String fileName) throws IOException {
 
         fileName = URLDecoder.decode(fileName, "UTF-8");
-        String contentType = FileUtil.contentTypeByFileName(fileName);
+        String contentType = ServerUtil.contentTypeByFileName(fileName);
         Response response = Response.get();
         response.getHeaders().put(HttpHeaders.Names.CONTENT_TYPE, contentType);
         String filePath = ProUtil.getString("ueditor.upload.dir") + File.separator + fileName;

@@ -7,12 +7,13 @@ import com.zrzhen.zetty.http.http.http.Request;
 import com.zrzhen.zetty.http.http.http.Response;
 import com.zrzhen.zetty.http.http.mvc.ContentTypeEnum;
 import com.zrzhen.zetty.http.http.mvc.anno.*;
-import com.zrzhen.zetty.http.http.util.FileUtil;
+import com.zrzhen.zetty.common.FileUtil;
 import com.zrzhen.zetty.http.http.util.ProUtil;
+import com.zrzhen.zetty.http.http.util.ServerUtil;
 import com.zrzhen.zetty.http.pojo.result.Result;
 import com.zrzhen.zetty.http.pojo.result.ResultCode;
 import com.zrzhen.zetty.http.pojo.result.ResultGen;
-import com.zrzhen.zetty.http.util.TimeUtil;
+import com.zrzhen.zetty.common.TimeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -147,7 +148,7 @@ public class FileController {
 
         String path = ProUtil.getString("upload.filePath") + group + "/" + fileName;
         fileName = URLDecoder.decode(fileName, "UTF-8");
-        String contentType = FileUtil.contentTypeByFileName(fileName);
+        String contentType = ServerUtil.contentTypeByFileName(fileName);
 
         // 下载之后需要在请求头中放置文件名，该文件名按照ISO_8859_1编码。
         String filenames = new String(fileName.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1);

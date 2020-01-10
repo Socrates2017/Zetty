@@ -2,7 +2,7 @@ package com.zrzhen.zetty.http.service;
 
 import com.zrzhen.zetty.http.util.HeaderUtil;
 import com.zrzhen.zetty.http.util.SessionUtil;
-import com.zrzhen.zetty.http.util.TimeUtil;
+import com.zrzhen.zetty.common.TimeUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

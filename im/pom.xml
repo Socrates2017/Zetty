@@ -13,7 +13,17 @@
     <dependencies>
         <dependency>
             <groupId>com.zrzhen</groupId>
-            <artifactId>core</artifactId>
+            <artifactId>net</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.zrzhen</groupId>
+            <artifactId>common</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
         </dependency>
     </dependencies>
 
@@ -84,6 +94,17 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
+                            <!--<artifactSet>-->
+                                <!--<excludes>-->
+                                    <!--<exclude>jmock:*</exclude>-->
+                                    <!--<exclude>*:xml-apis</exclude>-->
+                                    <!--<exclude>org.apache.maven:lib:tests</exclude>-->
+                                    <!--<exclude>log4j:log4j:jar:</exclude>-->
+                                <!--</excludes>-->
+                                <!--<includes>-->
+                                    <!--<include>junit:junit</include>-->
+                                <!--</includes>-->
+                            <!--</artifactSet>-->
                             <!-- 过滤掉以下文件，不打包 ：解决包重复引用导致的打包错误-->
                             <filters>
                                 <filter>
@@ -103,7 +124,7 @@
                                 <!-- 打成可执行的jar包 的主方法入口-->
                                 <transformer
                                         implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>com.zrzhen.zetty.im.ImServer</mainClass>
+                                    <mainClass>com.zrzhen.zetty.im.server.Server</mainClass>
                                 </transformer>
 
                                 <transformer

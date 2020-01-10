@@ -1,8 +1,10 @@
 package com.zrzhen.zetty.http.http.util;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.zrzhen.zetty.common.FileUtil;
 import com.zrzhen.zetty.http.http.http.Request;
 import com.zrzhen.zetty.http.http.http.Response;
+import com.zrzhen.zetty.http.http.mvc.ContentTypeEnum;
 import com.zrzhen.zetty.http.http.mvc.anno.PathVariable;
 import com.zrzhen.zetty.http.http.mvc.anno.RequestAnno;
 import com.zrzhen.zetty.http.http.mvc.anno.RequestJsonBody;
@@ -21,6 +23,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.net.JarURLConnection;
 import java.net.URL;
+import java.net.URLConnection;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -390,5 +393,21 @@ public class ServerUtil {
         return false;
     }
 
-
+    /**
+     * 根据文件名来获得媒体类型
+     *
+     * @param fileName
+     * @return
+     */
+    public static String contentTypeByFileName(String fileName) {
+        String contentType = URLConnection.getFileNameMap().getContentTypeFor(fileName);
+        if (StringUtils.isBlank(contentType)) {
+            String suffix = fileName.substring(fileName.lastIndexOf(".") + 1);
+            contentType = ContentTypeEnum.getTypeBySuffix(suffix);
+            if (StringUtils.isBlank(contentType)) {
+                contentType = ContentTypeEnum.OCTET.getType();
+            }
+        }
+        return contentType;
+    }
 }

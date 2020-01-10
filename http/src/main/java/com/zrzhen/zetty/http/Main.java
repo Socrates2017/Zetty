@@ -1,6 +1,6 @@
 package com.zrzhen.zetty.http;
 
-import com.zrzhen.zetty.core.ZettyServer;
+import com.zrzhen.zetty.net.ZettyServer;
 import com.zrzhen.zetty.http.http.Constant;
 import com.zrzhen.zetty.http.http.ReadHandler;
 import com.zrzhen.zetty.http.http.mvc.ServerContext;

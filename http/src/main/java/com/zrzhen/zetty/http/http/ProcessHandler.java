@@ -1,6 +1,6 @@
 package com.zrzhen.zetty.http.http;
 
-import com.zrzhen.zetty.core.SocketSession;
+import com.zrzhen.zetty.net.SocketSession;
 
 import java.nio.ByteBuffer;
 import java.nio.channels.CompletionHandler;

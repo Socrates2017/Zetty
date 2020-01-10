@@ -1,11 +1,10 @@
 package com.zrzhen.zetty.http.http;
 
-
-import com.zrzhen.zetty.core.SocketReadHandler;
-import com.zrzhen.zetty.core.SocketSession;
+import com.zrzhen.zetty.common.FileUtil;
+import com.zrzhen.zetty.common.JsonUtil;
 import com.zrzhen.zetty.http.http.http.*;
-import com.zrzhen.zetty.http.http.util.FileUtil;
-import com.zrzhen.zetty.http.http.util.JsonUtil;
+import com.zrzhen.zetty.net.SocketReadHandler;
+import com.zrzhen.zetty.net.SocketSession;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -663,7 +662,7 @@ public class ReadHandler implements SocketReadHandler<Integer, SocketSession> {
         if (clientIp == null) {
             clientIp = request.getHeaders().get("X-Forwarded-For");
             if (clientIp == null) {
-                clientIp = socketSession.getHostAddress();
+                clientIp = socketSession.getRemoteAddress();
             }
         }
         request.setHost(clientIp);

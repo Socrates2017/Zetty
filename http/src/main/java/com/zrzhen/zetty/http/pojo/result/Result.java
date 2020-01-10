@@ -1,7 +1,7 @@
 package com.zrzhen.zetty.http.pojo.result;
 
 
-import com.zrzhen.zetty.http.http.util.JsonUtil;
+import com.zrzhen.zetty.common.JsonUtil;
 
 /**
  * 统一API响应结果封装

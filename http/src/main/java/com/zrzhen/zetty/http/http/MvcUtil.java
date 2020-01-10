@@ -1,14 +1,14 @@
 package com.zrzhen.zetty.http.http;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.zrzhen.zetty.core.SocketSession;
+import com.zrzhen.zetty.net.SocketSession;
 import com.zrzhen.zetty.http.http.http.*;
 import com.zrzhen.zetty.http.http.mvc.*;
 import com.zrzhen.zetty.http.http.mvc.exception.RequestBodyShouldNotBeEmptyException;
 import com.zrzhen.zetty.http.http.mvc.exception.RequestParamShouldNotBeEmptyException;
 import com.zrzhen.zetty.http.http.mvc.exception.UriNotFoundException;
-import com.zrzhen.zetty.http.http.util.FileUtil;
-import com.zrzhen.zetty.http.http.util.JsonUtil;
+import com.zrzhen.zetty.common.FileUtil;
+import com.zrzhen.zetty.common.JsonUtil;
 import com.zrzhen.zetty.http.http.util.ServerUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -69,7 +69,8 @@ public class MvcUtil {
                 String path = out.getDownloadPath();
                 out.getHeaders().put(HttpHeaders.Names.CONTENT_LENGTH, String.valueOf(new File(path).length()));
                 ByteBuffer byteBuffer = out.toByteBufferForDownload(path);
-                //write(socketSession,false);
+                //write(socketSession,false);.
+                byteBuffer.flip();
                 socketSession.write(byteBuffer, new WriteHandler(false));
 //                ByteLineHardReader br = new ByteLineHardReader(path);
 //                ByteBuffer byteBuffer = ByteBuffer.wrap(br.nextPart());
@@ -86,6 +87,7 @@ public class MvcUtil {
                 ByteBuffer byteBuffer = out.toByteBuffer();
                 socketSession.setWriteBuffer(byteBuffer);
                 //write(socketSession, false);
+                byteBuffer.flip();
                 socketSession.write(byteBuffer, new WriteHandler(false));
             }
         } catch (Exception e) {
@@ -123,7 +125,7 @@ public class MvcUtil {
         } else {
             fileName = uri.substring(indexDot);
         }
-        String contentType = FileUtil.contentTypeByFileName(fileName);
+        String contentType = ServerUtil.contentTypeByFileName(fileName);
         if (StringUtils.isNotBlank(contentType)) {
             response.getHeaders().put(HttpHeaders.Names.CONTENT_TYPE, contentType);
         }
@@ -313,6 +315,7 @@ public class MvcUtil {
         response.getHeaders().put(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.CLOSE);
 
         ByteBuffer byteBuffer = response.toByteBuffer();
+        byteBuffer.flip();
         socketSession.write(byteBuffer, new WriteHandler(false));
     }
 

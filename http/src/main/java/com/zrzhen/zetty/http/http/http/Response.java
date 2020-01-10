@@ -1,7 +1,7 @@
 package com.zrzhen.zetty.http.http.http;
 
 import com.zrzhen.zetty.http.http.util.ByteUtil;
-import com.zrzhen.zetty.http.http.util.FileUtil;
+import com.zrzhen.zetty.common.FileUtil;
 import com.zrzhen.zetty.http.http.util.ProUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;

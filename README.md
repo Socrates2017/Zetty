@@ -4,14 +4,15 @@
 
 ### 项目结构
 
-  code包：AIO网络通信封装  
-  http包：轻量级web服务开发框架示例  
-  im包：即时通信服务开发示例  
+  common：通用工具
+  net：AIO网络通信封装  
+  http：轻量级web服务开发框架示例  
+  im：即时通信服务开发示例  
   
-### 网络通信包（code包）使用说明
+### 网络通信模块（net）使用说明
 
-  实例化ZettyServer或ZettyClient，配置读取消息后的处理类，该类必须实现com.zrzhen.zetty.core.SocketReadHandler。可以在该类中进行
-  协议解析和业务处理。ZettyClient可返回com.zrzhen.zetty.core.SocketSession，利用它可以进行灵活的、全双工的、长连接的网络通信。示例：
+  实例化ZettyServer或ZettyClient，配置读取消息后的处理类，该类必须实现com.zrzhen.zetty.net.SocketReadHandler。可以在该类中进行
+  协议解析和业务处理。ZettyClient可返回com.zrzhen.zetty.net.SocketSession，利用它可以进行灵活的、全双工的、长连接的网络通信。示例：
         
         ZettyServer.config()
                 .port(8080)

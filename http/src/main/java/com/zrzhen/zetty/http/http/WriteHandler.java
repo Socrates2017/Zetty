@@ -1,6 +1,6 @@
 package com.zrzhen.zetty.http.http;
 
-import com.zrzhen.zetty.core.SocketSession;
+import com.zrzhen.zetty.net.SocketSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,6 +45,7 @@ public class WriteHandler implements CompletionHandler<Integer, SocketSession> {
                 byte[] line = br.nextPart();
                 ByteBuffer byteBuffer1 = ByteBuffer.wrap(line);
                 log.info("downloading,closing...,read end:{}", br.isReadEnd());
+                byteBuffer1.flip();
                 socketSession.write(byteBuffer1, new WriteHandler(isKeepAlive));
             }
         }

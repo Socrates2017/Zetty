@@ -6,7 +6,7 @@ import com.zrzhen.zetty.http.dao.BookIndexDao;
 import com.zrzhen.zetty.http.dao.jdbc.MysqlFirst;
 import com.zrzhen.zetty.http.http.mvc.ContentTypeEnum;
 import com.zrzhen.zetty.http.http.mvc.anno.*;
-import com.zrzhen.zetty.http.http.util.JsonUtil;
+import com.zrzhen.zetty.common.JsonUtil;
 import com.zrzhen.zetty.http.pojo.result.Result;
 import com.zrzhen.zetty.http.pojo.result.ResultCode;
 import com.zrzhen.zetty.http.pojo.result.ResultGen;
