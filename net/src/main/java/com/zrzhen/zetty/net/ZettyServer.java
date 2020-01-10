@@ -7,9 +7,11 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.InetSocketAddress;
+import java.net.SocketOption;
 import java.net.StandardSocketOptions;
 import java.nio.channels.AsynchronousChannelGroup;
 import java.nio.channels.AsynchronousServerSocketChannel;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -55,8 +57,11 @@ public class ZettyServer {
         /*创建监听套接字*/
         AsynchronousServerSocketChannel listener = AsynchronousServerSocketChannel.open(channelGroup);
         if (listener.isOpen()) {
-            listener.setOption(StandardSocketOptions.SO_RCVBUF, builder.readBufSize);
-            listener.setOption(StandardSocketOptions.SO_REUSEADDR, true);
+            if (builder.socketOptions != null) {
+                for (Map.Entry<SocketOption<Object>, Object> entry : builder.socketOptions.entrySet()) {
+                    listener.setOption(entry.getKey(), entry.getValue());
+                }
+            }
             /*绑定端口*/
             listener.bind(new InetSocketAddress(builder.port));
         } else {

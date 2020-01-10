@@ -1,11 +1,11 @@
 package com.zrzhen.zetty.p2p.client;
 
-import com.zrzhen.zetty.p2p.util.ByteUtil;
+import com.zrzhen.zetty.net.DefaultAcceptCompletionHandler;
 import com.zrzhen.zetty.net.DefaultWriteHandler;
-import com.zrzhen.zetty.net.SocketSession;
 import com.zrzhen.zetty.net.ZettyClient;
+import com.zrzhen.zetty.net.ZettyServer;
+import com.zrzhen.zetty.p2p.util.ByteUtil;
 
-import java.net.SocketOption;
 import java.net.StandardSocketOptions;
 import java.nio.ByteBuffer;
 import java.util.Scanner;
@@ -16,10 +16,11 @@ import java.util.Scanner;
 public class Client {
 
     public static void main(String[] args) throws Exception {
-        SocketSession socketSession = ZettyClient.config()
+        ClientSocketSession socketSession = (ClientSocketSession) ZettyClient.config()
                 .port(8080)
-                .setOption(StandardSocketOptions.SO_REUSEADDR,true)
+                .setOption(StandardSocketOptions.SO_REUSEADDR, true)
                 .readHandlerClass(ReadHandler.class)
+                .socketSessionClass(ClientSocketSession.class)
                 .socketReadTimeout(Long.MAX_VALUE)
                 .buildClient()
                 .connect();
@@ -33,8 +34,19 @@ public class Client {
 
     }
 
-    public static boolean sendMsg(SocketSession socketSession, String msg) throws Exception {
-        if (msg.equals("q")) {
+    public static boolean sendMsg(ClientSocketSession socketSession, String msg) throws Exception {
+        if (msg.equals("listen")) {
+            int port = Integer.valueOf(socketSession.getLocalAddress().substring((socketSession.getLocalAddress().lastIndexOf(":") + 1)));
+
+            ZettyServer.config()
+                    .port(port)
+                    .acceptCompletionHandlerClass(DefaultAcceptCompletionHandler.class)
+                    .readHandlerClass(ReadHandler.class)
+                    .setOption(StandardSocketOptions.SO_REUSEADDR, true)
+                    .socketReadTimeout(Long.MAX_VALUE)
+                    .buildServer()
+                    .start();
+
             return false;
         }
         ByteBuffer writeBuffer = ByteUtil.msgEncode(msg);

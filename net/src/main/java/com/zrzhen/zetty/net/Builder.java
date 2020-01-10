@@ -23,6 +23,8 @@ public class Builder {
 
     public Class<? extends AcceptCompletionHandler> acceptCompletionHandlerClass;
 
+    public Class<? extends SocketSession> socketSessionClass;
+
     public Map<SocketOption<Object>, Object> socketOptions;
 
 
@@ -68,6 +70,11 @@ public class Builder {
 
     public Builder acceptCompletionHandlerClass(Class<? extends AcceptCompletionHandler> acceptCompletionHandlerClass) {
         this.acceptCompletionHandlerClass = acceptCompletionHandlerClass;
+        return this;
+    }
+
+    public Builder socketSessionClass(Class<? extends SocketSession> socketSessionClass) {
+        this.socketSessionClass = socketSessionClass;
         return this;
     }
 

@@ -9,25 +9,30 @@ import java.nio.ByteBuffer;
 /**
  * @author chenanlian
  */
-public class ReadHandler implements SocketReadHandler<Integer, SocketSession> {
+public class ReadHandler implements SocketReadHandler<Integer, ClientSocketSession> {
 
 
     @Override
-    public void completed(Integer result, SocketSession socketSession) {
+    public void completed(Integer result, ClientSocketSession socketSession) {
         if (result == -1) {
             socketSession.destroy();
             return;
         }
 
-
         ByteBuffer readBuffer = socketSession.getReadBuffer();
-        System.out.println(FileUtil.buf2Str(readBuffer));
+        String msg =FileUtil.buf2Str(readBuffer);
         socketSession.read();
+
+        System.out.println(msg);
+        if (msg.startsWith("port:")){
+            int port = Integer.valueOf(msg.substring(5));
+            socketSession.setNatPort(port);
+        }
 
     }
 
     @Override
-    public void failed(Throwable exc, SocketSession attachment) {
+    public void failed(Throwable exc, ClientSocketSession attachment) {
         attachment.destroy();
     }
 }

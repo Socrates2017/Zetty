@@ -3,7 +3,7 @@ package com.zrzhen.zetty.net;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.net.InetSocketAddress;
 import java.net.SocketOption;
 import java.nio.channels.AsynchronousSocketChannel;
@@ -31,7 +31,7 @@ public class ZettyClient {
         return new Builder();
     }
 
-    public synchronized SocketSession connect() throws IOException {
+    public synchronized SocketSession connect() throws Exception {
         AsynchronousSocketChannel clientChannel = AsynchronousSocketChannel.open();
 
         if (builder.socketOptions != null) {
@@ -40,7 +40,13 @@ public class ZettyClient {
             }
         }
 
-        socketSession = new SocketSession(clientChannel, builder);
+        if (builder.socketSessionClass != null) {
+            Constructor c1 = builder.socketSessionClass.getDeclaredConstructor(new Class[]{AsynchronousSocketChannel.class, Builder.class});
+            c1.setAccessible(true);
+            socketSession = (SocketSession) c1.newInstance(new Object[]{clientChannel, builder});
+        } else {
+            socketSession = new SocketSession(clientChannel, builder);
+        }
         CountDownLatch latch = new CountDownLatch(1);
         clientChannel.connect(new InetSocketAddress(builder.host, builder.port), socketSession, new ConnectCompletionHandler(latch));
         try {
@@ -50,7 +56,6 @@ public class ZettyClient {
         }
         return socketSession;
     }
-
 
 
 }
