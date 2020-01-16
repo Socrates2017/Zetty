@@ -3,8 +3,6 @@ package com.zrzhen.zetty.net;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousSocketChannel;
@@ -51,7 +49,7 @@ public class SocketSession {
             //作为服务端时才有值
             SocketAddress socketAddress = socketChannel.getRemoteAddress();
             if (socketAddress != null) {
-                this.remoteAddress =socketAddress.toString();
+                this.remoteAddress = socketAddress.toString();
             }
         } catch (Exception e) {
             log.debug(e.getMessage(), e);

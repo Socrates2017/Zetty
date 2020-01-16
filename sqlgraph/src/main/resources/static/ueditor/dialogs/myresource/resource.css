@@ -1,0 +1,204 @@
+@charset "utf-8";
+/* dialog样式 */
+.wrapper {
+    zoom: 1;
+    width: 730px;
+    *width: 726px;
+    height: 480px;
+    margin: 0 auto;
+    padding: 10px;
+    position: relative;
+    font-family: sans-serif;
+}
+
+/*tab样式框大小*/
+.tabhead {
+    float:left;
+}
+.tabbody {
+    width: 100%;
+    height: 446px;
+    position: relative;
+    clear: both;
+	border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.tabbody .navigation {
+    position: absolute;
+    width: 40%;
+    height: 96%;
+    background: #fff;
+    overflow: hidden;
+    padding: 5px;
+    /*display: none;*/
+}
+
+.tabbody .panel {
+    position: absolute;
+    width: 57%;
+    height: 96%;
+    background: #fff;
+    /*overflow: hidden;
+    display: none;*/
+	left: 300px;
+	padding: 5px;
+}
+
+/*
+.tabbody .panel.focus {
+    width: 100%;
+    height: 346px;
+    display: block;
+}
+*/
+
+/* 图片对齐方式 */
+.alignBar{
+    float:right;
+    margin-top: 5px;
+    position: relative;
+}
+
+.alignBar .algnLabel{
+    float:left;
+    height: 20px;
+    line-height: 20px;
+}
+
+.alignBar #alignIcon{
+    zoom:1;
+    _display: inline;
+    display: inline-block;
+    position: relative;
+}
+.alignBar #alignIcon span{
+    float: left;
+    cursor: pointer;
+    display: block;
+    width: 19px;
+    height: 17px;
+    margin-right: 3px;
+    margin-left: 3px;
+    background-image: url(./images/alignicon.jpg);
+}
+.alignBar #alignIcon .none-align{
+    background-position: 0 -18px;
+}
+.alignBar #alignIcon .left-align{
+    background-position: -20px -18px;
+}
+.alignBar #alignIcon .right-align{
+    background-position: -40px -18px;
+}
+.alignBar #alignIcon .center-align{
+    background-position: -60px -18px;
+}
+.alignBar #alignIcon .none-align.focus{
+    background-position: 0 0;
+}
+.alignBar #alignIcon .left-align.focus{
+    background-position: -20px 0;
+}
+.alignBar #alignIcon .right-align.focus{
+    background-position: -40px 0;
+}
+.alignBar #alignIcon .center-align.focus{
+    background-position: -60px 0;
+}
+
+
+
+#search .msg {
+    margin-left: 5px;
+}
+
+#search .searchList{
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    clear: both;
+}
+#search .searchList ul{
+    margin:0;
+    padding:0;
+    list-style:none;
+    clear: both;
+    width: 100%;
+    height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    zoom: 1;
+    position: relative;
+}
+
+#search .searchList li {
+    list-style:none;
+    float: left;
+    display: block;
+    width: 115px;
+    margin: 5px 10px 5px 20px;
+    *margin: 5px 10px 5px 15px;
+    padding:0;
+    font-size: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, .3);
+    -moz-box-shadow: 0 1px 3px rgba(0, 0, 0, .3);
+    -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, .3);
+    position: relative;
+    vertical-align: top;
+    text-align: center;
+    overflow: hidden;
+    cursor: pointer;
+    filter: alpha(Opacity=100);
+    -moz-opacity: 1;
+    opacity: 1;
+    border: 2px solid #eee;
+}
+
+#search .searchList li.selected {
+    filter: alpha(Opacity=40);
+    -moz-opacity: 0.4;
+    opacity: 0.4;
+    border: 2px solid #00a0e9;
+}
+
+#search .searchList li p {
+    background-color: #eee;
+    margin: 0;
+    padding: 0;
+    position: relative;
+    width:100%;
+    height:115px;
+    overflow: hidden;
+}
+
+#search .searchList li p img {
+    cursor: pointer;
+    border: 0;
+}
+
+#search .searchList li a {
+    color: #999;
+    border-top: 1px solid #F2F2F2;
+    background: #FAFAFA;
+    text-align: center;
+    display: block;
+    padding: 0 5px;
+    width: 105px;
+    height:32px;
+    line-height:32px;
+    white-space:nowrap;
+    text-overflow:ellipsis;
+    text-decoration: none;
+    overflow: hidden;
+    word-break: break-all;
+}
+
+#search .searchList a:hover {
+    text-decoration: underline;
+    color: #333;
+}
+#search .searchList .clearFloat{
+    clear: both;
+}
+

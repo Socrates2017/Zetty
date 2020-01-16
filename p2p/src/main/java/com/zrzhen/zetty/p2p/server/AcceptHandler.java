@@ -26,7 +26,7 @@ public class AcceptHandler extends AcceptCompletionHandler<AsynchronousSocketCha
     public void completed(AsynchronousSocketChannel ch, AsynchronousServerSocketChannel listener) {
         //accept the next connection
         listener.accept(listener, this);
-        SocketSession socketSession = new ImSocketSession(ch, builder);
+        SocketSession socketSession = new P2pSocketSession(ch, builder);
         Manager.sessions.put(socketSession.getRemoteAddress(),socketSession);
         socketSession.read();
 

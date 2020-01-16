@@ -14,9 +14,9 @@ public class ImWriteHandler implements CompletionHandler<Integer, SocketSession>
 
     private static Logger log = LoggerFactory.getLogger(ImWriteHandler.class);
 
-    ImSocketSession sender;
+    P2pSocketSession sender;
 
-    public ImWriteHandler(ImSocketSession sender) {
+    public ImWriteHandler(P2pSocketSession sender) {
         this.sender = sender;
     }
 

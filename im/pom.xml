@@ -12,6 +12,11 @@
     <artifactId>im</artifactId>
     <dependencies>
         <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+        </dependency>
+        <dependency>
             <groupId>com.zrzhen</groupId>
             <artifactId>net</artifactId>
         </dependency>
@@ -21,10 +26,15 @@
         </dependency>
 
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.12</version>
+            <groupId>org.mybatis</groupId>
+            <artifactId>mybatis</artifactId>
+            <version>3.4.6</version>
         </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -95,15 +105,15 @@
                         </goals>
                         <configuration>
                             <!--<artifactSet>-->
-                                <!--<excludes>-->
-                                    <!--<exclude>jmock:*</exclude>-->
-                                    <!--<exclude>*:xml-apis</exclude>-->
-                                    <!--<exclude>org.apache.maven:lib:tests</exclude>-->
-                                    <!--<exclude>log4j:log4j:jar:</exclude>-->
-                                <!--</excludes>-->
-                                <!--<includes>-->
-                                    <!--<include>junit:junit</include>-->
-                                <!--</includes>-->
+                            <!--<excludes>-->
+                            <!--<exclude>jmock:*</exclude>-->
+                            <!--<exclude>*:xml-apis</exclude>-->
+                            <!--<exclude>org.apache.maven:lib:tests</exclude>-->
+                            <!--<exclude>log4j:log4j:jar:</exclude>-->
+                            <!--</excludes>-->
+                            <!--<includes>-->
+                            <!--<include>junit:junit</include>-->
+                            <!--</includes>-->
                             <!--</artifactSet>-->
                             <!-- 过滤掉以下文件，不打包 ：解决包重复引用导致的打包错误-->
                             <filters>

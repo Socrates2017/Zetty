@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:v-bind="http://www.w3.org/1999/xhtml" xmlns:v-on="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="icon" type="image/x-icon" href="/static/icon/logo-small.png">
+    <title>ddReport-dbSetting</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/css/dbSetting.css" rel="stylesheet">
+</head>
+<body>
+<div id="db-app">
+    <div class="alert alert-danger alert-dismissible fade show alert-float-top" role="alert" v-if="msgType==='error'">
+        <strong>错误!</strong> {{alertMsg}}
+        <button type="button" class="close" @click="msgType=''">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="alert alert-warning alert-dismissible fade show alert-float-top" role="alert"
+         v-if="msgType==='warning'">
+        <strong>警告!</strong> {{alertMsg}}
+        <button type="button" class="close" @click="msgType=''">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="alert alert-success alert-dismissible fade show alert-float-top" role="alert"
+         v-if="msgType==='success'">
+        <strong>成功!</strong> {{alertMsg}}
+        <button type="button" class="close" @click="msgType=''">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="container">
+                <a class="navbar-brand d-flex align-items-center" href="/">
+                    <img class="logo" src="/static/icon/logo-small.png">
+                    <strong> ddReport</strong>
+                </a>
+            </div>
+        </nav>
+    </header>
+    <main role="main">
+        <div class="py-5">
+            <div class="container">
+                <div class="row">
+                    <div class="col">
+                        <form class="border-bottom mb-2">
+                            <div class="form-row" v-for="(db,index) in dbs" v-if="db.host !='deleted'">
+                                <div class="form-group col-md-2">
+                                    <label for="inputHost">host</label>
+                                    <input type="text" class="form-control" id="inputHost" v-model="db.host">
+                                </div>
+                                <div class="form-group col-md-2">
+                                    <label for="inputPort">port</label>
+                                    <input type="text" class="form-control" id="inputPort" v-model="db.port">
+                                </div>
+                                <div class="form-group col-md-2">
+                                    <label for="inputUser">user</label>
+                                    <input type="text" class="form-control" id="inputUser" v-model="db.user">
+                                </div>
+                                <div class="form-group col-md-2">
+                                    <label for="inputPassword">password</label>
+                                    <input type="password" class="form-control" id="inputPassword" v-model="db.password">
+                                </div>
+                                <div class="form-group col-md-2">
+                                    <label for="inputDatabase">database</label>
+                                    <input type="text" class="form-control" id="inputDatabase" v-model="db.database">
+                                </div>
+                                <div class="form-group col-md-1">
+                                    <label>&nbsp;</label>
+                                    <div>
+                                        <loading-8 class="d-none"></loading-8>
+                                        <button type="button" class="btn btn-outline-success btn-block"
+                                                @click="testDb($event,index)">
+                                            测试
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="form-group col-md-1">
+                                    <label>&nbsp;</label>
+                                    <div>
+                                        <button type="button" class="btn btn-outline-danger btn-block"
+                                                @click="deleteDb(index)">
+                                            删除
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-outline-dark btn-sm mb-2" @click="addDb()">添加</button>
+                        </form>
+                        <div class="row">
+                            <div class="col-auto ml-auto">
+                                <div class="btn-toolbar mb-2">
+                                    <loading-8 class="d-none"></loading-8>
+                                    <button type="button" class="btn btn-outline-dark ml-2"
+                                            @click="updateAllDb($event)">提交修改
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!--modal-->
+    <div id="confirmModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">{{confirm.message.title}}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    {{confirm.message.content}}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" @click="confirm.yesFunc()" data-dismiss="modal">
+                        继续
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="/static/js/jquery-3.3.1.min.js"></script>
+<script src="/static/js/polyfill.min.js"></script>
+<script src="/static/js/bootstrap.min.js"></script>
+<script src="/static/js/vue.min.js"></script>
+<script src="/static/js/axios.min.js"></script>
+<script src="/static/js/dbSetting.js"></script>
+</body>
+</html>

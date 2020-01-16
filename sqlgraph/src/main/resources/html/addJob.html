@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:v-bind="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="icon" type="image/x-icon" href="/static/icon/logo-small.png">
+    <title>ddReport-addJob</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/css/addJob.css" rel="stylesheet">
+</head>
+<body>
+<div id="detail-app">
+    <div class="alert alert-danger alert-dismissible fade show alert-float-top" role="alert" v-if="msgType==='error'">
+        <strong>错误!</strong> {{ alertMsg }}
+        <button type="button" class="close" @click="msgType=''">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="alert alert-warning alert-dismissible fade show alert-float-top" role="alert"
+         v-if="msgType==='warning'">
+        <strong>警告!</strong> {{ alertMsg }}
+        <button type="button" class="close" @click="msgType=''">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="alert alert-success alert-dismissible fade show alert-float-top" role="alert"
+         v-if="msgType==='success'">
+        <strong>成功!</strong> {{ alertMsg }}
+        <button type="button" class="close" @click="msgType=''">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="container">
+                <a class="navbar-brand d-flex align-items-center" href="/">
+                    <img class="logo" src="/static/icon/logo-small.png">
+                    <strong> ddReport</strong>
+                </a>
+            </div>
+        </nav>
+    </header>
+    <main role="main">
+        <div class="py-5">
+            <div class="container">
+                <div class="row">
+                    <div class="col">
+                        <form class="border-bottom mb-2">
+                            <div class="form-group">
+                                <label for="jobNameInput">job name</label>
+                                <input type="text" class="form-control" id="jobNameInput"
+                                       placeholder="job name" v-model="job.name">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="projectSelect">choose project</label>
+                                <select class="custom-select" id="projectSelect" v-model="job.project_id">
+                                    <option v-for="project in projects" v-bind:value="project.id">
+                                        {{ project.name }}
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="dbSelect">choose database</label>
+                                <select class="custom-select" id="dbSelect" v-model="job.dbId">
+                                    <option v-for="db in dbs" v-bind:value="db.id">
+                                        {{ db.host+':'+db.port+'/'+db.database }}
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="form-group" v-for="(sql,index) in job.sql">
+                                <label for="jobSqlTextArea">job sql
+                                    <button type="button" class="btn btn-danger btn-sm"
+                                            @click="deleteSql(job,index)">delete
+                                    </button>
+                                </label>
+                                <textarea class="form-control" id="jobSqlTextArea" rows="5"
+                                          v-model="job.sql[index]"></textarea>
+                            </div>
+                            <button type="button" class="btn btn-light btn-sm"
+                                    @click="addSql(job)">
+                                add sql
+                            </button>
+                            <div class="form-row">
+                                <div class="form-group col-md-2">
+                                    <label for="jobExecMonthInput">月</label>
+                                    <input type="text" class="form-control"
+                                           id="jobExecMonthInput" v-model="job.execMonth">
+                                </div>
+                                <div class="form-group col-md-2">
+                                    <label for="jobExecDayInput">天</label>
+                                    <input type="text" class="form-control"
+                                           id="jobExecDayInput" v-model="job.execDay">
+                                </div>
+                                <div class="form-group col-md-2">
+                                    <label for="jobExecHourInput">时</label>
+                                    <input type="text" class="form-control"
+                                           id="jobExecHourInput" v-model="job.execHour">
+                                </div>
+                                <div class="form-group col-md-2">
+                                    <label for="jobExecMinuteInput">分</label>
+                                    <input type="text" class="form-control"
+                                           id="jobExecMinuteInput" v-model="job.execMinute">
+                                </div>
+                                <div class="form-group col-md-2">
+                                    <label for="jobExecSecondInput">秒</label>
+                                    <input type="text" class="form-control"
+                                           id="jobExecSecondInput" v-model="job.execSecond">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="ddRobotInput">dd robot</label>
+                                <input type="text" class="form-control" id="ddRobotInput"
+                                       placeholder="dd robot address" v-model="job.ddRobot">
+                            </div>
+                            <div class="btn-toolbar mb-2">
+                                <button type="button" class="btn btn-light btn-sm click-load mr-2"
+                                        @click="testJob($event)">test
+                                </button>
+                                <loading-8 class="d-none"></loading-8>
+                            </div>
+                            <div class="row">
+                                <div class="col-3 mb-2" v-for="(testImage,index) in testImages">
+                                    <div class="card" data-toggle="modal" data-target="#testImageModal"
+                                         @click="activeTestImageIndex=index">
+                                        <img v-bind:src="testImage" class="card-img-top">
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                        <div class="row">
+                            <div class="col-auto ml-auto">
+                                <div class="btn-toolbar mb-2">
+                                    <loading-8 class="d-none"></loading-8>
+                                    <button type="button" class="btn btn-outline-dark ml-2"
+                                            @click="addJob($event)">保存添加
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!--modal-->
+    <div id="testImageModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog model-lg-customer modal-dialog-centered">
+            <div class="modal-content">
+                <img class="test-image" v-bind:src="testImages[activeTestImageIndex]">
+            </div>
+        </div>
+    </div>
+    <div id="confirmModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">{{ confirm.message.title }}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    {{ confirm.message.content }}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" @click="confirm.yesFunc()" data-dismiss="modal">
+                        继续
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+<script src="/static/js/jquery-3.3.1.min.js"></script>
+<script src="/static/js/polyfill.min.js"></script>
+<script src="/static/js/bootstrap.min.js"></script>
+<script src="/static/js/vue.min.js"></script>
+<script src="/static/js/axios.min.js"></script>
+<script src="/static/js/addJob.js"></script>
+</body>
+</html>

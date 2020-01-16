@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:v-bind="http://www.w3.org/1999/xhtml" xmlns:v-on="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="icon" type="image/x-icon" href="/static/icon/logo-small.png">
+    <title>ddReport</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/css/open-iconic-bootstrap.min.css" rel="stylesheet">
+    <link href="/static/css/projectList.css" rel="stylesheet">
+</head>
+<body>
+<div id="main-app">
+    <div class="screen-mask">
+        <div class="job-loader-container">
+            <div class="loader self-center">
+                <svg version="1.1" id="loader-1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px"
+                     width="40px" height="40px" viewBox="0 0 40 40" enable-background="new 0 0 40 40"
+                     xml:space="preserve">
+                  <path opacity="0.2" fill="#000" d="M20.201,5.169c-8.254,0-14.946,6.692-14.946,14.946c0,8.255,6.692,14.946,14.946,14.946
+                    s14.946-6.691,14.946-14.946C35.146,11.861,28.455,5.169,20.201,5.169z M20.201,31.749c-6.425,0-11.634-5.208-11.634-11.634
+                    c0-6.425,5.209-11.634,11.634-11.634c6.425,0,11.633,5.209,11.633,11.634C31.834,26.541,26.626,31.749,20.201,31.749z"/>
+                    <path fill="#000" d="M26.013,10.047l1.654-2.866c-2.198-1.272-4.743-2.012-7.466-2.012h0v3.312h0
+                    C22.32,8.481,24.301,9.057,26.013,10.047z">
+                    <animateTransform attributeType="xml"
+                                      attributeName="transform"
+                                      type="rotate"
+                                      from="0 20 20"
+                                      to="360 20 20"
+                                      dur="0.5s"
+                                      repeatCount="indefinite"/>
+                    </path>
+                  </svg>
+            </div>
+        </div>
+    </div>
+    <job-loader v-if="screenLoader"></job-loader>
+    <div class="alert alert-danger alert-dismissible fade show alert-float-top" role="alert" v-if="msgType==='error'">
+        <strong>错误!</strong> {{ alertMsg }}
+        <button type="button" class="close" @click="msgType=''">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="alert alert-warning alert-dismissible fade show alert-float-top" role="alert"
+         v-if="msgType==='warning'">
+        <strong>警告!</strong> {{ alertMsg }}
+        <button type="button" class="close" @click="msgType=''">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="alert alert-success alert-dismissible fade show alert-float-top" role="alert"
+         v-if="msgType==='success'">
+        <strong>成功!</strong> {{ alertMsg }}
+        <button type="button" class="close" @click="msgType=''">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="container">
+                <a class="navbar-brand d-flex align-items-center" href="/">
+                    <img class="logo" src="/static/icon/logo-small.png">
+                    <strong> ddReport</strong>
+                </a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse"
+                        data-target="#navbarSupportedContent"
+                        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav mr-auto">
+                        <li class="nav-item my-2 my-lg-0">
+                            <a class="nav-link"
+                               href="http://wiki.ppmoney.com/pages/viewpage.action?pageId=312705161">文档</a>
+                        </li>
+                    </ul>
+                    <ul class="navbar-nav ml-auto">
+                        <li class="nav-item my-2 my-lg-0">
+                            <a class="nav-link">scheduler:
+                                <span v-if="schedulerStatus === -1" style="color: #1e7e34">checking</span>
+                                <span v-if="schedulerStatus === 0" style="color: #1e7e34">running</span>
+                                <span v-if="schedulerStatus === 1" style="color: #ea3e1b">error</span>
+                            </a>
+                        </li>
+                        <li class="nav-item my-2 my-lg-0">
+                            <a class="nav-link oi oi-plus" href="/addJob" title="添加job" aria-hidden="true"></a>
+                        </li>
+                        <li class="nav-item my-2 my-lg-0">
+                            <a class="nav-link oi oi-hard-drive" href="/dbSetting" title="配置数据库" aria-hidden="true"></a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="loginDropdown" role="button"
+                               data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <span class="oi oi-person">{{ username }}</span>
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="loginDropdown">
+                                <a class="dropdown-item" href="/userManager">用户管理</a>
+                                <a class="dropdown-item" href="/login/logout">logout</a>
+                                <a class="dropdown-item" href="#" v-on:click="showApiData()">api</a>
+                                <a class="dropdown-item" href="#" v-on:click="restartScheduler()">重启scheduler</a>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main role="main">
+        <div class="py-5">
+            <div class="container">
+
+                <div class="row">
+                    <div class="col-md-3" v-for="(project,index) in projects">
+                        <div class="card mb-4 job-card">
+                            <job-loader v-if="project.loaderShow"></job-loader>
+                            <div class="card-body">
+                                <h5 class="card-title" style="cursor: pointer;"
+                                    @click="jumpUrl('/jobList/'+project.id)">{{ project.name }}</h5>
+                                <div class="btn-toolbar mb-2" role="toolbar" aria-label="Toolbar with button groups">
+                                    <p>{{ project.description }}</p>
+                                </div>
+                                <div class="btn-group btn-group-sm" role="group" aria-label="Third group">
+                                    <button v-if="userlevel<2" type="button" class="btn btn-light"
+                                            @click="updateProjectDetail(project.id,project.name,project.description)" title="修改项目">
+                                        <span class="oi oi-pencil"></span>
+                                    </button>
+                                </div>
+                                <div class="btn-group btn-group-sm" role="group" aria-label="Third group">
+                                    <button v-if="userlevel<2" type="button" class="btn btn-light"
+                                            @click="updateProject(project.id)" title="权限管理">
+                                        <span class="oi oi-lock-locked"></span>
+                                    </button>
+                                </div>
+                                <div class="btn-group btn-group-sm" role="group" aria-label="Third group">
+                                    <button v-if="userlevel<2" type="button" class="btn btn-light"
+                                            @click="deleteProject(project.id)" title="删除项目">
+                                        <span class="oi oi-trash"></span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3" v-if="userlevel<2">
+                        <div id="addProjectOnclickDiv" class="card mb-4 job-card" @click="addProject()"
+                             style="cursor: pointer;">
+                            <div class="card-body">
+                                <div class="btn-toolbar mb-2" role="toolbar" aria-label="Toolbar with button groups">
+                                    <h5 class="card-title"></h5>
+                                </div>
+
+                                <span class="nav-link oi oi-plus"></span>
+                                <div class="btn-group btn-group-sm" role="group" aria-label="Third group">
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <!-- Modal -->
+    <div id="confirmModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">{{ confirm.message.title }}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    {{ confirm.message.content }}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" @click="confirm.yesFunc()" data-dismiss="modal">
+                        确定
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="updateProject" tabindex="-1" role="dialog" aria-labelledby="myModalLabel_login">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="myModalLabel_login" style="float: left">管理项目-用户权限</h4>
+                    <button type="button" class="close" data-dismiss="modal"
+                            aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+
+                    <div class="form-group">
+                        <label for="addUserProjectSelect">选择用户</label>
+                        <select class="custom-select" id="addUserProjectSelect" v-model="userProject.user_id">
+                            <option v-for="user in usersNoPermission" v-bind:value="user.id">
+                                {{ user.name }}
+                            </option>
+                        </select>
+                    </div>
+                    <div style="float:right;">
+                        <button type="button" class="btn btn-outline-dark ml-2"
+                                @click="addUserProject($event)">保存添加
+                        </button>
+                    </div>
+                    <div v-for="(project,index) in userProjects">
+                        <div>
+                            <span style="background-color: lightgray">{{ project.username }}</span>&emsp;&emsp;
+                            <span class="glyphicon glyphicon-star collecticon-red"
+                                  @click="deleteUserProject(project.user_id)">X</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="addProject" tabindex="-1" role="dialog" aria-labelledby="myModalLabel_addProject">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="myModalLabel_addProject" style="float: left">新增项目</h4>
+                    <button type="button" class="close" data-dismiss="modal"
+                            aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+
+                    <div class="form-group">
+                        <label for="addProjectDataNameInput">项目名：</label>
+                        <input type="text" class="form-control" id="addProjectDataNameInput"
+                               placeholder="" v-model="addProjectData.name">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="addProjectDataDescriptionInput">描述：</label>
+                        <input type="text" class="form-control" id="addProjectDataDescriptionInput"
+                               placeholder="" v-model="addProjectData.description">
+                    </div>
+
+                    <div style="float:right;">
+                        <button type="button" class="btn btn-outline-dark ml-2"
+                                @click="addProjectDataF()">保存添加
+                        </button>
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="updateProjectDetail" tabindex="-1" role="dialog"
+         aria-labelledby="myModalLabel_updateProject">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="myModalLabel_addProject" style="float: left">修改项目</h4>
+                    <button type="button" class="close" data-dismiss="modal"
+                            aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+
+                    <div class="form-group">
+                        <label for="addProjectDataNameInput">项目名：</label>
+                        <input type="text" class="form-control" id="addProjectDataNameInput"
+                               placeholder="" v-model="addProjectData.name">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="addProjectDataDescriptionInput">描述：</label>
+                        <input type="text" class="form-control" id="addProjectDataDescriptionInput"
+                               placeholder="" v-model="addProjectData.description">
+                    </div>
+
+                    <div style="float:right;">
+                        <button type="button" class="btn btn-outline-dark ml-2"
+                                @click="updateProjectDetailData()">保存修改
+                        </button>
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!---->
+<script src="/static/js/jquery-3.3.1.min.js"></script>
+<script src="/static/js/polyfill.min.js"></script>
+<script src="/static/js/bootstrap.min.js"></script>
+<script src="/static/js/vue.js"></script>
+<script src="/static/js/axios.min.js"></script>
+<script src="/static/js/jenel.js"></script>
+<script src="/static/js/projectList.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,10 @@
+@startuml
+
+client1-> server:1.client1 connect to the server,then the serer get the public address of the client1
+client2-> server:2.client2 connect to the server,then the serer get the public address of the client2
+server ->client1:3.send the public address of client2 to the client1
+server ->client2:4.send the public address of client1 to the client2
+client1 ->client2:5.client1 disconnect to the server, and then bind the same private port,and then connect to the public address of the client2,and then client1 disconnect to the client2,and then client1 listening to hte private port
+client2 ->client1:client2 bind the private port,and connect to the public address of the client1
+
+@enduml

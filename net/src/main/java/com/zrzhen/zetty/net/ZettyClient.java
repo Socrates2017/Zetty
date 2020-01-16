@@ -3,7 +3,7 @@ package com.zrzhen.zetty.net;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Constructor;
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketOption;
 import java.nio.channels.AsynchronousSocketChannel;
@@ -31,7 +31,7 @@ public class ZettyClient {
         return new Builder();
     }
 
-    public synchronized SocketSession connect() throws Exception {
+    public synchronized SocketSession connect() throws IOException {
         AsynchronousSocketChannel clientChannel = AsynchronousSocketChannel.open();
 
         if (builder.socketOptions != null) {
@@ -40,14 +40,9 @@ public class ZettyClient {
             }
         }
 
-        if (builder.socketSessionClass != null) {
-            Constructor c1 = builder.socketSessionClass.getDeclaredConstructor(new Class[]{AsynchronousSocketChannel.class, Builder.class});
-            c1.setAccessible(true);
-            socketSession = (SocketSession) c1.newInstance(new Object[]{clientChannel, builder});
-        } else {
-            socketSession = new SocketSession(clientChannel, builder);
-        }
+        socketSession = new SocketSession(clientChannel, builder);
         CountDownLatch latch = new CountDownLatch(1);
+        clientChannel.bind(new InetSocketAddress(builder.host, 12345));
         clientChannel.connect(new InetSocketAddress(builder.host, builder.port), socketSession, new ConnectCompletionHandler(latch));
         try {
             latch.await(30, TimeUnit.SECONDS);
@@ -56,6 +51,7 @@ public class ZettyClient {
         }
         return socketSession;
     }
+
 
 
 }

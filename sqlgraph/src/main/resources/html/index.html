@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:v-on="http://www.w3.org/1999/xhtml"
+      xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="icon" type="image/x-icon" href="/static/icon/logo-small.png">
+    <title>ddReport</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/css/open-iconic-bootstrap.min.css" rel="stylesheet">
+    <link href="/static/css/index.css" rel="stylesheet">
+</head>
+<body>
+<div id="main-app">
+    <div class="screen-mask">
+        <div class="job-loader-container">
+            <div class="loader self-center">
+                <svg version="1.1" id="loader-1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px"
+                     width="40px" height="40px" viewBox="0 0 40 40" enable-background="new 0 0 40 40"
+                     xml:space="preserve">
+                  <path opacity="0.2" fill="#000" d="M20.201,5.169c-8.254,0-14.946,6.692-14.946,14.946c0,8.255,6.692,14.946,14.946,14.946
+                    s14.946-6.691,14.946-14.946C35.146,11.861,28.455,5.169,20.201,5.169z M20.201,31.749c-6.425,0-11.634-5.208-11.634-11.634
+                    c0-6.425,5.209-11.634,11.634-11.634c6.425,0,11.633,5.209,11.633,11.634C31.834,26.541,26.626,31.749,20.201,31.749z"/>
+                    <path fill="#000" d="M26.013,10.047l1.654-2.866c-2.198-1.272-4.743-2.012-7.466-2.012h0v3.312h0
+                    C22.32,8.481,24.301,9.057,26.013,10.047z">
+                    <animateTransform attributeType="xml"
+                                      attributeName="transform"
+                                      type="rotate"
+                                      from="0 20 20"
+                                      to="360 20 20"
+                                      dur="0.5s"
+                                      repeatCount="indefinite"/>
+                    </path>
+                  </svg>
+            </div>
+        </div>
+    </div>
+    <job-loader v-if="screenLoader"></job-loader>
+    <div class="alert alert-danger alert-dismissible fade show alert-float-top" role="alert" v-if="msgType==='error'">
+        <strong>错误!</strong> {{ alertMsg }}
+        <button type="button" class="close" @click="msgType=''">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="alert alert-warning alert-dismissible fade show alert-float-top" role="alert"
+         v-if="msgType==='warning'">
+        <strong>警告!</strong> {{ alertMsg }}
+        <button type="button" class="close" @click="msgType=''">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="alert alert-success alert-dismissible fade show alert-float-top" role="alert"
+         v-if="msgType==='success'">
+        <strong>成功!</strong> {{ alertMsg }}
+        <button type="button" class="close" @click="msgType=''">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="container">
+                <a class="navbar-brand d-flex align-items-center" href="#">
+                    <img class="logo" src="/static/icon/logo-small.png">
+                    <strong> ddReport</strong>
+                </a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse"
+                        data-target="#navbarSupportedContent"
+                        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav mr-auto">
+                        <li class="nav-item my-2 my-lg-0">
+                            <a class="nav-link"
+                               href="http://wiki.ppmoney.com/pages/viewpage.action?pageId=312705161">文档</a>
+                        </li>
+                    </ul>
+                    <ul class="navbar-nav ml-auto">
+                        <li class="nav-item my-2 my-lg-0">
+                            <a class="nav-link">scheduler:
+                                <span v-if="schedulerStatus === -1" style="color: #1e7e34">checking</span>
+                                <span v-if="schedulerStatus === 0" style="color: #1e7e34">running</span>
+                                <span v-if="schedulerStatus === 1" style="color: #ea3e1b">error</span>
+                            </a>
+                        </li>
+                        <li class="nav-item my-2 my-lg-0">
+                            <a class="nav-link oi oi-plus" href="/addJob" title="添加job" aria-hidden="true"></a>
+                        </li>
+                        <li class="nav-item my-2 my-lg-0">
+                            <a class="nav-link oi oi-hard-drive" href="/dbSetting" title="配置数据库" aria-hidden="true"></a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="loginDropdown" role="button"
+                               data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <span class="oi oi-person">{{ username }}</span>
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="loginDropdown">
+                                <a class="dropdown-item" href="/userManager">用户管理</a>
+                                <a class="dropdown-item" href="/login/logout">logout</a>
+                                <a class="dropdown-item" href="#" v-on:click="showApiData()">api</a>
+                                <a class="dropdown-item" href="#" v-on:click="restartScheduler()">重启scheduler</a>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div style="text-align:center">
+        <button type="button" class="btn btn-light" id="all" @click="getAllJobs(0)">
+            <span class="oi oi-justify-left" >全部</span>
+        </button>
+        <!--
+        <button type="button" class="btn btn-light"  @click="getJobsByStatus(0,-1)">
+            <span class="oi oi-justify-left" id="transFormSpan">错误终止的任务</span>
+        </button>-->
+        <button type="button" class="btn btn-light" id="running" @click="getJobsByStatus(0,1)">
+            <span class="oi oi-justify-left" >已上线</span>
+        </button>
+        <button type="button" class="btn btn-light" id="stopped" @click="getJobsByStatus(0,2)">
+            <span class="oi oi-justify-left" >已暂停</span>
+        </button>
+        <button type="button" class="btn btn-light" id="offline" @click="getJobsByStatus(0,0)">
+            <span class="oi oi-justify-left" >未上线</span>
+        </button>
+        <!--
+        <button type="button" class="btn btn-light"  @click="getJobsByStatus(0,3)">
+            <span class="oi oi-justify-left" id="transFormSpan">异常重试的任务</span>
+        </button>
+        <button type="button" class="btn btn-light"  @click="getJobsByStatus(0,4)">
+            <span class="oi oi-justify-left" id="transFormSpan">移除的任务</span>
+        </button>
+        <button type="button" class="btn btn-light"  @click="getJobsByStatus(0,5)">
+            <span class="oi oi-justify-left" id="transFormSpan">初始等待运行的任务</span>
+        </button>
+        <button type="button" class="btn btn-light"  @click="getJobsByStatus(0,6)">
+            <span class="oi oi-justify-left" id="transFormSpan">任务执行中的任务</span>
+        </button>-->
+    </div>
+    <main role="main">
+        <div class="py-5">
+            <div class="container">
+
+                <div class="row">
+                    <div class="col-md-3" v-for="(job,index) in jobs">
+                        <div class="card mb-4 job-card">
+                            <job-loader v-if="job.loaderShow"></job-loader>
+                            <div class="card-body">
+                                <h5 class="card-title">{{ job.job_name }}</h5>
+                                <h6 class="card-subtitle mb-2 text-muted small-text">状态：
+                                    <span class="badge badge-danger" v-if="job.status === -1">错误终止</span>
+                                    <span class="badge badge-light" v-if="job.status === 0">初始就绪</span>
+                                    <span class="badge badge-success" v-if="job.status === 1">正常运行</span>
+                                    <span class="badge badge-info" v-if="job.status === 2">暂停</span>
+                                    <span class="badge badge-warning" v-if="job.status === 3">异常重试</span>
+                                    <span class="badge badge-dark" v-if="job.status === 4">移除</span>
+                                    <span class="badge badge-primary" v-if="job.status === 5">初始等待运行</span>
+                                    <span class="badge badge-secondary" v-if="job.status === 6">任务执行中</span>
+                                </h6>
+                                <p class="card-text small-span-text">
+                                    <span>在</span>
+                                    <span v-if="job.job_exec_month !== null">{{ job.job_exec_month }}月</span>
+                                    <span v-if="job.job_exec_day !== null">{{ job.job_exec_day }}日</span>
+                                    <span v-if="job.job_exec_day === null && (job.job_exec_minute !== null || job.job_exec_second !== null || job.job_exec_hour !== null)">每天</span>
+                                    <span v-if="job.job_exec_hour !== null">{{ job.job_exec_hour }}时</span>
+                                    <span v-if="job.job_exec_hour === null && (job.job_exec_minute !== null || job.job_exec_second !== null)">每时</span>
+                                    <span v-if="job.job_exec_minute !== null">{{ job.job_exec_minute }}分</span>
+                                    <span v-if="job.job_exec_minute === null && job.job_exec_second !== null">每分</span>
+                                    <span v-if="job.job_exec_second !== null">{{ job.job_exec_second }}秒</span>
+                                    <span>执行</span>
+                                </p>
+                                <p class="job-small-text">
+                                    {{ job.username }}创建
+                                    <!--<span v-if="job.create_time !== job.update_time">在{{job.update_time}}最新修改</span>-->
+                                </p>
+                                <div class="btn-toolbar mb-2" role="toolbar" aria-label="Toolbar with button groups">
+                                    <div class="btn-group btn-group-sm mr-auto" role="group" aria-label="First group">
+                                        <button v-if="job.status == 0" type="button" class="btn btn-outline-dark" @click="runJob(index)"
+                                                data-toggle="tooltip" data-placement="bottom" title="执行定时任务">
+                                            <span class="oi oi-timer"></span>
+                                        </button>
+                                        <button v-if="job.status !== 0" type="button" class=" btn btn-outline-dark" @click="execJob(index)"
+                                                data-toggle="tooltip" data-placement="bottom" title="运行任务一次">
+                                            <span class="oi oi-media-play"></span>
+                                        </button>
+                                        <button v-if="!(job.status == 0 || job.status == 2)" type="button" class="btn btn-outline-dark" @click="pauseJob(index)"
+                                                data-toggle="tooltip" data-placement="bottom" title="暂停任务">
+                                            <span class="oi oi-media-pause"></span>
+                                        </button>
+                                        <button v-if="job.status !== 0" type="button" class="btn btn-outline-dark" @click="removeJob(index)"
+                                                data-toggle="tooltip" data-placement="bottom" title="移除任务">
+                                            <span class="oi oi-media-stop"></span>
+                                        </button>
+                                        <button v-if="job.status == 2" type="button" class="btn btn-outline-dark" @click="resumeJob(index)"
+                                                data-toggle="tooltip" data-placement="bottom" title="重启任务">
+                                            <span class="oi oi-reload"></span>
+                                        </button>
+                                    </div>
+                                    <div class="btn-group btn-group-sm" role="group" aria-label="Third group">
+                                        <button type="button" class="btn btn-light" @click="jumpUrl('/jobs/'+job.id)">
+                                            <span class="oi oi-pencil"></span>
+                                        </button>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <!-- Modal -->
+    <div id="confirmModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">{{ confirm.message.title }}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    {{ confirm.message.content }}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" @click="confirm.yesFunc()" data-dismiss="modal">
+                        确定
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="/static/js/jquery-3.3.1.min.js"></script>
+<script src="/static/js/polyfill.min.js"></script>
+<script src="/static/js/bootstrap.min.js"></script>
+<script src="/static/js/vue.js"></script>
+<script src="/static/js/axios.min.js"></script>
+<script src="/static/js/index.js"></script>
+</body>
+</html>

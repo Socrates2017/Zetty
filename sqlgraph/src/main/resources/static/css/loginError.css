@@ -1,0 +1,40 @@
+html {
+    width: 100%;
+    height: 100%;
+}
+
+body {
+    width: 100%;
+    height: 100%;
+    background: #f7f7f7 !important;
+}
+
+#background-canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.login-box {
+    width: 600px;
+    height: 400px;
+    background: #fff;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    box-shadow: 0 0 50px #999999;
+    padding: 20px;
+    border-radius: 10px;
+    -webkit-transform: translateX(-50%) translateY(-50%);
+}
+
+.jumbotron {
+    background: #fff !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.jumbotron h1, p {
+    text-align: center;
+    margin: 30px;
+}

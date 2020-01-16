@@ -1,0 +1,22 @@
+.logo {
+    height: 40px;
+}
+
+.white-loading svg rect {
+    fill: #fff;
+}
+
+.model-lg-customer {
+    max-width: 90%;
+}
+
+.test-image {
+    width: 100%;
+}
+
+.alert-float-top {
+    position: fixed !important;
+    top: 0;
+    width: 100%;
+    z-index: 2;
+}

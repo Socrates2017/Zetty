@@ -1,10 +1,15 @@
 package com.zrzhen.zetty.p2p.server;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.zrzhen.zetty.common.FileUtil;
+import com.zrzhen.zetty.common.JsonUtil;
 import com.zrzhen.zetty.net.DefaultWriteHandler;
 import com.zrzhen.zetty.net.SocketReadHandler;
 import com.zrzhen.zetty.net.SocketSession;
+import com.zrzhen.zetty.p2p.MessageTypeEnum;
 import com.zrzhen.zetty.p2p.util.ByteUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.ByteBuffer;
 
@@ -13,6 +18,7 @@ import java.nio.ByteBuffer;
  */
 public class ReadHandler implements SocketReadHandler<Integer, SocketSession> {
 
+    private static Logger log = LoggerFactory.getLogger(ReadHandler.class);
 
     private byte[] msg;
 
@@ -46,7 +52,7 @@ public class ReadHandler implements SocketReadHandler<Integer, SocketSession> {
             msgIndex = 0;
             socketSession.read();
 
-            process((ImSocketSession) socketSession, msgResult);
+            process((P2pSocketSession) socketSession, msgResult);
 
         } else {
             if (msg == null) {
@@ -59,16 +65,29 @@ public class ReadHandler implements SocketReadHandler<Integer, SocketSession> {
     }
 
 
-    public void process(ImSocketSession socketSession, String msg) {
+    public void process(P2pSocketSession socketSession, String msg) {
 
-        if (msg.equalsIgnoreCase("natPort")) {
-            String port = socketSession.getRemoteAddress().substring(socketSession.getRemoteAddress().indexOf(":") + 1);
-            ByteBuffer writeBuffer = FileUtil.str2Buf("port:"+port);
-            socketSession.write(writeBuffer, new DefaultWriteHandler());
+        log.info("receive the message:{}", msg);
+
+        JsonNode jsonNode = JsonUtil.str2JsonNode(msg);
+
+        String type = jsonNode.get("type").asText();
+
+        String response = "";
+
+        if (type.equalsIgnoreCase(MessageTypeEnum.REGISTER.getName())) {
+            String payload = jsonNode.get("payload").asText();
+            Manager.register.put(payload, socketSession.getRemoteAddress());
+        } else if (type.equalsIgnoreCase(MessageTypeEnum.LOGIN_USER.getName())) {
+            response = Manager.loginUser.toString();
         } else {
-            ByteBuffer writeBuffer = FileUtil.str2Buf(msg);
-            socketSession.write(writeBuffer, new ImWriteHandler(socketSession));
+            response = "I had receive your message successfully. message: " + msg;
         }
+
+
+        ByteBuffer writeBuffer = FileUtil.str2Buf(response);
+        socketSession.write(writeBuffer, new DefaultWriteHandler());
+
 
     }
 

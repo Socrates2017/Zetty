@@ -60,28 +60,6 @@
         </dependency>
 
 
-        <!-- https://mvnrepository.com/artifact/com.alibaba/druid -->
-        <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>druid</artifactId>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
-        <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-        </dependency>
-
-        <!--发邮件 -->
-        <dependency>
-            <groupId>com.sun.mail</groupId>
-            <artifactId>javax.mail</artifactId>
-        </dependency>
-
-        <!-- https://mvnrepository.com/artifact/org.quartz-scheduler/quartz -->
-        <dependency>
-            <groupId>org.quartz-scheduler</groupId>
-            <artifactId>quartz</artifactId>
-        </dependency>
 
     </dependencies>
     <build>

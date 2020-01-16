@@ -17,7 +17,10 @@ public class Manager {
     public static ConcurrentHashMap<String, String> loginUser = new ConcurrentHashMap();
 
 
-    public static void logout(ImSocketSession socketSession) {
+    public static ConcurrentHashMap<String, String> register = new ConcurrentHashMap();
+
+
+    public static void logout(P2pSocketSession socketSession) {
         String host = socketSession.getRemoteAddress();
         Manager.sessions.remove(host);
         Iterator<Map.Entry<String, String>> iterator = loginUser.entrySet().iterator();
