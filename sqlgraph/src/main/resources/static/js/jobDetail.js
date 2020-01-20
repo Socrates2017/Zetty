@@ -18,14 +18,16 @@ var app = new Vue({
             id: null,
             name: null
         },
-        jobId:null,
-        dbs: []
+        jobId: null,
+        dbs: [],
+        graphs: []
     },
     created: function () {
         this.getAllDb()
+        this.getAllGraph()
     },
     mounted: function () {
-        this.jobId=window.location.pathname.split('/').pop()
+        this.jobId = window.location.pathname.split('/').pop()
         this.getJobDetail(this.jobId);
     },
     methods: {
@@ -39,6 +41,19 @@ var app = new Vue({
                 },
                 error: function (error) {
                     app.showErrorMsg("获取数据库列表失败 " + error)
+                }
+            })
+        },
+        getAllGraph: function () {
+            this.postUtil({
+                path: '/data/getAllGraph',
+                success: function (data) {
+                    data.forEach(function (db) {
+                        app.graphs.push(db)
+                    })
+                },
+                error: function (error) {
+                    app.showErrorMsg("获取图表类型失败 " + error)
                 }
             })
         },
@@ -67,7 +82,7 @@ var app = new Vue({
                     app.projects = []
                     for (var index = 0, len = projects.length; index < len; index++) {
                         app.projects.push(projects[index]);
-                        if (projects[index].id==app.project.id){
+                        if (projects[index].id == app.project.id) {
                             app.project.name = projects[index].name;
                         }
                     }
@@ -160,7 +175,7 @@ var app = new Vue({
                 yesFunc: function () {
                     app.btnLoaderShow(event);
                     app.postUtil({
-                        path: '/data/updateJob/'+app.jobId,
+                        path: '/data/updateJob/' + app.jobId,
                         data: JSON.stringify(app.job),
                         success: function () {
                             app.getJobDetail(app.jobId);

@@ -16,6 +16,6 @@ public class AutoByteBufferFactory extends BasePooledObjectFactory<AutoByteBuffe
 
     @Override
     public PooledObject<AutoByteBuffer> wrap(AutoByteBuffer obj) {
-        return new DefaultPooledObject<AutoByteBuffer>(obj);
+        return new DefaultPooledObject<>(obj);
     }
 }

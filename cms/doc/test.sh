@@ -151,7 +151,7 @@ fi
 
 
 if [ x"$JAVA_MEM_OPTS" == x ]; then
-    JAVA_MEM_OPTS="-server -Xms212m -Xmx212m -Xmn108m -Xss256k -XX:+UseSerialGC -verbose:gc -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintGCTimeStamps -XX:+PrintHeapAtGC -Xloggc:logs/gc.log -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=logs/dump.log"
+    JAVA_MEM_OPTS="-server -Xms212m -Xmx212m -Xmn108m -Xss256k -XX:+UseSerialGC -verbose:gc -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintGCTimeStamps -XX:+PrintHeapAtGC -Xloggc:logs/gc.log -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=logs/dump.log -Djava.rmi.server.hostname=192.168.103.140 -Dcom.sun.management.jmxremote.port=9008 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false"
 fi
 
 

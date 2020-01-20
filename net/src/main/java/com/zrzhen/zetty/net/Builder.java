@@ -1,12 +1,13 @@
 package com.zrzhen.zetty.net;
 
 import java.net.SocketOption;
+import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * @author chenanlian
- *
+ * <p>
  * 构建通信服务配置类
  */
 public class Builder {
@@ -25,15 +26,31 @@ public class Builder {
 
     public Map<SocketOption<Object>, Object> socketOptions;
 
+    public ReadHandler readHandler = new ReadHandler();
+
+    public WriteHandler writeHandler;
+
+    public ByteBuffer writeBuffer;
+
+    public Protocol protocol;
+
+    public Processor processor;
 
     public Builder() {
     }
 
     public ZettyServer buildServer() {
-        if (acceptCompletionHandlerClass==null){
-            acceptCompletionHandlerClass=DefaultAcceptCompletionHandler.class;
+        if (acceptCompletionHandlerClass == null) {
+            acceptCompletionHandlerClass = DefaultAcceptCompletionHandler.class;
         }
 
+        if (readHandler == null) {
+            readHandler = new ReadHandler();
+        }
+
+        if (writeBuffer == null){
+            writeBuffer=ByteBuffer.allocateDirect(readBufSize);
+        }
         return new ZettyServer(this);
     }
 
@@ -76,6 +93,21 @@ public class Builder {
             socketOptions = new HashMap<>(5);
         }
         socketOptions.put(socketOption, f);
+        return this;
+    }
+
+    public Builder protocol(Protocol protocol) {
+        this.protocol = protocol;
+        return this;
+    }
+
+    public Builder processor(Processor processor) {
+        this.processor = processor;
+        return this;
+    }
+
+    public Builder writeHandler(WriteHandler writeHandler) {
+        this.writeHandler = writeHandler;
         return this;
     }
 }

@@ -69,26 +69,22 @@ public class MvcUtil {
                 String path = out.getDownloadPath();
                 out.getHeaders().put(HttpHeaders.Names.CONTENT_LENGTH, String.valueOf(new File(path).length()));
                 ByteBuffer byteBuffer = out.toByteBufferForDownload(path);
-                //write(socketSession,false);.
                 byteBuffer.flip();
-                socketSession.write(byteBuffer, new WriteHandler(false));
+                socketSession.write(byteBuffer);
 //                ByteLineHardReader br = new ByteLineHardReader(path);
 //                ByteBuffer byteBuffer = ByteBuffer.wrap(br.nextPart());
 //                write(ch, byteBuffer, br, !br.isReadEnd());
 
             } else {
-                /*设置返回头中的内容大小*/
+                //设置返回头中的内容大小
                 if (out.getContent() != null) {
                     out.getHeaders().put(HttpHeaders.Names.CONTENT_LENGTH, String.valueOf(out.getContent().length));
-                } else {
-                    log.error("Response body is null!");
                 }
 
                 ByteBuffer byteBuffer = out.toByteBuffer();
                 socketSession.setWriteBuffer(byteBuffer);
-                //write(socketSession, false);
                 byteBuffer.flip();
-                socketSession.write(byteBuffer, new WriteHandler(false));
+                socketSession.write(byteBuffer);
             }
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -316,7 +312,7 @@ public class MvcUtil {
 
         ByteBuffer byteBuffer = response.toByteBuffer();
         byteBuffer.flip();
-        socketSession.write(byteBuffer, new WriteHandler(false));
+        socketSession.write(byteBuffer);
     }
 
     /**

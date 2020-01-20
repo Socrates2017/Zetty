@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh" xmlns:v-bind="http://www.w3.org/1999/xhtml" xmlns:v-on="http://www.w3.org/1999/xhtml">
+<html lang="zh" xmlns:v-bind="http://www.w3.org/1999/xhtml">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
@@ -69,6 +69,15 @@
                                 <select class="custom-select" id="dbSelect" v-model="job.dbId">
                                     <option v-for="db in dbs" v-bind:value="db.id">
                                         {{ db.host+':'+db.port+'/'+db.database }}
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="graphSelect">choose graph type</label>
+                                <select class="custom-select" id="graphSelect" v-model="job.graph">
+                                    <option v-for="graph in graphs" v-bind:value="graph.id">
+                                        {{ graph.chinese_name }}
                                     </option>
                                 </select>
                             </div>

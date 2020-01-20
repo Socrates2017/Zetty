@@ -1,21 +1,19 @@
 package com.zrzhen.zetty.net;
 
+import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.net.InetSocketAddress;
 import java.net.StandardSocketOptions;
+import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousChannelGroup;
 import java.nio.channels.AsynchronousServerSocketChannel;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * @author chenanlian
- *
+ * <p>
  * 服务端
  */
 public class ZettyServer {
@@ -25,13 +23,16 @@ public class ZettyServer {
     private volatile boolean initialized = false;
     private volatile boolean started = false;
 
+    private GenericObjectPool<ByteBuffer> byteBufferPool = null;
+
+
     public Builder builder;
 
     public ZettyServer(Builder builder) {
         this.builder = builder;
     }
 
-    public static Builder config(){
+    public static Builder config() {
         return new Builder();
     }
 
@@ -49,11 +50,10 @@ public class ZettyServer {
 
         Long httpServerStart = System.currentTimeMillis();
 
-        ExecutorService channelExcutor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() + 1);
-        AsynchronousChannelGroup channelGroup = AsynchronousChannelGroup.withCachedThreadPool(channelExcutor, 1);
+        AsynchronousChannelGroup channelGroup = AsynchronousChannelGroup.withThreadPool(ExecutorUtil.channelExcutor);
 
         /*创建监听套接字*/
-        AsynchronousServerSocketChannel listener = AsynchronousServerSocketChannel.open(channelGroup);
+        AsynchronousServerSocketChannel listener = AsynchronousServerSocketChannel.open();
         if (listener.isOpen()) {
             listener.setOption(StandardSocketOptions.SO_RCVBUF, builder.readBufSize);
             listener.setOption(StandardSocketOptions.SO_REUSEADDR, true);
@@ -64,10 +64,10 @@ public class ZettyServer {
         }
 
         /*接收客户链接*/
-        Constructor c1=builder.acceptCompletionHandlerClass.getDeclaredConstructor(new Class[]{Builder.class});
+        Constructor c1 = builder.acceptCompletionHandlerClass.getDeclaredConstructor(new Class[]{Builder.class});
         c1.setAccessible(true);
-        AcceptCompletionHandler acceptCompletionHandler=(AcceptCompletionHandler)c1.newInstance(new Object[]{builder});
-        listener.accept(listener,acceptCompletionHandler);
+        AcceptCompletionHandler acceptCompletionHandler = (AcceptCompletionHandler) c1.newInstance(new Object[]{builder});
+        listener.accept(listener, acceptCompletionHandler);
 
         log.info("Aio Server has been started successfully, cost time:{}ms.", System.currentTimeMillis() - httpServerStart);
 

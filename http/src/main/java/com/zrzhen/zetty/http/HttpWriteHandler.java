@@ -1,6 +1,5 @@
-package com.zrzhen.zetty.im.server;
+package com.zrzhen.zetty.http;
 
-import com.zrzhen.zetty.common.FileUtil;
 import com.zrzhen.zetty.net.SocketSession;
 import com.zrzhen.zetty.net.WriteHandler;
 import org.slf4j.Logger;
@@ -13,11 +12,14 @@ import java.nio.channels.CompletionHandler;
 /**
  * @author chenanlian
  */
-public class ImWriteHandler extends WriteHandler<Integer, SocketSession> {
+public class HttpWriteHandler extends WriteHandler<Integer, SocketSession> {
 
-    private static Logger log = LoggerFactory.getLogger(ImWriteHandler.class);
+    private static Logger log = LoggerFactory.getLogger(HttpWriteHandler.class);
 
 
+    public HttpWriteHandler() {
+
+    }
 
     @Override
     public void completed(Integer result, SocketSession socketSession) {
@@ -28,15 +30,23 @@ public class ImWriteHandler extends WriteHandler<Integer, SocketSession> {
             log.warn("buffer.hasRemaining()");
             channel.write(buffer, socketSession, this);
 
+        } else {
+            socketSession.destroy();
+//            if (!isKeepAlive) {
+//                socketSession.destroy();
+//            } else if (br != null) {
+//                byte[] line = br.nextPart();
+//                ByteBuffer byteBuffer1 = ByteBuffer.wrap(line);
+//                log.info("downloading,closing...,read end:{}", br.isReadEnd());
+//                byteBuffer1.flip();
+//                socketSession.write(byteBuffer1, new HttpWriteHandler(isKeepAlive));
+//            }
         }
     }
 
     @Override
     public void failed(Throwable exc, SocketSession socketSession) {
         log.error(exc.getMessage(), exc);
-        ByteBuffer writeBuffer = FileUtil.str2Buf("消息发送失败");
-
-        //sender.write(writeBuffer);
         socketSession.destroy();
     }
 }

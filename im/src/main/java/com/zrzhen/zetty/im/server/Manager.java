@@ -2,6 +2,7 @@ package com.zrzhen.zetty.im.server;
 
 import com.zrzhen.zetty.net.SocketSession;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
@@ -12,24 +13,12 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class Manager {
 
-    public static ConcurrentHashMap<String, SocketSession> sessions = new ConcurrentHashMap();
+    public static ConcurrentHashMap<String, HashMap<String, Object>> sessions = new ConcurrentHashMap();
 
     public static ConcurrentHashMap<String, String> loginUser = new ConcurrentHashMap();
 
 
-    public static void logout(ImSocketSession socketSession) {
-        String host = socketSession.getRemoteAddress();
-        Manager.sessions.remove(host);
-        Iterator<Map.Entry<String, String>> iterator = loginUser.entrySet().iterator();
-        while (iterator.hasNext()) {
-            Map.Entry<String, String> entry = iterator.next();
-            String key = entry.getKey();
-            String value = entry.getValue();
-            if (Objects.equals(value, host)) {
-                loginUser.remove(key);
-            }
-        }
-    }
+
 
     public static SocketSession getSocketSessionByUserName(String user) {
         String host = loginUser.get(user);
@@ -37,12 +26,30 @@ public class Manager {
             return null;
         }
 
-        SocketSession socketSession = sessions.get(host);
+        HashMap map = sessions.get(host);
+
+        SocketSession socketSession = (SocketSession) map.get("session");
         if (socketSession == null) {
             loginUser.remove(user);
             return null;
         } else {
             return socketSession;
         }
+    }
+
+    public static HashMap<String, Object> getMapByUserName(String user) {
+        String host = loginUser.get(user);
+        if (host == null) {
+            return null;
+        }
+
+        HashMap map = sessions.get(host);
+
+        return map;
+    }
+
+    public static HashMap<String, Object> getMapBySession(SocketSession socketSession) {
+        HashMap map = sessions.get(socketSession.getRemoteAddress());
+        return map;
     }
 }

@@ -114,6 +114,11 @@ public class Request implements RequestIn, RequestOut {
     private int contentIndex;
 
     /**
+     * socket状态
+     */
+    public HttpSocketStatus socketStatus;
+
+    /**
      * 构造函数
      */
     public Request() {

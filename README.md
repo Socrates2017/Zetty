@@ -6,9 +6,9 @@
 
   common：通用工具  
   net：AIO网络通信封装  
-  http：轻量级web服务开发框架  
-  cms：基于http模块开发的一个网站  
-  sqlgraph：基于http模块开发的自动化报表系统  
+  http：轻量级web服务开发框架
+  cms：基于http模块开发的一个网站
+  sqlgraph：基于http模块开发的自动化报表系统
   im：即时通信服务开发示例  
   p2p：p2p网络示例
   

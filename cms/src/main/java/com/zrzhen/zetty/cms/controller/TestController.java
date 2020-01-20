@@ -1,5 +1,8 @@
 package com.zrzhen.zetty.cms.controller;
 
+import com.zrzhen.zetty.http.http.HttpHeaders;
+import com.zrzhen.zetty.http.http.HttpResponseStatus;
+import com.zrzhen.zetty.http.http.Response;
 import com.zrzhen.zetty.http.mvc.ContentTypeEnum;
 import com.zrzhen.zetty.http.mvc.anno.*;
 import com.zrzhen.zetty.cms.pojo.result.Result;
@@ -9,6 +12,7 @@ import com.zrzhen.zetty.cms.util.HeaderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -115,6 +119,16 @@ public class TestController {
     }
 
 
-
+    /**
+     * 测试重定向
+     * @return
+     */
+    @RequestMapping(value = "redirect")
+    public Response redirect(){
+        Response response = Response.get();
+        response.getHeaders().put(HttpHeaders.Names.LOCATION, "http://www.baidu.com");
+        response.setStatus(HttpResponseStatus.MOVED_PERMANENTLY);
+        return response;
+    }
 
 }

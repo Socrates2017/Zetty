@@ -1,7 +1,6 @@
 package com.zrzhen.zetty.im.client;
 
 import com.zrzhen.zetty.im.util.ByteUtil;
-import com.zrzhen.zetty.net.DefaultWriteHandler;
 import com.zrzhen.zetty.net.SocketSession;
 import com.zrzhen.zetty.net.ZettyClient;
 
@@ -36,7 +35,7 @@ public class Client2 {
         }
         ByteBuffer writeBuffer = ByteUtil.msgEncode(msg);
         writeBuffer.flip();
-        socketSession.write(writeBuffer, new DefaultWriteHandler());
+        socketSession.write(writeBuffer);
         return true;
     }
 

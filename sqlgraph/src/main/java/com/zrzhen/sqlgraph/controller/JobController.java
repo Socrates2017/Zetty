@@ -21,18 +21,18 @@ import java.util.Map;
 public class JobController {
 
 
-    /**
-     * 加密
-     *
-     * @return
-     */
     @ContentType(ContentTypeEnum.JSON)
     @RequestMapping("/data/getAllJobs")
     public Result getAllJobs() {
-
         List<Map<String, Object>> jobs= JobDao.allJob();
         return ResultGen.genResult(ResultCode.SUCCESS,jobs);
+    }
 
+    @ContentType(ContentTypeEnum.JSON)
+    @RequestMapping("/data/getAllDbs")
+    public Result getAllDbs() {
+        List<Map<String, Object>> jobs= JobDao.allJob();
+        return ResultGen.genResult(ResultCode.SUCCESS,jobs);
     }
 
     @ContentType(ContentTypeEnum.HTML)

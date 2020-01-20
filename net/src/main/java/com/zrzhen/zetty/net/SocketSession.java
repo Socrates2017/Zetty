@@ -6,7 +6,6 @@ import org.slf4j.LoggerFactory;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousSocketChannel;
-import java.nio.channels.CompletionHandler;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -14,7 +13,7 @@ import java.util.concurrent.TimeUnit;
  * <p>
  * Socket会话类，管理从TCP连接建立到关闭的整个生命周期
  */
-public class SocketSession {
+public class SocketSession<T> {
 
     private static final Logger log = LoggerFactory.getLogger(SocketSession.class);
 
@@ -34,6 +33,11 @@ public class SocketSession {
 
     protected String localAddress;
 
+    protected Protocol protocol;
+
+    protected Processor processor;
+
+    protected T message;
 
     public SocketSession(AsynchronousSocketChannel socketChannel, Builder builder) {
         this.socketChannel = socketChannel;
@@ -44,6 +48,8 @@ public class SocketSession {
     private void init() {
         this.socketSessionStatus = SocketSessionStatus.NEW;
         this.readBuffer = ByteBuffer.allocate(builder.readBufSize);
+        this.protocol = builder.protocol;
+        this.processor = builder.processor;
 
         try {
             //作为服务端时才有值
@@ -55,23 +61,35 @@ public class SocketSession {
             log.debug(e.getMessage(), e);
         }
 
-        try {
-            socketReadHandler = builder.readHandlerClass.newInstance();
-        } catch (InstantiationException e) {
-            log.debug(e.getMessage(), e);
-        } catch (IllegalAccessException e) {
-            log.debug(e.getMessage(), e);
+    }
+
+    public void decode(Integer readLength) {
+        if (readLength == -1) {
+            this.destroy();
+            return;
         }
+
+
+        boolean isReadEnd = this.protocol.decode(this,readLength, message);
+        if (!isReadEnd) {
+            read();
+        } else {
+            this.processor.process(this, message);
+        }
+
     }
 
     public void read() {
         readBuffer.clear();
-        socketChannel.read(readBuffer, builder.socketReadTimeout, TimeUnit.SECONDS, this, socketReadHandler);
+        socketChannel.read(readBuffer, builder.socketReadTimeout, TimeUnit.SECONDS, this, builder.readHandler);
     }
 
-    public void write(ByteBuffer buffer, CompletionHandler<Integer, SocketSession> writeHandler) {
-        writeBuffer = buffer;
-        socketChannel.write(writeBuffer, this, writeHandler);
+    public void write(ByteBuffer buffer) {
+//        builder.writeBuffer.clear();
+//        builder.writeBuffer.put(buffer);
+//        builder.writeBuffer.flip();
+        this.writeBuffer=buffer;
+        socketChannel.write(writeBuffer, this, builder.writeHandler);
     }
 
     /**
@@ -86,13 +104,17 @@ public class SocketSession {
 
         if (this.socketChannel != null) {
             try {
+                socketChannel.shutdownInput();
+                socketChannel.shutdownOutput();
+
                 this.socketChannel.close();
             } catch (Throwable e) {
-                //ignore
+                log.error(e.getMessage(), e);
             }
         }
 
-        readBuffer = null;
+        writeBuffer.clear();
+        readBuffer.clear();
         writeBuffer = null;
         socketChannel = null;
         socketReadHandler = null;
@@ -154,5 +176,18 @@ public class SocketSession {
 
     public void setLocalAddress(String localAddress) {
         this.localAddress = localAddress;
+    }
+
+    public T getMessage() {
+        return message;
+    }
+
+    public void setMessage(T message) {
+        this.message = message;
+    }
+
+    @Override
+    public String toString() {
+        return  remoteAddress;
     }
 }

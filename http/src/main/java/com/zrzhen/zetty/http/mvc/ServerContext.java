@@ -123,7 +123,6 @@ public class ServerContext {
             String[] classNames = ServerUtil.findClassesInPackage(scanPackage + ".*");
             for (String className : classNames) {
                 Class<?> controllerClass = Class.forName(className);
-                //Controller controller = controllerClass.getAnnotation(Controller.class);
                 Controller controller = AnnoUtil.findAnnotation(Controller.class, controllerClass);
                 if (controller == null) {
                     continue;

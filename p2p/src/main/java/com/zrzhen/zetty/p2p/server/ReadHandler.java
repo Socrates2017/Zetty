@@ -3,7 +3,6 @@ package com.zrzhen.zetty.p2p.server;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.zrzhen.zetty.common.FileUtil;
 import com.zrzhen.zetty.common.JsonUtil;
-import com.zrzhen.zetty.net.DefaultWriteHandler;
 import com.zrzhen.zetty.net.SocketReadHandler;
 import com.zrzhen.zetty.net.SocketSession;
 import com.zrzhen.zetty.p2p.MessageTypeEnum;
@@ -86,7 +85,7 @@ public class ReadHandler implements SocketReadHandler<Integer, SocketSession> {
 
 
         ByteBuffer writeBuffer = FileUtil.str2Buf(response);
-        socketSession.write(writeBuffer, new DefaultWriteHandler());
+        socketSession.write(writeBuffer);
 
 
     }

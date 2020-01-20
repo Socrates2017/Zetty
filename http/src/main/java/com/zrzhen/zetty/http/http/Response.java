@@ -1,16 +1,14 @@
 package com.zrzhen.zetty.http.http;
 
-import com.zrzhen.zetty.http.util.ByteUtil;
 import com.zrzhen.zetty.common.FileUtil;
+import com.zrzhen.zetty.http.util.ByteUtil;
 import com.zrzhen.zetty.http.util.ProUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -154,11 +152,10 @@ public class Response {
         String headers = headerStr + cookiesStr;
 
         byte[] bytes = new byte[0];
-        try {
-            bytes = Files.readAllBytes(new File(path).toPath());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
+        //bytes = Files.readAllBytes(new File(path).toPath());
+        bytes = FileUtil.file2Byte(path);
+
 
         if (bytes == null) {
             bytes = new byte[0];
@@ -223,7 +220,6 @@ public class Response {
             String value = cookie.getValue();
             if (StringUtils.isBlank(name)
                     || StringUtils.isBlank(value)) {
-                log.warn("Cookie name or value is null");
                 continue;
             }
             // 构造cookie响应头

@@ -1,7 +1,6 @@
 package com.zrzhen.zetty.p2p.client;
 
 import com.zrzhen.zetty.common.JsonUtil;
-import com.zrzhen.zetty.net.DefaultWriteHandler;
 import com.zrzhen.zetty.net.SocketSession;
 import com.zrzhen.zetty.net.ZettyClient;
 import com.zrzhen.zetty.p2p.MessageTypeEnum;
@@ -66,7 +65,7 @@ public class Client {
 
         ByteBuffer writeBuffer = ByteUtil.msgEncode(json);
         writeBuffer.flip();
-        socketSession.write(writeBuffer, new DefaultWriteHandler());
+        socketSession.write(writeBuffer);
         return true;
     }
 

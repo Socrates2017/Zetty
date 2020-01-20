@@ -2,6 +2,7 @@ package com.zrzhen.zetty.cms.controller;
 
 
 import com.zrzhen.zetty.common.FileUtil;
+import com.zrzhen.zetty.common.TimeUtil;
 import com.zrzhen.zetty.http.http.HttpHeaders;
 import com.zrzhen.zetty.http.http.Multipart;
 import com.zrzhen.zetty.http.http.Request;
@@ -9,14 +10,12 @@ import com.zrzhen.zetty.http.http.Response;
 import com.zrzhen.zetty.http.mvc.anno.*;
 import com.zrzhen.zetty.http.util.ProUtil;
 import com.zrzhen.zetty.http.util.ServerUtil;
-import com.zrzhen.zetty.common.TimeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URLDecoder;
-import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Date;
 
@@ -71,7 +70,8 @@ public class UeditorController {
         Response response = Response.get();
         response.getHeaders().put(HttpHeaders.Names.CONTENT_TYPE, contentType);
         String filePath = ProUtil.getString("ueditor.upload.dir") + File.separator + fileName;
-        byte[] bytes = Files.readAllBytes(new File(filePath).toPath());
+        //byte[] bytes = Files.readAllBytes(new File(filePath).toPath());
+        byte[] bytes = FileUtil.file2Byte(filePath);
         response.setContent(bytes);
         response.getHeaders().put(HttpHeaders.Names.CACHE_CONTROL, "no-cache, no-store");
         response.getHeaders().put(HttpHeaders.Names.PRAGMA, "no-cache");

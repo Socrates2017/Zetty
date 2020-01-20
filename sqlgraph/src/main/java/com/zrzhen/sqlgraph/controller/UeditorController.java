@@ -71,7 +71,8 @@ public class UeditorController {
         Response response = Response.get();
         response.getHeaders().put(HttpHeaders.Names.CONTENT_TYPE, contentType);
         String filePath = ProUtil.getString("ueditor.upload.dir") + File.separator + fileName;
-        byte[] bytes = Files.readAllBytes(new File(filePath).toPath());
+        //byte[] bytes = Files.readAllBytes(new File(filePath).toPath());
+        byte[] bytes = FileUtil.file2Byte(filePath);
         response.setContent(bytes);
         response.getHeaders().put(HttpHeaders.Names.CACHE_CONTROL, "no-cache, no-store");
         response.getHeaders().put(HttpHeaders.Names.PRAGMA, "no-cache");
