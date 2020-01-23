@@ -23,11 +23,11 @@ public class ZettyClientTest {
 
         for (int i = 0; i < 10000; i++) {
             send();
-//            try {
-//                Thread.sleep(2000L);
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
+            try {
+                Thread.sleep(5L);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -40,7 +40,7 @@ public class ZettyClientTest {
 
                 ByteBuffer response = null;
                 try {
-                    response = ByteBuffer.wrap(("hisdfffffffffffffsdfffddddddddddddddddddddddddddddd").getBytes("utf-8"));
+                    response = ByteBuffer.wrap(("test message!!!!").getBytes("utf-8"));
                 } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
                 }
