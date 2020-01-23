@@ -53,10 +53,10 @@ public class ZettyServer {
         AsynchronousChannelGroup channelGroup = AsynchronousChannelGroup.withThreadPool(ExecutorUtil.channelExcutor);
 
         /*创建监听套接字*/
-        AsynchronousServerSocketChannel listener = AsynchronousServerSocketChannel.open();
+        AsynchronousServerSocketChannel listener = AsynchronousServerSocketChannel.open(channelGroup);
         if (listener.isOpen()) {
             listener.setOption(StandardSocketOptions.SO_RCVBUF, builder.readBufSize);
-            listener.setOption(StandardSocketOptions.SO_REUSEADDR, true);
+            listener.setOption(StandardSocketOptions.SO_REUSEADDR, false);
             /*绑定端口*/
             listener.bind(new InetSocketAddress(builder.port));
         } else {

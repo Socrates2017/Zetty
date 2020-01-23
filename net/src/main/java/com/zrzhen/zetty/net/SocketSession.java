@@ -125,6 +125,7 @@ public class SocketSession<T, O> {
         socketReadHandler = null;
         builder = null;
         socketSessionStatus = SocketSessionStatus.DESTROYED;
+        Thread.currentThread().interrupt();
     }
 
     public AsynchronousSocketChannel getSocketChannel() {
