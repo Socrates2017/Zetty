@@ -1,4 +1,4 @@
-package com.zrzhen.zetty.im.server;
+package com.zrzhen.zetty.im;
 
 import com.zrzhen.zetty.common.FileUtil;
 import com.zrzhen.zetty.net.SocketSession;
@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousSocketChannel;
-import java.nio.channels.CompletionHandler;
 
 /**
  * @author chenanlian

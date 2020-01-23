@@ -1,4 +1,4 @@
-package com.zrzhen.zetty.im.server;
+package com.zrzhen.zetty.im;
 
 public class ImMessage {
     private byte[] msg;

@@ -6,9 +6,9 @@
 
   common：通用工具  
   net：AIO网络通信封装  
-  http：轻量级web服务开发框架
-  cms：基于http模块开发的一个网站
-  sqlgraph：基于http模块开发的自动化报表系统
+  http：轻量级web服务开发框架  
+  cms：基于http模块开发的一个网站  
+  sqlgraph：基于http模块开发的自动化报表系统  
   im：即时通信服务开发示例  
   p2p：p2p网络示例
   
@@ -17,15 +17,18 @@
   实例化ZettyServer或ZettyClient，配置读取消息后的处理类，该类必须实现com.zrzhen.zetty.net.SocketReadHandler。可以在该类中进行
   协议解析和业务处理。ZettyClient可返回com.zrzhen.zetty.net.SocketSession，利用它可以进行灵活的、全双工的、长连接的网络通信。示例：
         
-        ZettyServer.config()
-                .port(8080)
-                .readHandlerClass(ImReadHandler.class)
-                .socketReadTimeout(Long.MAX_VALUE)
-                .buildServer()
-                .start();
+            ZettyServer.config()
+                    .port(port)
+                    .decode(new HttpDecode())
+                    .processor(new HttpProcessor())
+                    .writeHandler(new HttpWriteHandler())
+                    .buildServer()
+                    .start();
   
   
-### http服务示例部署
+### web框架
+
+#### http服务示例部署
 
   直接jar包启动，或者执行启动脚本（在doc文件夹下有参考的shell脚本）：sh dev.sh start  
   jar包启动命令：java -jar E:\github\zetty\target\zetty-0.0.1.jar server.profiles.active=dev。其中server.profiles.active=后面

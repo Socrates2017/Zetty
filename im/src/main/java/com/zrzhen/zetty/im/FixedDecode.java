@@ -1,6 +1,5 @@
 package com.zrzhen.zetty.im;
 
-import com.zrzhen.zetty.im.server.ImMessage;
 import com.zrzhen.zetty.im.util.ByteUtil;
 import com.zrzhen.zetty.net.Decode;
 import com.zrzhen.zetty.net.SocketSession;
