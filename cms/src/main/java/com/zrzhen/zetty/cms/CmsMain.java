@@ -2,13 +2,12 @@ package com.zrzhen.zetty.cms;
 
 import com.zrzhen.zetty.cms.util.quartz.MyScheduler;
 import com.zrzhen.zetty.http.Constant;
+import com.zrzhen.zetty.http.HttpDecode;
 import com.zrzhen.zetty.http.HttpProcessor;
-import com.zrzhen.zetty.http.HttpProtocol;
 import com.zrzhen.zetty.http.HttpWriteHandler;
 import com.zrzhen.zetty.http.mvc.ServerContext;
 import com.zrzhen.zetty.http.util.ProUtil;
 import com.zrzhen.zetty.http.util.ServerUtil;
-import com.zrzhen.zetty.net.WriteHandler;
 import com.zrzhen.zetty.net.ZettyServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,7 +55,7 @@ public class CmsMain {
 
             ZettyServer.config()
                     .port(port)
-                    .protocol(new HttpProtocol())
+                    .decode(new HttpDecode())
                     .processor(new HttpProcessor())
                     .writeHandler(new HttpWriteHandler())
                     .buildServer()

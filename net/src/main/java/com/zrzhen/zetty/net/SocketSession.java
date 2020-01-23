@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit;
  * <p>
  * Socket会话类，管理从TCP连接建立到关闭的整个生命周期
  */
-public class SocketSession<T> {
+public class SocketSession<T, O> {
 
     private static final Logger log = LoggerFactory.getLogger(SocketSession.class);
 
@@ -33,7 +33,9 @@ public class SocketSession<T> {
 
     protected String localAddress;
 
-    protected Protocol protocol;
+    protected Decode decode;
+
+    public Encode encode;
 
     protected Processor processor;
 
@@ -48,7 +50,8 @@ public class SocketSession<T> {
     private void init() {
         this.socketSessionStatus = SocketSessionStatus.NEW;
         this.readBuffer = ByteBuffer.allocate(builder.readBufSize);
-        this.protocol = builder.protocol;
+        this.decode = builder.decode;
+        this.encode = builder.encode;
         this.processor = builder.processor;
 
         try {
@@ -69,14 +72,12 @@ public class SocketSession<T> {
             return;
         }
 
-
-        boolean isReadEnd = this.protocol.decode(this,readLength, message);
+        boolean isReadEnd = this.decode.decode(this, readLength, message);
         if (!isReadEnd) {
             read();
         } else {
             this.processor.process(this, message);
         }
-
     }
 
     public void read() {
@@ -84,11 +85,17 @@ public class SocketSession<T> {
         socketChannel.read(readBuffer, builder.socketReadTimeout, TimeUnit.SECONDS, this, builder.readHandler);
     }
 
-    public void write(ByteBuffer buffer) {
-//        builder.writeBuffer.clear();
-//        builder.writeBuffer.put(buffer);
-//        builder.writeBuffer.flip();
-        this.writeBuffer=buffer;
+    public void write(O out) {
+        if (this.encode != null) {
+            this.writeBuffer = this.encode.encode(this, out);
+        } else {
+            this.writeBuffer = (ByteBuffer) out;
+        }
+        socketChannel.write(writeBuffer, this, builder.writeHandler);
+    }
+
+    public void writeRemaining(ByteBuffer buffer) {
+        this.writeBuffer = buffer;
         socketChannel.write(writeBuffer, this, builder.writeHandler);
     }
 
@@ -113,8 +120,6 @@ public class SocketSession<T> {
             }
         }
 
-        writeBuffer.clear();
-        readBuffer.clear();
         writeBuffer = null;
         socketChannel = null;
         socketReadHandler = null;
@@ -188,6 +193,6 @@ public class SocketSession<T> {
 
     @Override
     public String toString() {
-        return  remoteAddress;
+        return remoteAddress;
     }
 }

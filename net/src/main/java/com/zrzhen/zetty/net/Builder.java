@@ -32,7 +32,9 @@ public class Builder {
 
     public ByteBuffer writeBuffer;
 
-    public Protocol protocol;
+    public Decode decode;
+
+    public Encode encode;
 
     public Processor processor;
 
@@ -48,8 +50,8 @@ public class Builder {
             readHandler = new ReadHandler();
         }
 
-        if (writeBuffer == null){
-            writeBuffer=ByteBuffer.allocateDirect(readBufSize);
+        if (writeBuffer == null) {
+            writeBuffer = ByteBuffer.allocateDirect(readBufSize);
         }
         return new ZettyServer(this);
     }
@@ -96,8 +98,13 @@ public class Builder {
         return this;
     }
 
-    public Builder protocol(Protocol protocol) {
-        this.protocol = protocol;
+    public Builder decode(Decode decode) {
+        this.decode = decode;
+        return this;
+    }
+
+    public Builder encode(Encode encode) {
+        this.encode = encode;
         return this;
     }
 

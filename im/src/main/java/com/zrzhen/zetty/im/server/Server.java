@@ -1,10 +1,12 @@
 package com.zrzhen.zetty.im.server;
 
 import com.zrzhen.zetty.common.FileUtil;
-import com.zrzhen.zetty.im.util.ByteUtil;
-import com.zrzhen.zetty.net.*;
+import com.zrzhen.zetty.im.FixedDecode;
+import com.zrzhen.zetty.im.FixedEncode;
+import com.zrzhen.zetty.net.Processor;
+import com.zrzhen.zetty.net.SocketSession;
+import com.zrzhen.zetty.net.ZettyServer;
 
-import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
 
@@ -16,30 +18,9 @@ public class Server {
     public static void main(String[] args) throws Exception {
         ZettyServer.config()
                 .port(8080)
-                .protocol(new Protocol<ImMessage>() {
-                    @Override
-                    public boolean decode(SocketSession socketSession, Integer readLength, ImMessage message) {
-
-
-                        ByteBuffer readBuffer = socketSession.getReadBuffer();
-                        readBuffer.flip();
-                        int length = ByteUtil.msgLength(readBuffer);
-                        byte[] msg2 = ByteUtil.msgBytes(readBuffer, readLength - 4);
-                        message.setMsgIndex(message.getMsgIndex() + msg2.length);
-
-                        if (length == message.getMsgIndex()) {
-                            if (message.getMsg() == null) {
-                                message.setMsg(msg2);
-                            } else {
-                                byte[] msg = ByteUtil.byteMerger(message.getMsg(), msg2);
-                                message.setMsg(msg);
-                            }
-                            return true;
-                        } else {
-                            return false;
-                        }
-                    }
-                })
+                .socketReadTimeout(Integer.MAX_VALUE)
+                .decode(new FixedDecode())
+                .encode(new FixedEncode())
                 .processor(new Processor<ImMessage>() {
                     @Override
                     public boolean process(SocketSession socketSession, ImMessage message) {
@@ -60,8 +41,7 @@ public class Server {
                         if (msg.startsWith(">>login:")) {
                             String userName = msg.substring(8);
                             Manager.loginUser.put(userName, socketSession.getRemoteAddress());
-                            ByteBuffer writeBuffer = FileUtil.str2Buf("登录成功，名字为：" + msg);
-                            socketSession.write(writeBuffer);
+                            socketSession.write("登录成功，名字为：" + msg);
                         } else if (msg.startsWith(">>send to:")) {
                             String targetUser = msg.substring(10);
                             HashMap map2 = Manager.getMapByUserName(targetUser);
@@ -73,25 +53,21 @@ public class Server {
                                 map2.put("sentTo", targetUser);
                                 response = "已设置消息接收对象：" + targetUser;
                             }
-                            ByteBuffer writeBuffer = FileUtil.str2Buf(response);
-                            socketSession.write(writeBuffer);
+                            socketSession.write(response);
 
                         } else {
 
                             String sendTo = (String) Manager.getMapBySession(socketSession).get("sentTo");
                             if (sendTo == null) {
-                                ByteBuffer writeBuffer = FileUtil.str2Buf("请设置消息接收的对象，设置命令：>>send to:userName");
-                                socketSession.write(writeBuffer);
+                                socketSession.write("请设置消息接收的对象，设置命令：>>send to:userName");
                             } else {
 
                                 SocketSession sessionSendTo = Manager.getSocketSessionByUserName(sendTo);
 
                                 if (sessionSendTo == null) {
-                                    ByteBuffer writeBuffer = FileUtil.str2Buf("消息发送失败，用户已下线：" + sendTo);
-                                    socketSession.write(writeBuffer);
+                                    socketSession.write("消息发送失败，用户已下线：" + sendTo);
                                 } else {
-                                    ByteBuffer writeBuffer = FileUtil.str2Buf(msg);
-                                    socketSession.write(writeBuffer);
+                                    socketSession.write(msg);
                                 }
                             }
                         }

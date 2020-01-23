@@ -1,10 +1,14 @@
 package com.zrzhen.zetty.im.client;
 
-import com.zrzhen.zetty.im.util.ByteUtil;
+import com.zrzhen.zetty.common.FileUtil;
+import com.zrzhen.zetty.im.FixedDecode;
+import com.zrzhen.zetty.im.FixedEncode;
+import com.zrzhen.zetty.im.server.ImMessage;
+import com.zrzhen.zetty.im.server.ImWriteHandler;
+import com.zrzhen.zetty.net.Processor;
 import com.zrzhen.zetty.net.SocketSession;
 import com.zrzhen.zetty.net.ZettyClient;
 
-import java.nio.ByteBuffer;
 import java.util.Scanner;
 
 /**
@@ -15,8 +19,18 @@ public class Client {
     public static void main(String[] args) throws Exception {
         SocketSession socketSession = ZettyClient.config()
                 .port(8080)
-                .readHandlerClass(ReadHandler.class)
-                .socketReadTimeout(Long.MAX_VALUE)
+                .socketReadTimeout(Integer.MAX_VALUE)
+                .decode(new FixedDecode())
+                .encode(new FixedEncode())
+                .processor(new Processor<ImMessage>() {
+                    @Override
+                    public boolean process(SocketSession socketSession, ImMessage message) {
+                        System.out.println("receive the message:"+FileUtil.byte2Str(message.getMsg()));
+                        socketSession.read();
+                        return true;
+                    }
+                })
+                .writeHandler(new ImWriteHandler())
                 .buildClient()
                 .connect();
 
@@ -33,9 +47,8 @@ public class Client {
         if (msg.equals("q")) {
             return false;
         }
-        ByteBuffer writeBuffer = ByteUtil.msgEncode(msg);
-        writeBuffer.flip();
-        socketSession.write(writeBuffer);
+
+        socketSession.write(msg);
         return true;
     }
 

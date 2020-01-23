@@ -4,7 +4,7 @@ package com.zrzhen.zetty.net;
 /**
  * @author chenanlian
  */
-public interface Protocol<T> {
+public interface Decode<T> {
     /**
      * 对于从Socket流中获取到的数据采用当前Protocol的实现类协议进行解析。
      *

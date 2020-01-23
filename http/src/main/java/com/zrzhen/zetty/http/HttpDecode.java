@@ -3,7 +3,7 @@ package com.zrzhen.zetty.http;
 import com.zrzhen.zetty.common.FileUtil;
 import com.zrzhen.zetty.common.JsonUtil;
 import com.zrzhen.zetty.http.http.*;
-import com.zrzhen.zetty.net.Protocol;
+import com.zrzhen.zetty.net.Decode;
 import com.zrzhen.zetty.net.SocketSession;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -18,16 +18,12 @@ import java.util.Map;
 /**
  * @author chenanlian
  */
-public class HttpProtocol implements Protocol<Request> {
+public class HttpDecode implements Decode<Request> {
 
-    private static Logger log = LoggerFactory.getLogger(HttpProtocol.class);
-
-
-
-
+    private static Logger log = LoggerFactory.getLogger(HttpDecode.class);
 
     @Override
-    public boolean decode(SocketSession socketSession,Integer readLength,Request request) {
+    public boolean decode(SocketSession socketSession, Integer readLength, Request request) {
         if (request == null) {
             request = new Request();
             socketSession.setMessage(request);
