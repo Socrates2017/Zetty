@@ -22,8 +22,6 @@ public class Builder {
 
     public Class<? extends SocketReadHandler> readHandlerClass;
 
-    public Class<? extends AcceptCompletionHandler> acceptCompletionHandlerClass;
-
     public Map<SocketOption<Object>, Object> socketOptions;
 
     public ReadHandler readHandler = new ReadHandler();
@@ -42,9 +40,7 @@ public class Builder {
     }
 
     public ZettyServer buildServer() {
-        if (acceptCompletionHandlerClass == null) {
-            acceptCompletionHandlerClass = DefaultAcceptCompletionHandler.class;
-        }
+
 
         if (readHandler == null) {
             readHandler = new ReadHandler();
@@ -85,10 +81,6 @@ public class Builder {
         return this;
     }
 
-    public Builder acceptCompletionHandlerClass(Class<? extends AcceptCompletionHandler> acceptCompletionHandlerClass) {
-        this.acceptCompletionHandlerClass = acceptCompletionHandlerClass;
-        return this;
-    }
 
     public Builder setOption(SocketOption socketOption, Object f) {
         if (socketOptions == null) {

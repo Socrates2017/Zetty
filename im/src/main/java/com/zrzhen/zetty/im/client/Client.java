@@ -7,8 +7,11 @@ import com.zrzhen.zetty.im.ImMessage;
 import com.zrzhen.zetty.im.ImWriteHandler;
 import com.zrzhen.zetty.net.Processor;
 import com.zrzhen.zetty.net.SocketSession;
+import com.zrzhen.zetty.net.WriteHandler;
 import com.zrzhen.zetty.net.ZettyClient;
 
+import java.nio.ByteBuffer;
+import java.nio.channels.AsynchronousSocketChannel;
 import java.util.Scanner;
 
 /**
@@ -26,11 +29,29 @@ public class Client {
                     @Override
                     public boolean process(SocketSession socketSession, ImMessage message) {
                         System.out.println("receive the message:"+FileUtil.byte2Str(message.getMsg()));
+                        message.setMsg(null);
+                        message.setMsgIndex(0);
                         socketSession.read();
                         return true;
                     }
                 })
-                .writeHandler(new ImWriteHandler())
+                .writeHandler(new WriteHandler<Integer, SocketSession>() {
+                    @Override
+                    public void completed(Integer result, SocketSession socketSession) {
+                        AsynchronousSocketChannel channel = socketSession.getSocketChannel();
+                        ByteBuffer buffer = socketSession.getWriteBuffer();
+                        if (buffer.hasRemaining()) {
+                            channel.write(buffer, socketSession, this);
+                        }
+                        //长连接，所以，写完毕后不关闭通道
+                    }
+
+                    @Override
+                    public void failed(Throwable exc, SocketSession socketSession) {
+                        exc.getStackTrace();
+                        socketSession.destroy();
+                    }
+                })
                 .buildClient()
                 .connect();
 

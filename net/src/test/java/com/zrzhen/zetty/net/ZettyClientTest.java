@@ -3,13 +3,13 @@ package com.zrzhen.zetty.net;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 import java.nio.charset.Charset;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * @author chenanlian
@@ -21,14 +21,23 @@ public class ZettyClientTest {
 
     public static void main(String[] args) throws Exception {
 
-        for (int i = 0; i < 10000; i++) {
+        int n = 10000;
+        long start = System.currentTimeMillis();
+        for (int i = 0; i < n; i++) {
             send();
             try {
-                Thread.sleep(5L);
+                System.out.println(i);
+                Thread.sleep(1000L);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
+        long end = System.currentTimeMillis();
+
+        long qps = n/((end - start)/1000);
+        System.out.println("qps:" + qps);
+        CountDownLatch latch = new CountDownLatch(1);
+        latch.await();
     }
 
     public static void send() throws IOException {
@@ -38,13 +47,7 @@ public class ZettyClientTest {
             @Override
             public void completed(Void result, AsynchronousSocketChannel attachment) {
 
-                ByteBuffer response = null;
-                try {
-                    response = ByteBuffer.wrap(("test message!!!!").getBytes("utf-8"));
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                }
-
+                ByteBuffer response = ByteBuffer.wrap(file2Byte("E:\\github\\zetty\\cms\\src\\main\\resources\\html\\index.html"));
                 attachment.write(response, attachment, new CompletionHandler<Integer, AsynchronousSocketChannel>() {
                     @Override
                     public void completed(Integer result, AsynchronousSocketChannel channel) {
@@ -82,5 +85,32 @@ public class ZettyClientTest {
 
     }
 
+    public static byte[] file2Byte(String path) {
+        FileInputStream in = null;
+        try {
+            in = new FileInputStream(path);
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            byte[] buffer = new byte[in.available()];
+            int n = 0;
+            while ((n = in.read(buffer)) != -1) {
+                out.write(buffer, 0, n);
+            }
+            return out.toByteArray();
+        } catch (FileNotFoundException e) {
+            log.error(e.getMessage(), e);
+            return null;
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
+            return null;
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        }
+    }
 
 }

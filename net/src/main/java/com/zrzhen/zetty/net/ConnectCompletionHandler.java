@@ -33,7 +33,7 @@ public class ConnectCompletionHandler implements CompletionHandler<Void, SocketS
         } catch (Exception e) {
             log.debug(e.getMessage(), e);
         }
-        log.debug("连接成功，本地端口：{}",socketSession.getLocalAddress());
+
         socketSession.setSocketSessionStatus(SocketSessionStatus.CONNECTED);
         socketSession.read();
 

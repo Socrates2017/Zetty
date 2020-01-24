@@ -4,12 +4,18 @@ import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Constructor;
 import java.net.InetSocketAddress;
 import java.net.StandardSocketOptions;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousChannelGroup;
 import java.nio.channels.AsynchronousServerSocketChannel;
+import java.nio.channels.AsynchronousSocketChannel;
+import java.nio.channels.CompletionHandler;
+import java.nio.charset.Charset;
+import java.util.concurrent.Future;
 
 /**
  * @author chenanlian
@@ -63,15 +69,20 @@ public class ZettyServer {
             throw new RuntimeException("Channel not opened!");
         }
 
-        /*接收客户链接*/
-        Constructor c1 = builder.acceptCompletionHandlerClass.getDeclaredConstructor(new Class[]{Builder.class});
-        c1.setAccessible(true);
-        AcceptCompletionHandler acceptCompletionHandler = (AcceptCompletionHandler) c1.newInstance(new Object[]{builder});
-        listener.accept(listener, acceptCompletionHandler);
-
         log.info("Aio Server has been started successfully, cost time:{}ms.", System.currentTimeMillis() - httpServerStart);
 
+        Future<AsynchronousSocketChannel> accept;
+        while (true) {
+            accept = listener.accept();
+            final AsynchronousSocketChannel channel = accept.get();
+
+            ExecutorUtil.processorExcutor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    new SocketSession(channel, builder).read();
+                }
+            });
+
+        }
     }
-
-
 }
