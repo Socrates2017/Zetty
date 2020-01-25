@@ -40,7 +40,7 @@
     <logger name="org.springframework.amqp.rabbit" level="ERROR"/> -->
 
     <!-- root -->
-    <root level="INFO" additivity="false">
+    <root level="DEBUG" additivity="false">
         <appender-ref ref="console"/>
         <appender-ref ref="fileAppender"/>
     </root>

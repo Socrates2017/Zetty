@@ -1,5 +1,7 @@
 package com.zrzhen.zetty.net;
 
+import com.zrzhen.zetty.net.bio.SocketEnum;
+
 import java.net.SocketOption;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
@@ -11,6 +13,8 @@ import java.util.Map;
  * 构建通信服务配置类
  */
 public class Builder {
+
+    public SocketEnum socketType;
 
     public String host = "localhost";
 
@@ -24,7 +28,7 @@ public class Builder {
 
     public Map<SocketOption<Object>, Object> socketOptions;
 
-    public ReadHandler readHandler = new ReadHandler();
+    public ReadHandler readHandler;
 
     public WriteHandler writeHandler;
 
@@ -41,6 +45,9 @@ public class Builder {
 
     public ZettyServer buildServer() {
 
+        if (socketType == null) {
+            socketType = SocketEnum.BIO;
+        }
 
         if (readHandler == null) {
             readHandler = new ReadHandler();
@@ -107,6 +114,11 @@ public class Builder {
 
     public Builder writeHandler(WriteHandler writeHandler) {
         this.writeHandler = writeHandler;
+        return this;
+    }
+
+    public Builder setSocketType(SocketEnum socketType) {
+        this.socketType = socketType;
         return this;
     }
 }

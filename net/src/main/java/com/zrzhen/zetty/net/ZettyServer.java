@@ -1,20 +1,16 @@
 package com.zrzhen.zetty.net;
 
+import com.zrzhen.zetty.net.bio.SocketEnum;
 import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Constructor;
 import java.net.InetSocketAddress;
 import java.net.StandardSocketOptions;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousChannelGroup;
 import java.nio.channels.AsynchronousServerSocketChannel;
 import java.nio.channels.AsynchronousSocketChannel;
-import java.nio.channels.CompletionHandler;
-import java.nio.charset.Charset;
 import java.util.concurrent.Future;
 
 /**
@@ -56,32 +52,41 @@ public class ZettyServer {
 
         Long httpServerStart = System.currentTimeMillis();
 
-        AsynchronousChannelGroup channelGroup = AsynchronousChannelGroup.withThreadPool(ExecutorUtil.channelExcutor);
+        if (builder.socketType == SocketEnum.AIO) {
 
-        /*创建监听套接字*/
-        AsynchronousServerSocketChannel listener = AsynchronousServerSocketChannel.open(channelGroup);
-        if (listener.isOpen()) {
-            listener.setOption(StandardSocketOptions.SO_RCVBUF, builder.readBufSize);
-            listener.setOption(StandardSocketOptions.SO_REUSEADDR, false);
-            /*绑定端口*/
-            listener.bind(new InetSocketAddress(builder.port));
+            AsynchronousChannelGroup channelGroup = AsynchronousChannelGroup.withThreadPool(ExecutorUtil.channelExcutor);
+
+            /*创建监听套接字*/
+            AsynchronousServerSocketChannel listener = AsynchronousServerSocketChannel.open(channelGroup);
+            if (listener.isOpen()) {
+                listener.setOption(StandardSocketOptions.SO_RCVBUF, builder.readBufSize);
+                listener.setOption(StandardSocketOptions.SO_REUSEADDR, false);
+                /*绑定端口*/
+                listener.bind(new InetSocketAddress(builder.port));
+            } else {
+                throw new RuntimeException("Channel not opened!");
+            }
+
+            log.info("Aio Server has been started successfully, cost time:{}ms.", System.currentTimeMillis() - httpServerStart);
+
+            Future<AsynchronousSocketChannel> accept;
+            while (true) {
+                accept = listener.accept();
+                final AsynchronousSocketChannel channel = accept.get();
+
+                ExecutorUtil.processorExcutor.execute(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        log.debug("New connection successfully!");
+                        new SocketSession(channel, builder).read();
+                    }
+                });
+
+            }
         } else {
-            throw new RuntimeException("Channel not opened!");
-        }
 
-        log.info("Aio Server has been started successfully, cost time:{}ms.", System.currentTimeMillis() - httpServerStart);
 
-        Future<AsynchronousSocketChannel> accept;
-        while (true) {
-            accept = listener.accept();
-            final AsynchronousSocketChannel channel = accept.get();
-
-            ExecutorUtil.processorExcutor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    new SocketSession(channel, builder).read();
-                }
-            });
 
         }
     }

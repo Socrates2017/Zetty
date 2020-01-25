@@ -1,20 +1,14 @@
-package com.zrzhen.zetty.net;
+package com.zrzhen.zetty.net.aio;
 
+import com.zrzhen.zetty.net.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
-import java.nio.channels.AsynchronousChannelGroup;
-import java.nio.channels.AsynchronousServerSocketChannel;
 import java.nio.channels.AsynchronousSocketChannel;
-import java.nio.channels.CompletionHandler;
 import java.nio.charset.Charset;
-import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Future;
 
 /**
  * @author chenanlian
