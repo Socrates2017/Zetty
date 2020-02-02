@@ -27,25 +27,20 @@ public class BioServer {
     public static void service(final Socket socket) {
         new Thread() {
             public void run() {
-
                 try {
-                    InputStream inSocket = socket.getInputStream();
+
+                    new Thread(new ReadThread(socket)).start();
+
                     OutputStream outSocket = socket.getOutputStream();
-
                     BufferedReader sin = new BufferedReader(new InputStreamReader(System.in));
-
                     String readline = sin.readLine();
-
                     while (!readline.equals("bye")) {
                         outSocket.write(Util.str2Byte(readline));
                         outSocket.flush();
-                        System.out.println("Client:" + Util.inputStream2String(inSocket));
-                        System.out.println("Server:" + readline);
+                        System.out.println("Send:" + readline);
                         readline = sin.readLine();
                     }
-
                     outSocket.close();
-                    inSocket.close();
                     socket.close();
 
                 } catch (IOException e) {
