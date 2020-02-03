@@ -6,6 +6,7 @@ import com.zrzhen.zetty.im.FixedEncode;
 import com.zrzhen.zetty.im.ImMessage;
 import com.zrzhen.zetty.im.ImWriteHandler;
 import com.zrzhen.zetty.net.Processor;
+import com.zrzhen.zetty.net.SocketEnum;
 import com.zrzhen.zetty.net.SocketSession;
 import com.zrzhen.zetty.net.ZettyServer;
 
@@ -20,6 +21,7 @@ public class Server {
     public static void main(String[] args) throws Exception {
         ZettyServer.config()
                 .port(8080)
+                .socketType(SocketEnum.AIO)
                 .socketReadTimeout(Integer.MAX_VALUE)
                 .decode(new FixedDecode())
                 .encode(new FixedEncode())
