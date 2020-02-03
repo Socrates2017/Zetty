@@ -1,11 +1,16 @@
 package com.zrzhen.zetty.net;
 
+import com.zrzhen.zetty.net.aio.SocketReadHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.Socket;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousSocketChannel;
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -27,7 +32,9 @@ public class SocketSession<T, O> {
 
     protected SocketReadHandler socketReadHandler;
 
-    protected Builder builder;
+    byte[] contextBytes;
+
+    public Builder builder;
 
     protected String remoteAddress;
 
@@ -41,28 +48,51 @@ public class SocketSession<T, O> {
 
     protected T message;
 
+    Socket socket;
+
     public SocketSession(AsynchronousSocketChannel socketChannel, Builder builder) {
         this.socketChannel = socketChannel;
         this.builder = builder;
         init();
     }
 
+    public SocketSession(Socket socket, Builder builder) {
+        this.builder = builder;
+        this.socket = socket;
+        init();
+    }
+
     private void init() {
         this.socketSessionStatus = SocketSessionStatus.NEW;
-        this.readBuffer = ByteBuffer.allocate(builder.readBufSize);
+
         this.decode = builder.decode;
         this.encode = builder.encode;
         this.processor = builder.processor;
+        this.readBuffer = ByteBuffer.allocate(builder.readBufSize);
 
-        try {
-            //作为服务端时才有值
-            SocketAddress socketAddress = socketChannel.getRemoteAddress();
-            if (socketAddress != null) {
-                this.remoteAddress = socketAddress.toString();
+        if (builder.socketType == SocketEnum.AIO) {
+            try {
+                //作为服务端时才有值
+                SocketAddress socketAddress = socketChannel.getRemoteAddress();
+                if (socketAddress != null) {
+                    this.remoteAddress = socketAddress.toString();
+                }
+            } catch (Exception e) {
+                log.debug(e.getMessage(), e);
             }
-        } catch (Exception e) {
-            log.debug(e.getMessage(), e);
+        } else {
+            contextBytes = new byte[builder.readBufSize];
+            try {
+                //作为服务端时才有值
+                SocketAddress socketAddress = socket.getRemoteSocketAddress();
+                if (socketAddress != null) {
+                    this.remoteAddress = socketAddress.toString();
+                }
+            } catch (Exception e) {
+                log.debug(e.getMessage(), e);
+            }
         }
+
 
     }
 
@@ -82,7 +112,31 @@ public class SocketSession<T, O> {
 
     public void read() {
         readBuffer.clear();
-        socketChannel.read(readBuffer, builder.socketReadTimeout, TimeUnit.SECONDS, this, builder.readHandler);
+
+        if (builder.socketType == SocketEnum.AIO) {
+            socketChannel.read(readBuffer, builder.socketReadTimeout, TimeUnit.SECONDS, this, builder.readHandler);
+        } else {
+            InputStream inputStream = null;
+            try {
+                inputStream = socket.getInputStream();
+                //read方法处会被阻塞，直到操作系统有数据准备好
+                int realLen = inputStream.read(contextBytes, 0, builder.readBufSize);
+
+                if (realLen == -1) {
+                    this.destroy();
+                    return;
+                }
+
+                readBuffer.put(Arrays.copyOfRange(contextBytes, 0, realLen));
+                this.decode(realLen);
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+
+        }
+
     }
 
     public void write(O out) {
@@ -91,7 +145,27 @@ public class SocketSession<T, O> {
         } else {
             this.writeBuffer = (ByteBuffer) out;
         }
-        socketChannel.write(writeBuffer, this, builder.writeHandler);
+
+        if (builder.socketType == SocketEnum.AIO) {
+            socketChannel.write(writeBuffer, this, builder.writeHandler);
+        } else {
+            try {
+                byte[] bytes = buf2Bytes(writeBuffer, writeBuffer.limit());
+                socket.getOutputStream().write(bytes);
+                socket.getOutputStream().flush();
+                builder.writeHandler.completed(0, this);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+
+    }
+
+    public static byte[] buf2Bytes(ByteBuffer buffer, int length) {
+        byte[] bytes = new byte[length];
+        buffer.get(bytes);
+        return bytes;
     }
 
     public void writeRemaining(ByteBuffer buffer) {
@@ -109,22 +183,44 @@ public class SocketSession<T, O> {
             return;
         }
 
-        if (this.socketChannel != null) {
-            try {
-                socketChannel.shutdownInput();
-                socketChannel.shutdownOutput();
+        if (builder.socketType == SocketEnum.AIO) {
+            if (this.socketChannel != null) {
+                try {
+                    socketChannel.shutdownInput();
+                    socketChannel.shutdownOutput();
 
-                this.socketChannel.close();
-            } catch (Throwable e) {
-                log.error(e.getMessage(), e);
+                    this.socketChannel.close();
+                } catch (Throwable e) {
+                    log.error(e.getMessage(), e);
+                }
+            }
+
+            writeBuffer = null;
+            socketChannel = null;
+            socketReadHandler = null;
+            builder = null;
+            socketSessionStatus = SocketSessionStatus.DESTROYED;
+        } else {
+
+            try {
+                if (!socket.isInputShutdown()) {
+                    socket.shutdownInput();
+                }
+
+                if (!socket.isOutputShutdown()) {
+                    socket.shutdownOutput();
+                }
+
+                if (!socket.isClosed()) {
+                    socket.close();
+                }
+                writeBuffer = null;
+                builder = null;
+                socketSessionStatus = SocketSessionStatus.DESTROYED;
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
-
-        writeBuffer = null;
-        socketChannel = null;
-        socketReadHandler = null;
-        builder = null;
-        socketSessionStatus = SocketSessionStatus.DESTROYED;
         Thread.currentThread().interrupt();
     }
 

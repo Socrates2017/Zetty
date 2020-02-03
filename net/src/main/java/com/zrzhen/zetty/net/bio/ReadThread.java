@@ -1,14 +1,20 @@
 package com.zrzhen.zetty.net.bio;
 
+import com.zrzhen.zetty.net.Builder;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
 
 public class ReadThread implements Runnable {
 
+    public Builder builder;
+
     Socket socket;
 
-    public ReadThread(Socket socket) {
+
+    public ReadThread(Builder builder, Socket socket) {
+        this.builder = builder;
         this.socket = socket;
     }
 

@@ -3,9 +3,6 @@ package com.zrzhen.zetty.im.server;
 import com.zrzhen.zetty.net.SocketSession;
 
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**

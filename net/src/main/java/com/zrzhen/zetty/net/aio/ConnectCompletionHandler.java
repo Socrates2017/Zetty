@@ -1,5 +1,7 @@
-package com.zrzhen.zetty.net;
+package com.zrzhen.zetty.net.aio;
 
+import com.zrzhen.zetty.net.SocketSession;
+import com.zrzhen.zetty.net.SocketSessionStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +28,7 @@ public class ConnectCompletionHandler implements CompletionHandler<Void, SocketS
     public void completed(Void result, SocketSession socketSession) {
         latch.countDown();
         try {
-            SocketAddress socketAddress = socketSession.socketChannel.getLocalAddress();
+            SocketAddress socketAddress = socketSession.getSocketChannel().getLocalAddress();
             if (socketAddress != null) {
                 socketSession.setLocalAddress(socketAddress.toString());
             }

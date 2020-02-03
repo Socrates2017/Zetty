@@ -1,6 +1,8 @@
 package com.zrzhen.zetty.net;
 
-import com.zrzhen.zetty.net.bio.SocketEnum;
+import com.zrzhen.zetty.net.aio.ReadHandler;
+import com.zrzhen.zetty.net.aio.SocketReadHandler;
+import com.zrzhen.zetty.net.aio.WriteHandler;
 
 import java.net.SocketOption;
 import java.nio.ByteBuffer;
@@ -117,7 +119,7 @@ public class Builder {
         return this;
     }
 
-    public Builder setSocketType(SocketEnum socketType) {
+    public Builder socketType(SocketEnum socketType) {
         this.socketType = socketType;
         return this;
     }

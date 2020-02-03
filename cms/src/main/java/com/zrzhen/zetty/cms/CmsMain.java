@@ -8,6 +8,7 @@ import com.zrzhen.zetty.http.HttpWriteHandler;
 import com.zrzhen.zetty.http.mvc.ServerContext;
 import com.zrzhen.zetty.http.util.ProUtil;
 import com.zrzhen.zetty.http.util.ServerUtil;
+import com.zrzhen.zetty.net.SocketEnum;
 import com.zrzhen.zetty.net.ZettyServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,6 +56,7 @@ public class CmsMain {
 
             ZettyServer.config()
                     .port(port)
+                    .socketType(SocketEnum.BIO)
                     .decode(new HttpDecode())
                     .processor(new HttpProcessor())
                     .writeHandler(new HttpWriteHandler())

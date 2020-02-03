@@ -1,11 +1,14 @@
 package com.zrzhen.zetty.net;
 
-import com.zrzhen.zetty.net.bio.SocketEnum;
+import com.zrzhen.zetty.net.bio.ReadThread;
 import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.net.StandardSocketOptions;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousChannelGroup;
@@ -26,8 +29,7 @@ public class ZettyServer {
     private volatile boolean started = false;
 
     private GenericObjectPool<ByteBuffer> byteBufferPool = null;
-
-
+    
     public Builder builder;
 
     public ZettyServer(Builder builder) {
@@ -85,9 +87,25 @@ public class ZettyServer {
 
             }
         } else {
+            ServerSocket serverSocket;
+            try {
+                serverSocket = new ServerSocket(builder.port);
+                while (true) {
+                    final Socket socket = serverSocket.accept();
+                    ExecutorUtil.processorExcutor.execute(new Runnable() {
 
-
+                        @Override
+                        public void run() {
+                            log.debug("New connection successfully!");
+                            new SocketSession(socket, builder).read();
+                        }
+                    });
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
         }
     }
+
 }

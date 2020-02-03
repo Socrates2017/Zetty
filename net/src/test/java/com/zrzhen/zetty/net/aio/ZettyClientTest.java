@@ -21,7 +21,7 @@ public class ZettyClientTest {
 
     public static void main(String[] args) throws Exception {
 
-        int n = 10000;
+        int n = 1;
         long start = System.currentTimeMillis();
         for (int i = 0; i < n; i++) {
             send();

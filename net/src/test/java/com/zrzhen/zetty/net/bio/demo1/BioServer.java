@@ -1,4 +1,4 @@
-package com.zrzhen.zetty.net.bio;
+package com.zrzhen.zetty.net.bio.demo1;
 
 import com.zrzhen.zetty.net.Util;
 
@@ -29,7 +29,7 @@ public class BioServer {
             public void run() {
                 try {
 
-                    new Thread(new ReadThread(socket)).start();
+                    new Thread(new BioReadThread(socket)).start();
 
                     OutputStream outSocket = socket.getOutputStream();
                     BufferedReader sin = new BufferedReader(new InputStreamReader(System.in));
