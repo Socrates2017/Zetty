@@ -24,7 +24,7 @@ public class HttpWriteHandler extends WriteHandler<Integer, SocketSession> {
     @Override
     public void completed(Integer result, SocketSession socketSession) {
 
-        if (socketSession.builder.socketType == SocketEnum.AIO) {
+        if (socketSession.getBuilder().socketType == SocketEnum.AIO) {
             ByteBuffer buffer = socketSession.getWriteBuffer();
             //如果没有发送完，就继续发送直到完成
             if (buffer.hasRemaining()) {

@@ -3,7 +3,10 @@ package com.zrzhen.zetty.net.aio;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousSocketChannel;
@@ -13,15 +16,17 @@ import java.util.concurrent.CountDownLatch;
 
 /**
  * @author chenanlian
- * 客户端
+ * aio socket 客户端demo，测试aio client 的api
+ * 可批量多线程启动，用来做性能测试
  */
-public class ZettyClientTest {
+public class AioSocketClientTest {
 
-    private static Logger log = LoggerFactory.getLogger(ZettyClientTest.class);
+    private static Logger log = LoggerFactory.getLogger(AioSocketClientTest.class);
 
     public static void main(String[] args) throws Exception {
 
-        int n = 1;
+        //调用的总次数
+        int n = 10;
         long start = System.currentTimeMillis();
         for (int i = 0; i < n; i++) {
             send();
@@ -34,7 +39,7 @@ public class ZettyClientTest {
         }
         long end = System.currentTimeMillis();
 
-        long qps = n/((end - start)/1000);
+        long qps = n / ((end - start) / 1000);
         System.out.println("qps:" + qps);
         CountDownLatch latch = new CountDownLatch(1);
         latch.await();
@@ -47,8 +52,8 @@ public class ZettyClientTest {
             @Override
             public void completed(Void result, AsynchronousSocketChannel attachment) {
 
-                ByteBuffer response = ByteBuffer.wrap(file2Byte("E:\\github\\zetty\\cms\\src\\main\\resources\\html\\index.html"));
-                attachment.write(response, attachment, new CompletionHandler<Integer, AsynchronousSocketChannel>() {
+                ByteBuffer request = ByteBuffer.wrap(file2Byte("E:\\github\\zetty\\cms\\src\\main\\resources\\html\\index.html"));
+                attachment.write(request, attachment, new CompletionHandler<Integer, AsynchronousSocketChannel>() {
                     @Override
                     public void completed(Integer result, AsynchronousSocketChannel channel) {
                         ByteBuffer readBuffer = ByteBuffer.allocate(1024 * 1024);

@@ -11,8 +11,7 @@ import java.util.concurrent.CountDownLatch;
 
 /**
  * @author chenanlian
- * <p>
- * 服务端
+ * zetty bio 服务端 测试
  */
 public class BioZettyServerTest {
     private static final Logger log = LoggerFactory.getLogger(BioZettyServerTest.class);
@@ -49,7 +48,7 @@ public class BioZettyServerTest {
                 .processor(new Processor<String>() {
                     @Override
                     public boolean process(SocketSession session, String message) {
-                        String response = "get:" + message;
+                        String response = message;
                         session.write(response);
                         return false;
                     }

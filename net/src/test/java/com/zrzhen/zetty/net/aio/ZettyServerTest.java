@@ -1,92 +1,83 @@
 package com.zrzhen.zetty.net.aio;
 
-import com.zrzhen.zetty.net.ExecutorUtil;
+import com.zrzhen.zetty.net.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
-import java.nio.channels.AsynchronousChannelGroup;
-import java.nio.channels.AsynchronousServerSocketChannel;
 import java.nio.channels.AsynchronousSocketChannel;
-import java.nio.channels.CompletionHandler;
 import java.nio.charset.Charset;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Future;
 
 /**
  * @author chenanlian
- * <p>
- * 服务端
+ * 测试zettyserver
  */
 public class ZettyServerTest {
     private static final Logger log = LoggerFactory.getLogger(ZettyServerTest.class);
 
     public static void main(String[] args) throws Exception {
-        start();
-        CountDownLatch latch = new CountDownLatch(1);
-        latch.await();
-    }
+        ZettyServer.config()
+                .port(80)
+                .socketType(SocketEnum.AIO)
+                .socketReadTimeout(Integer.MAX_VALUE)
+                .decode(new Decode<String>() {
+                    @Override
+                    public boolean decode(SocketSession socketSession, Integer readLength, String o) {
+                        ByteBuffer readBuffer = socketSession.getReadBuffer();
+                        readBuffer.flip();
+                        Charset charset = Charset.forName("utf-8");
+                        String msg = charset.decode(readBuffer).toString();
+                        socketSession.setMessage(msg);
+                        return true;
+                    }
+                })
+                .encode(new Encode<String>() {
+                    @Override
+                    public ByteBuffer encode(SocketSession session, String out) {
 
-    public static void start() throws Exception {
-        AsynchronousChannelGroup channelGroup = AsynchronousChannelGroup.withThreadPool(ExecutorUtil.channelExcutor);
-        final AsynchronousServerSocketChannel listener = AsynchronousServerSocketChannel.open(channelGroup);
-        listener.bind(new InetSocketAddress(80));
-
-        Future<AsynchronousSocketChannel> accept;
-        while (true) {
-            accept = listener.accept();
-            final AsynchronousSocketChannel channel = accept.get();
-
-            ByteBuffer readBuffer = ByteBuffer.allocate(1024 * 1024);
-            channel.read(readBuffer, readBuffer, new CompletionHandler<Integer, ByteBuffer>() {
-                @Override
-                public void completed(Integer result, ByteBuffer readBuffer) {
-                    readBuffer.flip();
-                    Charset charset = Charset.forName("utf-8");
-                    String msg = charset.decode(readBuffer).toString();
-                    System.out.println("get the message:" + msg);
-                    ByteBuffer response = null;
-                    try {
-                        response = ByteBuffer.wrap(("get:" + msg).getBytes("utf-8"));
-                    } catch (UnsupportedEncodingException e) {
-                        e.printStackTrace();
+                        ByteBuffer response = null;
+                        try {
+                            response = ByteBuffer.wrap(out.getBytes("utf-8"));
+                        } catch (UnsupportedEncodingException e) {
+                            e.printStackTrace();
+                        }
+                        return response;
+                    }
+                })
+                .processor(new Processor<String>() {
+                    @Override
+                    public boolean process(SocketSession session, String message) {
+                        String response = message;
+                        session.write(response);
+                        return false;
+                    }
+                })
+                .writeHandler(new WriteHandler<Integer, SocketSession>() {
+                    @Override
+                    public void completed(Integer result, SocketSession socketSession) {
+                        AsynchronousSocketChannel channel = socketSession.getSocketChannel();
+                        ByteBuffer buffer = socketSession.getWriteBuffer();
+                        if (buffer.hasRemaining()) {
+                            log.warn("buffer.hasRemaining()");
+                            channel.write(buffer, socketSession, this);
+                        }else {
+                            socketSession.destroy();
+                        }
                     }
 
-                    channel.write(response, response, new CompletionHandler<Integer, ByteBuffer>() {
-                        @Override
-                        public void completed(Integer result, ByteBuffer buffer) {
-                            //如果没有发送完，就继续发送直到完成
-                            if (buffer.hasRemaining()) {
-                                log.warn("buffer.hasRemaining()");
-                                channel.write(buffer, buffer, this);
+                    @Override
+                    public void failed(Throwable exc, SocketSession socketSession) {
+                        log.error(exc.getMessage(), exc);
+                        socketSession.destroy();
+                    }
+                })
+                .buildServer()
+                .start();
 
-                            }else {
-                                try {
-                                    channel.close();
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        }
-
-                        @Override
-                        public void failed(Throwable exc, ByteBuffer attachment) {
-                            log.error(exc.getMessage(), exc);
-                        }
-                    });
-                }
-
-                @Override
-                public void failed(Throwable exc, ByteBuffer channel) {
-                    log.error(exc.getMessage(), exc);
-                }
-            });
-
-        }
-
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        countDownLatch.await();
     }
 
 

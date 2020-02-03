@@ -22,33 +22,33 @@ public class SocketSession<T, O> {
 
     private static final Logger log = LoggerFactory.getLogger(SocketSession.class);
 
-    protected SocketSessionStatus socketSessionStatus;
+    private SocketSessionStatus socketSessionStatus;
 
-    protected AsynchronousSocketChannel socketChannel;
+    private AsynchronousSocketChannel socketChannel;
 
-    protected ByteBuffer readBuffer;
+    private ByteBuffer readBuffer;
 
-    protected ByteBuffer writeBuffer;
+    private ByteBuffer writeBuffer;
 
-    protected SocketReadHandler socketReadHandler;
+    private SocketReadHandler socketReadHandler;
 
-    byte[] contextBytes;
+    private byte[] contextBytes;
 
-    public Builder builder;
+    private Builder builder;
 
-    protected String remoteAddress;
+    private String remoteAddress;
 
-    protected String localAddress;
+    private String localAddress;
 
-    protected Decode decode;
+    private Decode decode;
 
-    public Encode encode;
+    private Encode encode;
 
-    protected Processor processor;
+    private Processor processor;
 
-    protected T message;
+    private T message;
 
-    Socket socket;
+    private Socket socket;
 
     public SocketSession(AsynchronousSocketChannel socketChannel, Builder builder) {
         this.socketChannel = socketChannel;
@@ -131,7 +131,7 @@ public class SocketSession<T, O> {
                 this.decode(realLen);
 
             } catch (IOException e) {
-                e.printStackTrace();
+                log.error(e.getMessage(), e);
             }
 
 
@@ -286,6 +286,54 @@ public class SocketSession<T, O> {
 
     public void setMessage(T message) {
         this.message = message;
+    }
+
+    public byte[] getContextBytes() {
+        return contextBytes;
+    }
+
+    public void setContextBytes(byte[] contextBytes) {
+        this.contextBytes = contextBytes;
+    }
+
+    public Builder getBuilder() {
+        return builder;
+    }
+
+    public void setBuilder(Builder builder) {
+        this.builder = builder;
+    }
+
+    public Decode getDecode() {
+        return decode;
+    }
+
+    public void setDecode(Decode decode) {
+        this.decode = decode;
+    }
+
+    public Encode getEncode() {
+        return encode;
+    }
+
+    public void setEncode(Encode encode) {
+        this.encode = encode;
+    }
+
+    public Processor getProcessor() {
+        return processor;
+    }
+
+    public void setProcessor(Processor processor) {
+        this.processor = processor;
+    }
+
+    public Socket getSocket() {
+        return socket;
+    }
+
+    public void setSocket(Socket socket) {
+        this.socket = socket;
     }
 
     @Override
