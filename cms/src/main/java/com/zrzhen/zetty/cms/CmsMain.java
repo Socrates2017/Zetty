@@ -56,7 +56,7 @@ public class CmsMain {
 
             ZettyServer.config()
                     .port(port)
-                    .socketType(SocketEnum.BIO)
+                    .socketType(SocketEnum.AIO)
                     .decode(new HttpDecode())
                     .processor(new HttpProcessor())
                     .writeHandler(new HttpWriteHandler())
