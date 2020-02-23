@@ -61,7 +61,7 @@ public class ZettyServer {
             AsynchronousServerSocketChannel listener = AsynchronousServerSocketChannel.open(channelGroup);
             if (listener.isOpen()) {
                 listener.setOption(StandardSocketOptions.SO_RCVBUF, builder.readBufSize);
-                listener.setOption(StandardSocketOptions.SO_REUSEADDR, false);
+                listener.setOption(StandardSocketOptions.SO_REUSEADDR, true);
                 /*绑定端口*/
                 listener.bind(new InetSocketAddress(builder.port));
             } else {
