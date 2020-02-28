@@ -1,8 +1,8 @@
-### 展示网站
+## 展示网站
 
   以本框架开发的系统示例：[哲人镇](http://www.zrzhen.com)
 
-### 项目结构
+## 项目结构
 
   common：通用工具  
   net：AIO网络通信封装  
@@ -11,7 +11,7 @@
   im：即时通信服务开发示例  
   p2p：p2p网络示例
   
-### 网络通信模块（net）使用说明
+## 网络通信模块（net）使用说明
 
   实例化ZettyServer或ZettyClient，配置读取消息后的处理类，该类必须实现com.zrzhen.zetty.net.SocketReadHandler。可以在该类中进行
   协议解析和业务处理。ZettyClient可返回com.zrzhen.zetty.net.SocketSession，利用它可以进行灵活的、全双工的、长连接的网络通信。示例：
@@ -132,16 +132,16 @@
                 
   
   
-### web框架
+## web框架使用说明
   
   web框架需要引入http模块，具体请参照cms示例。
-#### http服务示例部署
+### http服务示例部署
 
   直接jar包启动，或者执行启动脚本（在doc文件夹下有参考的shell脚本）：sh dev.sh start  
   jar包启动命令：java -jar E:\github\zetty\target\zetty-0.0.1.jar server.profiles.active=dev。其中server.profiles.active=后面
   的dev表示将以dev环境启动，加载后缀为_dev的properties文件（类似springboot）。
 
-#### web框架设计说明
+### web框架设计说明
 
   基于java原生的Aio搭建socket通信，即本项目中的net模块。  
   基于jdbc进行数据库操作，可替换为其他ORM框架。   
@@ -149,7 +149,7 @@
   模仿springboot，实现了基于注解的编程，实现了AOP、请求静态页面、请求json数据、文件上传下载等功能。   
     
     
-#### web框架路由说明
+### web框架路由说明
 
   js、css、img等静态文件需要放在resources下的static文件夹下，引用路径需以“/static/”开头，此类请求不经由controller处理。  
   html文件需要放在resources下的html文件夹下，在返回结果中返回文件的路径，如“index.html”，且要在方法头加@ContentType(ContentTypeEnum.HTML)。     
@@ -157,7 +157,7 @@
   其他使用要点可以参考测试例子（代码中包含了一个完整的论坛网站功能）。文档说明后续会进一步补充。  
 
 
-####  web框架控制类编码示例
+###  web框架控制类编码示例
 
         package com.zrzhen.zetty.cms.controller;
         
