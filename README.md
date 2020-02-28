@@ -27,7 +27,7 @@
                       .buildServer()
                       .start();      
         
-  全双工长连接示例：
+  全双工长连接示例，（服务端）：
         
         ZettyServer.config()
                 .port(8080)
@@ -91,6 +91,45 @@
                 .writeHandler(new ImWriteHandler())
                 .buildServer()
                 .start();
+                                
+  全双工长连接示例，（客户端）：
+  
+        SocketSession socketSession = ZettyClient.config()
+                        .port(8080)
+                        .socketType(SocketEnum.AIO)
+                        .socketReadTimeout(Integer.MAX_VALUE)
+                        .decode(new FixedDecode())
+                        .encode(new FixedEncode())
+                        .processor(new Processor<ImMessage>() {
+                            @Override
+                            public boolean process(SocketSession socketSession, ImMessage message) {
+                                System.out.println("receive the message:"+FileUtil.byte2Str(message.getMsg()));
+                                message.setMsg(null);
+                                message.setMsgIndex(0);
+                                socketSession.read();
+                                return true;
+                            }
+                        })
+                        .writeHandler(new WriteHandler<Integer, SocketSession>() {
+                            @Override
+                            public void completed(Integer result, SocketSession socketSession) {
+                                AsynchronousSocketChannel channel = socketSession.getSocketChannel();
+                                ByteBuffer buffer = socketSession.getWriteBuffer();
+                                if (buffer.hasRemaining()) {
+                                    channel.write(buffer, socketSession, this);
+                                }
+                                //长连接，所以，写完毕后不关闭通道
+                            }
+        
+                            @Override
+                            public void failed(Throwable exc, SocketSession socketSession) {
+                                exc.getStackTrace();
+                                socketSession.destroy();
+                            }
+                        })
+                        .buildClient()
+                        .connect();
+                
   
   
 ### web框架
