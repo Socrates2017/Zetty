@@ -1,6 +1,6 @@
-## 展示网站
+## zetty使用指南
 
-  以本框架开发的系统示例：[哲人镇](http://www.zrzhen.com)
+  [zetty使用指南](http://www.zrzhen.com/book/1582792865146)
 
 ## 项目结构
 
