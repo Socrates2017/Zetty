@@ -22,7 +22,7 @@ public class Builder {
 
     public int port = 80;
 
-    public int readBufSize = 1024 * 1024;
+    public int readBufSize = 1024 * 8;
 
     public long socketReadTimeout = 30;
 
