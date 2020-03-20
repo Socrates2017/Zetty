@@ -16,6 +16,7 @@
         <module>p2p</module>
         <module>sqlgraph</module>
         <module>cms</module>
+        <module>zeproxy</module>
     </modules>
 
     <dependencyManagement>

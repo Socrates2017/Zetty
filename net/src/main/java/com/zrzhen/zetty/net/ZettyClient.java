@@ -43,7 +43,7 @@ public class ZettyClient {
 
         socketSession = new SocketSession(clientChannel, builder);
         CountDownLatch latch = new CountDownLatch(1);
-        clientChannel.bind(new InetSocketAddress(builder.host, 12345));
+        //clientChannel.bind(new InetSocketAddress(builder.host, 12345));
         clientChannel.connect(new InetSocketAddress(builder.host, builder.port), socketSession, new ConnectCompletionHandler(latch));
         try {
             latch.await(30, TimeUnit.SECONDS);

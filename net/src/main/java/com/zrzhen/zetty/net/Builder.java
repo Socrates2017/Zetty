@@ -62,6 +62,17 @@ public class Builder {
     }
 
     public ZettyClient buildClient() {
+        if (socketType == null) {
+            socketType = SocketEnum.BIO;
+        }
+
+        if (readHandler == null) {
+            readHandler = new ReadHandler();
+        }
+
+        if (writeBuffer == null) {
+            writeBuffer = ByteBuffer.allocateDirect(readBufSize);
+        }
         return new ZettyClient(this);
     }
 
