@@ -1,7 +1,6 @@
 package com.zrzhen.zatis;
 
 import com.alibaba.druid.pool.DruidDataSource;
-import com.sun.istack.internal.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,11 +9,16 @@ import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.regex.Pattern;
 
 /**
  * 数据源对象
+ * <p>
+ * 使用方式
+ * 创建一个数据源，可设置为静态的；
+ * 操作的参数分为三类；
+ * 1.SQL字符串与绑定的参数数组
+ * 2.由SQL字符串与绑定的参数数组封装而成的Dbsql对象
+ * 3.由表名、查询字段、查询参数等组成的参数
  */
 public class DbSource {
 
@@ -42,7 +46,7 @@ public class DbSource {
     /**
      * 是否使用连接池，true则连接，false不连接；当设为true时，后面几个参数需要赋值
      */
-    boolean useConnectPool;
+    boolean useConnectPool = true;
 
     /**
      * 初始化连接池大小
@@ -161,6 +165,10 @@ public class DbSource {
         return DbOperate.update(this, dbSql);
     }
 
+    public int operate(String sql, Object[] bindArgs)
+            throws SQLException, SqlNotFormatException {
+        return DbOperate.update(this, new DbSql(sql, bindArgs));
+    }
 
     /**
      * 写操作，自动提交
@@ -171,6 +179,10 @@ public class DbSource {
      */
     public int operateAutocommit(DbSql dbSql) {
         return DbOperate.updateAutocommit(this, dbSql);
+    }
+
+    public int operateAutocommit(String sql, Object[] bindArgs) {
+        return DbOperate.updateAutocommit(this, new DbSql(sql, bindArgs));
     }
 
     /**
@@ -185,6 +197,11 @@ public class DbSource {
         return DbOperate.insertAndGetKey(this, dbSql);
     }
 
+    public Integer insertAndGetKey(String sql, Object[] bindArgs)
+            throws SQLException, SqlNotFormatException {
+        return DbOperate.insertAndGetKey(this, new DbSql(sql, bindArgs));
+    }
+
     /**
      * 插入并返回主键，自动提交事务
      *
@@ -193,6 +210,11 @@ public class DbSource {
     public Integer insertAndGetKeyAutocommit(DbSql dbSql) {
         return DbOperate.insertAndGetKeyAutocommit(this, dbSql);
     }
+
+    public Integer insertAndGetKeyAutocommit(String sql, Object[] bindArgs) {
+        return DbOperate.insertAndGetKeyAutocommit(this, new DbSql(sql, bindArgs));
+    }
+
 
     /**
      * 执行数据库插入操作
@@ -204,7 +226,6 @@ public class DbSource {
      */
     public int insert(String tableName, Map<String, Object> valueMap, boolean commit)
             throws SQLException, SqlNotFormatException {
-
         return DbOperate.insert(this, tableName, valueMap, commit);
     }
 
@@ -243,13 +264,40 @@ public class DbSource {
 
     /***************************查询********************************/
 
+    public List<Map<String, Object>> getList(DbSql dbSql) {
+        return DbSelect.query(this, dbSql);
+    }
+
     /**
-     * 查询
+     * 获取结果列表
      *
+     * @param sql
+     * @param bindArgs
      * @return
      */
-    public List<Map<String, Object>> query(DbSql dbSql) {
-        return DbSelect.query(this, dbSql);
+    public List<Map<String, Object>> getList(String sql, Object[] bindArgs) {
+        return getList(new DbSql(sql, bindArgs));
+    }
+
+    public Map<String, Object> getOne(DbSql dbSql) {
+        List<Map<String, Object>> out = getList(dbSql);
+        if (out != null && out.size() > 0) {
+            return out.get(0);
+        } else {
+            return null;
+        }
+    }
+
+
+    /**
+     * 获取一个结果
+     *
+     * @param sql
+     * @param bindArgs
+     * @return
+     */
+    public Map<String, Object> getOne(String sql, Object[] bindArgs) {
+        return getOne(new DbSql(sql, bindArgs));
     }
 
 
@@ -262,6 +310,9 @@ public class DbSource {
         return DbSelect.count(this, dbSql);
     }
 
+    public int count(String sql, Object[] bindArgs) {
+        return DbSelect.count(this, new DbSql(sql, bindArgs));
+    }
 
     /**
      * @param tableName
@@ -308,15 +359,15 @@ public class DbSource {
     /**
      * 执行全部结构的sql查询
      *
-     * @param tableName     表名
-     * @param distinct      去重
-     * @param columns       要查询的列名
-     * @param selection     where条件
-     * @param bindArgs where条件中占位符中的值
-     * @param groupBy       分组
-     * @param having        筛选
-     * @param orderBy       排序
-     * @param limit         分页
+     * @param tableName 表名
+     * @param distinct  去重
+     * @param columns   要查询的列名
+     * @param selection where条件
+     * @param bindArgs  where条件中占位符中的值
+     * @param groupBy   分组
+     * @param having    筛选
+     * @param orderBy   排序
+     * @param limit     分页
      */
     public List<Map<String, Object>> query(String tableName,
                                            boolean distinct,
@@ -327,102 +378,11 @@ public class DbSource {
                                            String having,
                                            String orderBy,
                                            String limit) throws SQLException {
-        String sql = buildQueryString(distinct, tableName, columns, selection, groupBy, having, orderBy, limit);
-        return this.executeQuery(sql, bindArgs);
+        String sql = DbConvert.buildQueryString(distinct, tableName, columns, selection, groupBy, having, orderBy, limit);
+        return this.getList(sql, bindArgs);
 
     }
 
-    public List<Map<String, Object>> executeQuery(String sql, Object[] bindArgs) {
-        DbSql dbSql = new DbSql(sql, bindArgs);
-        return this.query(dbSql);
-    }
-
-
-    private String buildQueryString(
-            boolean distinct, String tables, String[] columns, String where,
-            String groupBy, String having, String orderBy, String limit) {
-        if (isEmpty(groupBy) && !isEmpty(having)) {
-            throw new IllegalArgumentException(
-                    "HAVING clauses are only permitted when using a groupBy clause");
-        }
-        if (!isEmpty(limit) && !sLimitPattern.matcher(limit).matches()) {
-            throw new IllegalArgumentException("invalid LIMIT clauses:" + limit);
-        }
-
-        StringBuilder query = new StringBuilder(120);
-
-        query.append("SELECT ");
-        if (distinct) {
-            query.append("DISTINCT ");
-        }
-        if (columns != null && columns.length != 0) {
-            appendColumns(query, columns);
-        } else {
-            query.append(" * ");
-        }
-        query.append("FROM ");
-        query.append(tables);
-        appendClause(query, " WHERE ", where);
-        appendClause(query, " GROUP BY ", groupBy);
-        appendClause(query, " HAVING ", having);
-        appendClause(query, " ORDER BY ", orderBy);
-        appendClause(query, " LIMIT ", limit);
-        return query.toString();
-    }
-
-    /**
-     * Add the names that are non-null in columns to s, separating
-     * them with commas.
-     */
-    private void appendColumns(StringBuilder s, String[] columns) {
-        int n = columns.length;
-
-        for (int i = 0; i < n; i++) {
-            String column = columns[i];
-
-            if (column != null) {
-                if (i > 0) {
-                    s.append(", ");
-                }
-                s.append(column);
-            }
-        }
-        s.append(' ');
-    }
-
-    /**
-     * addClause
-     *
-     * @param s      the add StringBuilder
-     * @param name   clauseName
-     * @param clause clauseSelection
-     */
-    private void appendClause(StringBuilder s, String name, String clause) {
-        if (!isEmpty(clause)) {
-            s.append(name);
-            s.append(clause);
-        }
-    }
-
-    /**
-     * Returns true if the string is null or 0-length.
-     *
-     * @param str the string to be examined
-     * @return true if str is null or zero length
-     */
-    private boolean isEmpty(@Nullable CharSequence str) {
-        if (str == null || str.length() == 0) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * the pattern of limit
-     */
-    private final Pattern sLimitPattern =
-            Pattern.compile("\\s*\\d+\\s*(,\\s*\\d+\\s*)?");
 
     /*********************/
 

@@ -156,7 +156,7 @@ public class MysqlFirst {
      */
     public List<Map<String, Object>> query(String sql) throws SQLException {
         DbSql dbSql = new DbSql(sql, null);
-        return dbSource.query(dbSql);
+        return dbSource.getList(dbSql);
     }
 
 
@@ -220,7 +220,7 @@ public class MysqlFirst {
      * @throws SQLException
      */
     public List<Map<String, Object>> executeQuery(String sql, Object[] bindArgs) {
-        return dbSource.executeQuery(sql, bindArgs);
+        return dbSource.getList(sql, bindArgs);
     }
 
 }
