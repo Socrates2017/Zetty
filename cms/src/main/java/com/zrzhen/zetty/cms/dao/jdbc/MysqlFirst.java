@@ -1,6 +1,5 @@
 package com.zrzhen.zetty.cms.dao.jdbc;
 
-import com.sun.istack.internal.Nullable;
 import com.zrzhen.zatis.DbSource;
 import com.zrzhen.zatis.DbSql;
 import com.zrzhen.zatis.SqlNotFormatException;
@@ -9,8 +8,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
-import java.util.*;
-import java.util.regex.Pattern;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Druid连接池
@@ -95,83 +94,12 @@ public class MysqlFirst {
     public int insert(String tableName, Map<String, Object> valueMap, boolean commit)
             throws SQLException, SqlNotFormatException {
 
-        /**获取数据库插入的Map的键值对的值**/
-        Set<String> keySet = valueMap.keySet();
-        Iterator<String> iterator = keySet.iterator();
-        /**要插入的字段sql，其实就是用key拼起来的**/
-        StringBuilder columnSql = new StringBuilder();
-        /**要插入的字段值，其实就是？**/
-        StringBuilder unknownMarkSql = new StringBuilder();
-        Object[] bindArgs = new Object[valueMap.size()];
-        int i = 0;
-        while (iterator.hasNext()) {
-            String key = iterator.next();
-            columnSql.append(i == 0 ? "" : ",");
-            columnSql.append(key);
-
-            unknownMarkSql.append(i == 0 ? "" : ",");
-            unknownMarkSql.append("?");
-            bindArgs[i] = valueMap.get(key);
-            i++;
-        }
-        /**开始拼插入的sql语句**/
-        StringBuilder sql = new StringBuilder();
-        sql.append("INSERT INTO ");
-        sql.append(tableName);
-        sql.append(" (");
-        sql.append(columnSql);
-        sql.append(" )  VALUES (");
-        sql.append(unknownMarkSql);
-        sql.append(" )");
-
-
-        DbSql dbSql = new DbSql(sql.toString(), bindArgs);
-        if (commit) {
-            return dbSource.operateAutocommit(dbSql);
-        } else {
-            return dbSource.operate(dbSql);
-        }
+        return dbSource.insert(tableName, valueMap, commit);
     }
 
     public int insertAndGetKey(String tableName, Map<String, Object> valueMap, boolean commit)
             throws SQLException, SqlNotFormatException {
-
-        /**获取数据库插入的Map的键值对的值**/
-        Set<String> keySet = valueMap.keySet();
-        Iterator<String> iterator = keySet.iterator();
-        /**要插入的字段sql，其实就是用key拼起来的**/
-        StringBuilder columnSql = new StringBuilder();
-        /**要插入的字段值，其实就是？**/
-        StringBuilder unknownMarkSql = new StringBuilder();
-        Object[] bindArgs = new Object[valueMap.size()];
-        int i = 0;
-        while (iterator.hasNext()) {
-            String key = iterator.next();
-            columnSql.append(i == 0 ? "" : ",");
-            columnSql.append(key);
-
-            unknownMarkSql.append(i == 0 ? "" : ",");
-            unknownMarkSql.append("?");
-            bindArgs[i] = valueMap.get(key);
-            i++;
-        }
-        /**开始拼插入的sql语句**/
-        StringBuilder sql = new StringBuilder();
-        sql.append("INSERT INTO ");
-        sql.append(tableName);
-        sql.append(" (");
-        sql.append(columnSql);
-        sql.append(" )  VALUES (");
-        sql.append(unknownMarkSql);
-        sql.append(" )");
-
-
-        DbSql dbSql = new DbSql(sql.toString(), bindArgs);
-        if (commit) {
-            return dbSource.insertAndGetKeyAutocommit(dbSql);
-        } else {
-            return dbSource.insertAndGetKey(dbSql);
-        }
+        return dbSource.insertAndGetKey(tableName, valueMap, commit);
     }
 
 
@@ -186,50 +114,7 @@ public class MysqlFirst {
      */
     public int update(String tableName, Map<String, Object> valueMap, Map<String, Object> whereMap, boolean commit)
             throws SQLException, SqlNotFormatException {
-        /**获取数据库插入的Map的键值对的值**/
-        Set<String> keySet = valueMap.keySet();
-        Iterator<String> iterator = keySet.iterator();
-        /**开始拼插入的sql语句**/
-        StringBuilder sql = new StringBuilder();
-        sql.append("UPDATE ");
-        sql.append(tableName);
-        sql.append(" SET ");
-
-        /**要更改的的字段sql，其实就是用key拼起来的**/
-        StringBuilder columnSql = new StringBuilder();
-        int i = 0;
-        List<Object> objects = new ArrayList<>();
-        while (iterator.hasNext()) {
-            String key = iterator.next();
-            columnSql.append(i == 0 ? "" : ",");
-            columnSql.append(key + " = ? ");
-            objects.add(valueMap.get(key));
-            i++;
-        }
-        sql.append(columnSql);
-
-        /**更新的条件:要更改的的字段sql，其实就是用key拼起来的**/
-        StringBuilder whereSql = new StringBuilder();
-        int j = 0;
-        if (whereMap != null && whereMap.size() > 0) {
-            whereSql.append(" WHERE ");
-            iterator = whereMap.keySet().iterator();
-            while (iterator.hasNext()) {
-                String key = iterator.next();
-                whereSql.append(j == 0 ? "" : " AND ");
-                whereSql.append(key + " = ? ");
-                objects.add(whereMap.get(key));
-                j++;
-            }
-            sql.append(whereSql);
-        }
-
-        DbSql dbSql = new DbSql(sql.toString(), objects.toArray());
-        if (commit) {
-            return dbSource.operateAutocommit(dbSql);
-        } else {
-            return dbSource.operate(dbSql);
-        }
+        return dbSource.update(tableName, valueMap, whereMap, commit);
 
     }
 
@@ -243,37 +128,7 @@ public class MysqlFirst {
      */
     public int delete(String tableName, Map<String, Object> whereMap, boolean commit)
             throws SQLException, SqlNotFormatException {
-        /**准备删除的sql语句**/
-        StringBuilder sql = new StringBuilder();
-        sql.append("DELETE FROM ");
-        sql.append(tableName);
-
-        /**更新的条件:要更改的的字段sql，其实就是用key拼起来的**/
-        StringBuilder whereSql = new StringBuilder();
-        Object[] bindArgs = null;
-        if (whereMap != null && whereMap.size() > 0) {
-            bindArgs = new Object[whereMap.size()];
-            whereSql.append(" WHERE ");
-            /**获取数据库插入的Map的键值对的值**/
-            Set<String> keySet = whereMap.keySet();
-            Iterator<String> iterator = keySet.iterator();
-            int i = 0;
-            while (iterator.hasNext()) {
-                String key = iterator.next();
-                whereSql.append(i == 0 ? "" : " AND ");
-                whereSql.append(key + " = ? ");
-                bindArgs[i] = whereMap.get(key);
-                i++;
-            }
-            sql.append(whereSql);
-        }
-
-        DbSql dbSql = new DbSql(sql.toString(), bindArgs);
-        if (commit) {
-            return dbSource.operateAutocommit(dbSql);
-        } else {
-            return dbSource.operate(dbSql);
-        }
+        return dbSource.delete(tableName, whereMap, commit);
     }
 
 
@@ -312,22 +167,8 @@ public class MysqlFirst {
      * @throws Exception
      */
     public List<Map<String, Object>> query(String tableName, Map<String, Object> whereMap) throws Exception {
-        String whereClause = "";
-        Object[] whereArgs = null;
-        if (whereMap != null && whereMap.size() > 0) {
-            Iterator<String> iterator = whereMap.keySet().iterator();
-            whereArgs = new Object[whereMap.size()];
-            int i = 0;
-            while (iterator.hasNext()) {
-                String key = iterator.next();
-                whereClause += (i == 0 ? "" : " AND ");
-                whereClause += (key + " = ? ");
-                whereArgs[i] = whereMap.get(key);
-                i++;
-            }
-        }
-        return query(tableName, false, null, whereClause, whereArgs, null,
-                null, null, null);
+
+        return dbSource.query(tableName, whereMap);
     }
 
     /**
@@ -341,10 +182,8 @@ public class MysqlFirst {
      */
     public List<Map<String, Object>> query(String tableName,
                                            String whereClause,
-                                           String[] whereArgs)
-            throws SQLException {
-        return query(tableName, false, null, whereClause, whereArgs, null,
-                null, null, null);
+                                           String[] whereArgs) throws SQLException {
+        return dbSource.query(tableName, whereClause, whereArgs);
     }
 
     /**
@@ -369,8 +208,7 @@ public class MysqlFirst {
                                            String having,
                                            String orderBy,
                                            String limit) throws SQLException {
-        String sql = buildQueryString(distinct, tableName, columns, selection, groupBy, having, orderBy, limit);
-        return executeQuery(sql, selectionArgs);
+        return dbSource.query(tableName, distinct, columns, selection, selectionArgs, groupBy, having, orderBy, limit);
 
     }
 
@@ -381,98 +219,8 @@ public class MysqlFirst {
      * @return
      * @throws SQLException
      */
-    public List<Map<String, Object>> executeQuery(String sql, Object[] bindArgs) throws SQLException {
-
-
-        DbSql dbSql = new DbSql(sql, bindArgs);
-        return dbSource.query(dbSql);
+    public List<Map<String, Object>> executeQuery(String sql, Object[] bindArgs) {
+        return dbSource.executeQuery(sql, bindArgs);
     }
-
-
-    public String buildQueryString(
-            boolean distinct, String tables, String[] columns, String where,
-            String groupBy, String having, String orderBy, String limit) {
-        if (isEmpty(groupBy) && !isEmpty(having)) {
-            throw new IllegalArgumentException(
-                    "HAVING clauses are only permitted when using a groupBy clause");
-        }
-        if (!isEmpty(limit) && !sLimitPattern.matcher(limit).matches()) {
-            throw new IllegalArgumentException("invalid LIMIT clauses:" + limit);
-        }
-
-        StringBuilder query = new StringBuilder(120);
-
-        query.append("SELECT ");
-        if (distinct) {
-            query.append("DISTINCT ");
-        }
-        if (columns != null && columns.length != 0) {
-            appendColumns(query, columns);
-        } else {
-            query.append(" * ");
-        }
-        query.append("FROM ");
-        query.append(tables);
-        appendClause(query, " WHERE ", where);
-        appendClause(query, " GROUP BY ", groupBy);
-        appendClause(query, " HAVING ", having);
-        appendClause(query, " ORDER BY ", orderBy);
-        appendClause(query, " LIMIT ", limit);
-        return query.toString();
-    }
-
-    /**
-     * Add the names that are non-null in columns to s, separating
-     * them with commas.
-     */
-    public void appendColumns(StringBuilder s, String[] columns) {
-        int n = columns.length;
-
-        for (int i = 0; i < n; i++) {
-            String column = columns[i];
-
-            if (column != null) {
-                if (i > 0) {
-                    s.append(", ");
-                }
-                s.append(column);
-            }
-        }
-        s.append(' ');
-    }
-
-    /**
-     * addClause
-     *
-     * @param s      the add StringBuilder
-     * @param name   clauseName
-     * @param clause clauseSelection
-     */
-    public void appendClause(StringBuilder s, String name, String clause) {
-        if (!isEmpty(clause)) {
-            s.append(name);
-            s.append(clause);
-        }
-    }
-
-    /**
-     * Returns true if the string is null or 0-length.
-     *
-     * @param str the string to be examined
-     * @return true if str is null or zero length
-     */
-    public boolean isEmpty(@Nullable CharSequence str) {
-        if (str == null || str.length() == 0) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * the pattern of limit
-     */
-    public final Pattern sLimitPattern =
-            Pattern.compile("\\s*\\d+\\s*(,\\s*\\d+\\s*)?");
 
 }

@@ -31,11 +31,9 @@ public class MysqlFirstBaseDao {
     public static List<Map<String, Object>> getList(String sql, Object[] bindArgs) {
 
         List<Map<String, Object>> out = null;
-        try {
-            out = MysqlFirst.instance().executeQuery(sql, bindArgs);
-        } catch (SQLException e) {
-            log.error(e.getMessage() + sql, e);
-        }
+
+        out = MysqlFirst.instance().executeQuery(sql, bindArgs);
+
         return out;
     }
 

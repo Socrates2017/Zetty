@@ -7,9 +7,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.*;
 
 /**
- *
  * 封装更新、删除、插入等操作
  */
 public class DbOperate {
@@ -25,7 +25,7 @@ public class DbOperate {
      * @throws SQLException
      * @throws SqlNotFormatException 绑定参数不能为空异常
      */
-    public static int update(DbSource db,DbSql dbSql)
+    public static int update(DbSource db, DbSql dbSql)
             throws SQLException, SqlNotFormatException {
         String sql = dbSql.getSql();
         Object[] bindArgs = dbSql.getBindArgs();
@@ -75,7 +75,7 @@ public class DbOperate {
      * @throws SQLException
      * @throws SqlNotFormatException
      */
-    public static Integer updateAutocommit(DbSource db,DbSql dbSql) {
+    public static Integer updateAutocommit(DbSource db, DbSql dbSql) {
         String sql = dbSql.getSql();
         Object[] bindArgs = dbSql.getBindArgs();
         Connection connection = null;
@@ -141,7 +141,7 @@ public class DbOperate {
         return affectRowCount;
     }
 
-    protected static Integer insertAndGetKeyAutocommit(DbSource db,DbSql dbSql) {
+    protected static Integer insertAndGetKeyAutocommit(DbSource db, DbSql dbSql) {
 
         String sql = dbSql.getSql();
         Object[] bindArgs = dbSql.getBindArgs();
@@ -213,7 +213,7 @@ public class DbOperate {
      * @throws SQLException
      * @throws SqlNotFormatException 绑定参数不能为空异常
      */
-    protected static Integer insertAndGetKey(DbSource db,DbSql dbSql)
+    protected static Integer insertAndGetKey(DbSource db, DbSql dbSql)
             throws SQLException, SqlNotFormatException {
         String sql = dbSql.getSql();
         Object[] bindArgs = dbSql.getBindArgs();
@@ -250,5 +250,198 @@ public class DbOperate {
         }
 
         return result;
+    }
+
+
+    /**
+     * 执行数据库插入操作
+     *
+     * @param valueMap  插入数据表中key为列名和value为列对应的值的Map对象
+     * @param tableName 要插入的数据库的表名
+     * @return 影响的行数
+     * @throws SQLException SQL异常
+     */
+    public static int insert(DbSource db, String tableName, Map<String, Object> valueMap, boolean commit)
+            throws SQLException, SqlNotFormatException {
+
+        /**获取数据库插入的Map的键值对的值**/
+        Set<String> keySet = valueMap.keySet();
+        Iterator<String> iterator = keySet.iterator();
+        /**要插入的字段sql，其实就是用key拼起来的**/
+        StringBuilder columnSql = new StringBuilder();
+        /**要插入的字段值，其实就是？**/
+        StringBuilder unknownMarkSql = new StringBuilder();
+        Object[] bindArgs = new Object[valueMap.size()];
+        int i = 0;
+        while (iterator.hasNext()) {
+            String key = iterator.next();
+            columnSql.append(i == 0 ? "" : ",");
+            columnSql.append(key);
+
+            unknownMarkSql.append(i == 0 ? "" : ",");
+            unknownMarkSql.append("?");
+            bindArgs[i] = valueMap.get(key);
+            i++;
+        }
+        /**开始拼插入的sql语句**/
+        StringBuilder sql = new StringBuilder();
+        sql.append("INSERT INTO ");
+        sql.append(tableName);
+        sql.append(" (");
+        sql.append(columnSql);
+        sql.append(" )  VALUES (");
+        sql.append(unknownMarkSql);
+        sql.append(" )");
+
+
+        DbSql dbSql = new DbSql(sql.toString(), bindArgs);
+        if (commit) {
+            return db.operateAutocommit(dbSql);
+        } else {
+            return db.operate(dbSql);
+        }
+    }
+
+    public static int insertAndGetKey(DbSource db, String tableName, Map<String, Object> valueMap, boolean commit)
+            throws SQLException, SqlNotFormatException {
+
+        /**获取数据库插入的Map的键值对的值**/
+        Set<String> keySet = valueMap.keySet();
+        Iterator<String> iterator = keySet.iterator();
+        /**要插入的字段sql，其实就是用key拼起来的**/
+        StringBuilder columnSql = new StringBuilder();
+        /**要插入的字段值，其实就是？**/
+        StringBuilder unknownMarkSql = new StringBuilder();
+        Object[] bindArgs = new Object[valueMap.size()];
+        int i = 0;
+        while (iterator.hasNext()) {
+            String key = iterator.next();
+            columnSql.append(i == 0 ? "" : ",");
+            columnSql.append(key);
+
+            unknownMarkSql.append(i == 0 ? "" : ",");
+            unknownMarkSql.append("?");
+            bindArgs[i] = valueMap.get(key);
+            i++;
+        }
+        /**开始拼插入的sql语句**/
+        StringBuilder sql = new StringBuilder();
+        sql.append("INSERT INTO ");
+        sql.append(tableName);
+        sql.append(" (");
+        sql.append(columnSql);
+        sql.append(" )  VALUES (");
+        sql.append(unknownMarkSql);
+        sql.append(" )");
+
+
+        DbSql dbSql = new DbSql(sql.toString(), bindArgs);
+        if (commit) {
+            return db.insertAndGetKeyAutocommit(dbSql);
+        } else {
+            return db.insertAndGetKey(dbSql);
+        }
+    }
+
+
+    /**
+     * @param tableName 表名
+     * @param valueMap  要更改的值
+     * @param whereMap  条件
+     * @param commit    是否自动提交
+     * @return 影响的行数
+     * @throws SQLException
+     * @throws SqlNotFormatException
+     */
+    public static int update(DbSource db, String tableName, Map<String, Object> valueMap, Map<String, Object> whereMap, boolean commit)
+            throws SQLException, SqlNotFormatException {
+        /**获取数据库插入的Map的键值对的值**/
+        Set<String> keySet = valueMap.keySet();
+        Iterator<String> iterator = keySet.iterator();
+        /**开始拼插入的sql语句**/
+        StringBuilder sql = new StringBuilder();
+        sql.append("UPDATE ");
+        sql.append(tableName);
+        sql.append(" SET ");
+
+        /**要更改的的字段sql，其实就是用key拼起来的**/
+        StringBuilder columnSql = new StringBuilder();
+        int i = 0;
+        List<Object> objects = new ArrayList<>();
+        while (iterator.hasNext()) {
+            String key = iterator.next();
+            columnSql.append(i == 0 ? "" : ",");
+            columnSql.append(key + " = ? ");
+            objects.add(valueMap.get(key));
+            i++;
+        }
+        sql.append(columnSql);
+
+        /**更新的条件:要更改的的字段sql，其实就是用key拼起来的**/
+        StringBuilder whereSql = new StringBuilder();
+        int j = 0;
+        if (whereMap != null && whereMap.size() > 0) {
+            whereSql.append(" WHERE ");
+            iterator = whereMap.keySet().iterator();
+            while (iterator.hasNext()) {
+                String key = iterator.next();
+                whereSql.append(j == 0 ? "" : " AND ");
+                whereSql.append(key + " = ? ");
+                objects.add(whereMap.get(key));
+                j++;
+            }
+            sql.append(whereSql);
+        }
+
+        DbSql dbSql = new DbSql(sql.toString(), objects.toArray());
+        if (commit) {
+            return db.operateAutocommit(dbSql);
+        } else {
+            return db.operate(dbSql);
+        }
+
+    }
+
+    /**
+     * @param tableName
+     * @param whereMap
+     * @param commit
+     * @return
+     * @throws SQLException
+     * @throws SqlNotFormatException
+     */
+    public static int delete(DbSource db, String tableName, Map<String, Object> whereMap, boolean commit)
+            throws SQLException, SqlNotFormatException {
+        /**准备删除的sql语句**/
+        StringBuilder sql = new StringBuilder();
+        sql.append("DELETE FROM ");
+        sql.append(tableName);
+
+        /**更新的条件:要更改的的字段sql，其实就是用key拼起来的**/
+        StringBuilder whereSql = new StringBuilder();
+        Object[] bindArgs = null;
+        if (whereMap != null && whereMap.size() > 0) {
+            bindArgs = new Object[whereMap.size()];
+            whereSql.append(" WHERE ");
+            /**获取数据库插入的Map的键值对的值**/
+            Set<String> keySet = whereMap.keySet();
+            Iterator<String> iterator = keySet.iterator();
+            int i = 0;
+            while (iterator.hasNext()) {
+                String key = iterator.next();
+                whereSql.append(i == 0 ? "" : " AND ");
+                whereSql.append(key + " = ? ");
+                bindArgs[i] = whereMap.get(key);
+                i++;
+            }
+            sql.append(whereSql);
+        }
+
+        DbSql dbSql = new DbSql(sql.toString(), bindArgs);
+        if (commit) {
+            return db.operateAutocommit(dbSql);
+        } else {
+            return db.operate(dbSql);
+        }
     }
 }
