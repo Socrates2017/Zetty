@@ -320,7 +320,7 @@ public class DbSource {
      * @return
      * @throws Exception
      */
-    public List<Map<String, Object>> query(String tableName, Map<String, Object> whereMap) throws Exception {
+    public List<Map<String, Object>> query(String tableName, Map<String, Object> whereMap) {
         String whereClause = "";
         Object[] whereArgs = null;
         if (whereMap != null && whereMap.size() > 0) {
@@ -377,7 +377,7 @@ public class DbSource {
                                            String groupBy,
                                            String having,
                                            String orderBy,
-                                           String limit) throws SQLException {
+                                           String limit) {
         String sql = DbConvert.buildQueryString(distinct, tableName, columns, selection, groupBy, having, orderBy, limit);
         return this.getList(sql, bindArgs);
 

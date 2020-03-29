@@ -56,7 +56,7 @@ public class DbOperate {
         }
 
         if (log.isDebugEnabled()) {
-            log.debug("成功{}了{}行,sql:{}", operate, affectRowCount, DbConvert.sqlStatement(sql, bindArgs));
+            log.debug("成功{}了{}行,sql:\n{}", operate, affectRowCount, DbConvert.sqlStatement(sql, bindArgs));
         }
 
         if (preparedStatement != null) {
@@ -110,7 +110,7 @@ public class DbOperate {
             }
 
             if (log.isDebugEnabled()) {
-                log.debug("成功{}了{}行,sql:{}", operate, affectRowCount, DbConvert.sqlStatement(sql, bindArgs));
+                log.debug("成功{}了{}行,sql:\n{}", operate, affectRowCount, DbConvert.sqlStatement(sql, bindArgs));
             }
         } catch (Exception e) {
             if (connection != null) {
@@ -173,7 +173,7 @@ public class DbOperate {
             }
 
             if (log.isDebugEnabled()) {
-                log.debug("成功插入了{}行,自增id为：{};sql:{}", row, result, DbConvert.sqlStatement(sql, bindArgs));
+                log.debug("成功插入了{}行,自增id为：{};sql:\n{}", row, result, DbConvert.sqlStatement(sql, bindArgs));
             }
         } catch (Exception e) {
             if (connection != null) {
@@ -242,7 +242,7 @@ public class DbOperate {
         }
 
         if (log.isDebugEnabled()) {
-            log.debug("成功插入了{}行,自增id为：{};sql:{}", row, result, DbConvert.sqlStatement(sql, bindArgs));
+            log.debug("成功插入了{}行,自增id为：{};sql:\n{}", row, result, DbConvert.sqlStatement(sql, bindArgs));
         }
 
         if (preparedStatement != null) {
