@@ -1,12 +1,12 @@
-package com.zrzhen.zetty.cms.dao.jdbc.core;
+package com.zrzhen.zatis;
 
 /**
  * @author chenanlian
  */
-public class SqlNotFormatException extends Exception {
+public class DbException extends Exception {
     private final String message;
 
-    public SqlNotFormatException(String message) {
+    public DbException(String message) {
         this.message = message;
     }
 

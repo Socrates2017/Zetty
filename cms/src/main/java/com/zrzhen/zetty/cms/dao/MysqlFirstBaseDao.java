@@ -1,8 +1,8 @@
 package com.zrzhen.zetty.cms.dao;
 
+import com.zrzhen.zatis.SqlNotFormatException;
 import com.zrzhen.zetty.cms.controller.IndexController;
 import com.zrzhen.zetty.cms.dao.jdbc.MysqlFirst;
-import com.zrzhen.zetty.cms.dao.jdbc.core.SqlNotFormatException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

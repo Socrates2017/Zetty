@@ -10,6 +10,7 @@
     <version>2.0.0</version>
     <modules>
         <module>common</module>
+        <module>zatis</module>
         <module>net</module>
         <module>http</module>
         <module>im</module>
@@ -17,6 +18,7 @@
         <module>sqlgraph</module>
         <module>cms</module>
         <module>zeproxy</module>
+
     </modules>
 
     <dependencyManagement>
@@ -30,6 +32,12 @@
             <dependency>
                 <groupId>com.zrzhen</groupId>
                 <artifactId>common</artifactId>
+                <version>2.0.0</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.zrzhen</groupId>
+                <artifactId>zatis</artifactId>
                 <version>2.0.0</version>
             </dependency>
 

@@ -16,6 +16,11 @@
     <dependencies>
         <dependency>
             <groupId>com.zrzhen</groupId>
+            <artifactId>zatis</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.zrzhen</groupId>
             <artifactId>http</artifactId>
         </dependency>
 
