@@ -162,12 +162,12 @@ public class DbSource {
      */
     public int operate(DbSql dbSql)
             throws SQLException, SqlNotFormatException {
-        return DbOperate.update(this, dbSql);
+        return DbOperate.operate(this, dbSql);
     }
 
     public int operate(String sql, Object[] bindArgs)
             throws SQLException, SqlNotFormatException {
-        return DbOperate.update(this, new DbSql(sql, bindArgs));
+        return DbOperate.operate(this, new DbSql(sql, bindArgs));
     }
 
     /**
@@ -178,11 +178,11 @@ public class DbSource {
      * @throws SqlNotFormatException
      */
     public int operateAutocommit(DbSql dbSql) {
-        return DbOperate.updateAutocommit(this, dbSql);
+        return DbOperate.operateAutocommit(this, dbSql);
     }
 
     public int operateAutocommit(String sql, Object[] bindArgs) {
-        return DbOperate.updateAutocommit(this, new DbSql(sql, bindArgs));
+        return DbOperate.operateAutocommit(this, new DbSql(sql, bindArgs));
     }
 
     /**

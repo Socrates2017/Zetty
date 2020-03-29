@@ -3,10 +3,7 @@ package com.zrzhen.zatis;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.*;
 
 /**
@@ -25,7 +22,7 @@ public class DbOperate {
      * @throws SQLException
      * @throws SqlNotFormatException 绑定参数不能为空异常
      */
-    public static int update(DbSource db, DbSql dbSql)
+    public static int operate(DbSource db, DbSql dbSql)
             throws SQLException, SqlNotFormatException {
         String sql = dbSql.getSql();
         Object[] bindArgs = dbSql.getBindArgs();
@@ -75,7 +72,7 @@ public class DbOperate {
      * @throws SQLException
      * @throws SqlNotFormatException
      */
-    public static Integer updateAutocommit(DbSource db, DbSql dbSql) {
+    public static Integer operateAutocommit(DbSource db, DbSql dbSql) {
         String sql = dbSql.getSql();
         Object[] bindArgs = dbSql.getBindArgs();
         Connection connection = null;
@@ -154,7 +151,7 @@ public class DbOperate {
             connection.setAutoCommit(true);
 
             /**执行SQL预编译**/
-            preparedStatement = connection.prepareStatement(sql);
+            preparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             if (bindArgs != null) {
                 /**绑定参数设置sql占位符中的值**/
                 for (int i = 0; i < bindArgs.length; i++) {
@@ -222,7 +219,7 @@ public class DbOperate {
         connection.setAutoCommit(false);
 
         /**执行SQL预编译**/
-        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        PreparedStatement preparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
         if (bindArgs != null) {
             /**绑定参数设置sql占位符中的值**/
             for (int i = 0; i < bindArgs.length; i++) {
@@ -296,9 +293,9 @@ public class DbOperate {
 
         DbSql dbSql = new DbSql(sql.toString(), bindArgs);
         if (commit) {
-            return db.operateAutocommit(dbSql);
+            return operateAutocommit(db, dbSql);
         } else {
-            return db.operate(dbSql);
+            return operate(db, dbSql);
         }
     }
 
@@ -337,9 +334,9 @@ public class DbOperate {
 
         DbSql dbSql = new DbSql(sql.toString(), bindArgs);
         if (commit) {
-            return db.insertAndGetKeyAutocommit(dbSql);
+            return insertAndGetKeyAutocommit(db, dbSql);
         } else {
-            return db.insertAndGetKey(dbSql);
+            return insertAndGetKey(db, dbSql);
         }
     }
 
@@ -395,9 +392,9 @@ public class DbOperate {
 
         DbSql dbSql = new DbSql(sql.toString(), objects.toArray());
         if (commit) {
-            return db.operateAutocommit(dbSql);
+            return operateAutocommit(db, dbSql);
         } else {
-            return db.operate(dbSql);
+            return operate(db, dbSql);
         }
 
     }
@@ -439,9 +436,9 @@ public class DbOperate {
 
         DbSql dbSql = new DbSql(sql.toString(), bindArgs);
         if (commit) {
-            return db.operateAutocommit(dbSql);
+            return operateAutocommit(db, dbSql);
         } else {
-            return db.operate(dbSql);
+            return operate(db, dbSql);
         }
     }
 }

@@ -60,6 +60,21 @@ public class DbConvert {
         return datas;
     }
 
+
+
+
+    /**
+     *
+     * @param distinct
+     * @param tables
+     * @param columns
+     * @param where
+     * @param groupBy
+     * @param having
+     * @param orderBy
+     * @param limit
+     * @return
+     */
     public static String buildQueryString(
             boolean distinct, String tables, String[] columns, String where,
             String groupBy, String having, String orderBy, String limit) {
