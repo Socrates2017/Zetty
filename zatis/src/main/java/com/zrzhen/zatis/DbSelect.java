@@ -20,24 +20,25 @@ public class DbSelect {
      * @param db
      * @return
      */
-    protected static List<Map<String, Object>> query(DbSource db) {
+    protected static List<Map<String, Object>> query(DbSource db, DbSql dbSql) {
         if (db.isUseConnectPool()) {
-            return queryWithPool(db);
+            return queryWithPool(db, dbSql);
         } else {
-            return queryWithOutPool(db);
+            return queryWithOutPool(db, dbSql);
         }
     }
 
     /**
      * 返回一个数量
+     *
      * @param db
      * @return
      */
-    protected static Integer count(DbSource db) {
+    protected static Integer count(DbSource db, DbSql dbSql) {
         int rowCount = -1;
 
-        String sql = db.getSql();
-        Object[] bindArgs = db.getBindArgs();
+        String sql = dbSql.getSql();
+        Object[] bindArgs = dbSql.getBindArgs();
 
         if (db.isUseConnectPool()) {
             Connection conn = DbConnect.getConnectionFromPool(db);
@@ -134,13 +135,13 @@ public class DbSelect {
      * @param db
      * @return
      */
-    private static List<Map<String, Object>> queryWithPool(DbSource db) {
+    private static List<Map<String, Object>> queryWithPool(DbSource db, DbSql dbSql) {
         Connection conn = DbConnect.getConnectionFromPool(db);
         try {
             if (conn == null) {
                 throw new DbException("Get connection fail");
             } else {
-                return queryByConnection(conn, db.getSql(), db.getBindArgs());
+                return queryByConnection(conn, dbSql.getSql(), dbSql.getBindArgs());
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -157,11 +158,11 @@ public class DbSelect {
      * @param db
      * @return
      */
-    private static List<Map<String, Object>> queryWithOutPool(DbSource db) {
+    private static List<Map<String, Object>> queryWithOutPool(DbSource db, DbSql dbSql) {
         try {
             Class.forName(db.getDriver());
             Connection conn = DriverManager.getConnection(db.getUrl(), db.getUser(), db.getPassword());
-            return queryByConnection(conn, db.getSql(), db.getBindArgs());
+            return queryByConnection(conn, dbSql.getSql(), dbSql.getBindArgs());
         } catch (ClassNotFoundException e) {
             log.error(e.getMessage(), e);
         } catch (SQLException e) {
@@ -215,7 +216,7 @@ public class DbSelect {
                     preparedStatement.setObject(i + 1, bindArgs[i]);
                 }
             }
-            log.debug("\n{}",DbConvert.sqlStatement(sql, bindArgs));
+            log.debug("\n{}", DbConvert.sqlStatement(sql, bindArgs));
             resultSet = preparedStatement.executeQuery();
             datas = DbConvert.getDatas(resultSet);
         } catch (Exception e) {

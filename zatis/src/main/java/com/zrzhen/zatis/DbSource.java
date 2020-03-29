@@ -6,13 +6,15 @@ import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 数据源对象
  */
 public class DbSource {
 
-    private static final Logger log = LoggerFactory.getLogger(DbUtil.class);
+    private static final Logger log = LoggerFactory.getLogger(DbSource.class);
 
 
     /**
@@ -31,14 +33,7 @@ public class DbSource {
      * 密码
      */
     String password;
-    /**
-     * 执行的sql
-     */
-    String sql;
-    /**
-     * 绑定参数；使用绑定参数防御sql注入
-     */
-    Object[] bindArgs;
+
 
     /**
      * 是否使用连接池，true则连接，false不连接；当设为true时，后面几个参数需要赋值
@@ -77,7 +72,7 @@ public class DbSource {
      *
      * @return
      */
-    public synchronized Connection getConnectionAndSetThread() {
+    public /*synchronized*/ Connection getConnectionAndSetThread() {
         // 先从线程局部变量（看成一个容器）中取
         Connection conn = getConnectionInThread();
         try {
@@ -85,6 +80,7 @@ public class DbSource {
                 conn = DbConnect.getConnectionFromPool(this);
                 // 以当前线程对象作为key,以conn作为value放到一个HashMap里面
                 THREADLOCAL_CONNECTION.set(conn);
+
             }
         } catch (SQLException e) {
             log.error(e.getMessage(), e);
@@ -119,6 +115,101 @@ public class DbSource {
     }
 
 
+    /********************************************手动事务*****************************************/
+    /**
+     * 开始一个事务,关闭事务自动提交;连接会放进线程，用完后必须要清理threadlocal。在commit方法和rollback方法中都有清理动作；所以不需要额外显示调用
+     *
+     * @throws SQLException
+     */
+    public void begin() throws SQLException {
+        DbConnect.begin(this);
+    }
+
+
+    /**
+     * 提交一个事务
+     *
+     * @throws SQLException
+     */
+    public void commit() throws SQLException {
+        DbConnect.commit(this);
+    }
+
+    /**
+     * 回滚一个事务
+     */
+    public void rollback() {
+        DbConnect.rollback(this);
+    }
+
+
+    /**
+     * 可以执行新增，修改，删除
+     * 手动提交，操作完成后需要执行commit，或rollback
+     *
+     * @return 影响的行数
+     * @throws SQLException
+     * @throws SqlNotFormatException 绑定参数不能为空异常
+     */
+    public int operate(DbSql dbSql)
+            throws SQLException, SqlNotFormatException {
+        return DbOperate.update(this, dbSql);
+    }
+
+
+    /**
+     * 写操作，自动提交
+     *
+     * @return
+     * @throws SQLException
+     * @throws SqlNotFormatException
+     */
+    public int operateAutocommit(DbSql dbSql) {
+        return DbOperate.updateAutocommit(this, dbSql);
+    }
+
+    /**
+     * 插入并返回主键
+     *
+     * @return
+     * @throws SQLException
+     * @throws SqlNotFormatException
+     */
+    public Integer insertAndGetKey(DbSql dbSql)
+            throws SQLException, SqlNotFormatException {
+        return DbOperate.insertAndGetKey(this, dbSql);
+    }
+
+    /**
+     * 插入并返回主键，自动提交事务
+     *
+     * @return
+     */
+    public Integer insertAndGetKeyAutocommit(DbSql dbSql) {
+        return DbOperate.insertAndGetKeyAutocommit(this, dbSql);
+    }
+
+    /**
+     * 查询
+     *
+     * @return
+     */
+    public List<Map<String, Object>> query(DbSql dbSql) {
+        return DbSelect.query(this, dbSql);
+    }
+
+
+    /**
+     * 查询数量
+     *
+     * @return
+     */
+    public int count(DbSql dbSql) {
+        return DbSelect.count(this, dbSql);
+    }
+
+    /*********************/
+
     public DbSource(String driver, String url, String user, String password,
                     boolean useConnectPool, Integer initialSize, Integer maxActive,
                     Integer minIdle, Integer maxWait) {
@@ -140,14 +231,6 @@ public class DbSource {
         this.password = password;
     }
 
-
-    public Object[] getBindArgs() {
-        return bindArgs;
-    }
-
-    public void setBindArgs(Object[] bindArgs) {
-        this.bindArgs = bindArgs;
-    }
 
     public Integer getInitialSize() {
         return initialSize;
@@ -181,7 +264,12 @@ public class DbSource {
         this.maxWait = maxWait;
     }
 
-    public DruidDataSource getDataSource() {
+    /**
+     * 获取数据源时加锁，避免创建多个同源数据源
+     *
+     * @return
+     */
+    public synchronized DruidDataSource getDataSource() {
         return dataSource;
     }
 
@@ -230,11 +318,4 @@ public class DbSource {
         this.password = password;
     }
 
-    public String getSql() {
-        return sql;
-    }
-
-    public void setSql(String sql) {
-        this.sql = sql;
-    }
 }

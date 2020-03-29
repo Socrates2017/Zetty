@@ -25,10 +25,10 @@ public class DbOperate {
      * @throws SQLException
      * @throws SqlNotFormatException 绑定参数不能为空异常
      */
-    public static int update(DbSource db)
+    public static int update(DbSource db,DbSql dbSql)
             throws SQLException, SqlNotFormatException {
-        String sql = db.getSql();
-        Object[] bindArgs = db.getBindArgs();
+        String sql = dbSql.getSql();
+        Object[] bindArgs = dbSql.getBindArgs();
 
         Connection connection = DbConnect.getConnectionAndSetThread(db);
         connection.setAutoCommit(false);
@@ -75,9 +75,9 @@ public class DbOperate {
      * @throws SQLException
      * @throws SqlNotFormatException
      */
-    public static Integer updateAutocommit(DbSource db) {
-        String sql = db.getSql();
-        Object[] bindArgs = db.getBindArgs();
+    public static Integer updateAutocommit(DbSource db,DbSql dbSql) {
+        String sql = dbSql.getSql();
+        Object[] bindArgs = dbSql.getBindArgs();
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         Integer affectRowCount = null;
@@ -141,10 +141,10 @@ public class DbOperate {
         return affectRowCount;
     }
 
-    protected static Integer insertAndGetKeyAutocommit(DbSource db) {
+    protected static Integer insertAndGetKeyAutocommit(DbSource db,DbSql dbSql) {
 
-        String sql = db.getSql();
-        Object[] bindArgs = db.getBindArgs();
+        String sql = dbSql.getSql();
+        Object[] bindArgs = dbSql.getBindArgs();
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         Integer result = null;
@@ -213,10 +213,10 @@ public class DbOperate {
      * @throws SQLException
      * @throws SqlNotFormatException 绑定参数不能为空异常
      */
-    protected static Integer insertAndGetKey(DbSource db)
+    protected static Integer insertAndGetKey(DbSource db,DbSql dbSql)
             throws SQLException, SqlNotFormatException {
-        String sql = db.getSql();
-        Object[] bindArgs = db.getBindArgs();
+        String sql = dbSql.getSql();
+        Object[] bindArgs = dbSql.getBindArgs();
 
         Connection connection = DbConnect.getConnectionAndSetThread(db);
         connection.setAutoCommit(false);

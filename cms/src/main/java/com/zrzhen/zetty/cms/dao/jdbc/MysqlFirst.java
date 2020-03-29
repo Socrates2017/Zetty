@@ -2,13 +2,13 @@ package com.zrzhen.zetty.cms.dao.jdbc;
 
 import com.sun.istack.internal.Nullable;
 import com.zrzhen.zatis.DbSource;
-import com.zrzhen.zatis.DbUtil;
+import com.zrzhen.zatis.DbSql;
 import com.zrzhen.zatis.SqlNotFormatException;
 import com.zrzhen.zetty.cms.dao.jdbc.core.DbConstant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.*;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -57,7 +57,7 @@ public class MysqlFirst {
      * @throws SQLException
      */
     public void begin() throws SQLException {
-        DbUtil.begin(dbSource);
+        dbSource.begin();
     }
 
     /**
@@ -66,14 +66,14 @@ public class MysqlFirst {
      * @throws SQLException
      */
     public void commit() throws SQLException {
-        DbUtil.commit(dbSource);
+        dbSource.commit();
     }
 
     /**
      * 回滚一个事务
      */
     public void rollback() {
-        DbUtil.rollback(dbSource);
+        dbSource.rollback();
     }
 
     /**
@@ -124,12 +124,12 @@ public class MysqlFirst {
         sql.append(unknownMarkSql);
         sql.append(" )");
 
-        dbSource.setSql(sql.toString());
-        dbSource.setBindArgs(bindArgs);
+
+        DbSql dbSql = new DbSql(sql.toString(), bindArgs);
         if (commit) {
-            return DbUtil.operateAutocommit(dbSource);
+            return dbSource.operateAutocommit(dbSql);
         } else {
-            return DbUtil.operate(dbSource);
+            return dbSource.operate(dbSql);
         }
     }
 
@@ -165,12 +165,12 @@ public class MysqlFirst {
         sql.append(unknownMarkSql);
         sql.append(" )");
 
-        dbSource.setSql(sql.toString());
-        dbSource.setBindArgs(bindArgs);
+
+        DbSql dbSql = new DbSql(sql.toString(), bindArgs);
         if (commit) {
-            return DbUtil.insertAndGetKeyAutocommit(dbSource);
+            return dbSource.insertAndGetKeyAutocommit(dbSql);
         } else {
-            return DbUtil.insertAndGetKey(dbSource);
+            return dbSource.insertAndGetKey(dbSql);
         }
     }
 
@@ -223,12 +223,12 @@ public class MysqlFirst {
             }
             sql.append(whereSql);
         }
-        dbSource.setSql(sql.toString());
-        dbSource.setBindArgs(objects.toArray());
+
+        DbSql dbSql = new DbSql(sql.toString(), objects.toArray());
         if (commit) {
-            return DbUtil.operateAutocommit(dbSource);
+            return dbSource.operateAutocommit(dbSql);
         } else {
-            return DbUtil.operate(dbSource);
+            return dbSource.operate(dbSql);
         }
 
     }
@@ -267,12 +267,12 @@ public class MysqlFirst {
             }
             sql.append(whereSql);
         }
-        dbSource.setSql(sql.toString());
-        dbSource.setBindArgs(bindArgs);
+
+        DbSql dbSql = new DbSql(sql.toString(), bindArgs);
         if (commit) {
-            return DbUtil.operateAutocommit(dbSource);
+            return dbSource.operateAutocommit(dbSql);
         } else {
-            return DbUtil.operate(dbSource);
+            return dbSource.operate(dbSql);
         }
     }
 
@@ -285,9 +285,10 @@ public class MysqlFirst {
      * @throws SQLException
      */
     public int count(String sql, Object[] bindArgs) throws SQLException {
-        dbSource.setSql(sql);
-        dbSource.setBindArgs(bindArgs);
-        return DbUtil.count(dbSource);
+
+        DbSql dbSql = new DbSql(sql, bindArgs);
+        return dbSource.count(dbSql);
+
     }
 
     /**
@@ -299,9 +300,8 @@ public class MysqlFirst {
      * @throws SQLException
      */
     public List<Map<String, Object>> query(String sql) throws SQLException {
-        dbSource.setSql(sql);
-        dbSource.setBindArgs(null);
-        return DbUtil.query(dbSource);
+        DbSql dbSql = new DbSql(sql, null);
+        return dbSource.query(dbSql);
     }
 
 
@@ -383,9 +383,9 @@ public class MysqlFirst {
      */
     public List<Map<String, Object>> executeQuery(String sql, Object[] bindArgs) throws SQLException {
 
-        dbSource.setSql(sql);
-        dbSource.setBindArgs(bindArgs);
-        return DbUtil.query(dbSource);
+
+        DbSql dbSql = new DbSql(sql, bindArgs);
+        return dbSource.query(dbSql);
     }
 
 
