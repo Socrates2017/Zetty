@@ -5,7 +5,6 @@ import com.zrzhen.zatis.anno.Column;
 import java.lang.reflect.Field;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
