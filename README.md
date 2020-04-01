@@ -20,14 +20,14 @@
         
   Http服务示例：
         
-        ZettyServer.config()
-                      .port(port)
-                      .socketType(SocketEnum.AIO)
-                      .decode(new HttpDecode())
-                      .processor(new HttpProcessor())
-                      .writeHandler(new HttpWriteHandler())
-                      .buildServer()
-                      .start();      
+        ZettyServer.config()//开始配置
+                      .port(port)//设置端口
+                      .socketType(SocketEnum.AIO)//设置socket类型，可选AIO、BIO
+                      .decode(new HttpDecode())//设置应用层解码处理实例
+                      .processor(new HttpProcessor())//设置业务逻辑处理实例
+                      .writeHandler(new HttpWriteHandler())//如果是AIO socket，需要设置写回调方法，主要因为长连接和短连接的socket关闭时机是不一样的
+                      .buildServer()//开始实例化一个http服务
+                      .start();//启动服务      
         
   全双工长连接示例，（服务端）：
         
