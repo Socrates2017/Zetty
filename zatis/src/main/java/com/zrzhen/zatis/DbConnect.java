@@ -8,7 +8,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 /**
- * 封装数据库连接的相关方法，都是静态方法
+ * 封装数据库连接的相关方法，都是静态方法，不对外公开的类
  */
 public class DbConnect {
 
@@ -17,7 +17,8 @@ public class DbConnect {
 
     /********************************************手动事务*****************************************/
     /**
-     * 开始一个事务,关闭事务自动提交;连接会放进线程，用完后必须要清理threadlocal。在commit方法和rollback方法中都有清理动作；所以不需要额外显示调用
+     * 开始一个事务,关闭事务自动提交;连接会放进线程，用完后必须要清理threadlocal。
+     * 在commit方法和rollback方法中都有清理动作；所以不需要额外显示调用
      *
      * @throws SQLException
      */
@@ -47,7 +48,7 @@ public class DbConnect {
             conn.rollback();
             closeConnectionInThread(db);
         } catch (SQLException e) {
-            log.error("数据库回滚错误:", e);
+            log.error(e.getMessage(), e);
         }
     }
 
@@ -96,8 +97,12 @@ public class DbConnect {
          * 如果连接池为空，则创建
          */
         if (dataSource == null) {
-            dataSource = getDataSource(db);
-            db.setDataSource(dataSource);
+            synchronized (DbConnect.class) {
+                if (dataSource == null) {//利用双检锁，避免创建多个数据源
+                    dataSource = getDataSource(db);
+                    db.setDataSource(dataSource);
+                }
+            }
         }
         try {
             Connection conn = dataSource.getConnection();

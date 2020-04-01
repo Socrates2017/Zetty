@@ -168,7 +168,7 @@ public class MysqlFirst {
      */
     public List<Map<String, Object>> query(String tableName, Map<String, Object> whereMap) throws Exception {
 
-        return dbSource.query(tableName, whereMap);
+        return dbSource.getListByTable(tableName, whereMap);
     }
 
     /**
@@ -183,7 +183,7 @@ public class MysqlFirst {
     public List<Map<String, Object>> query(String tableName,
                                            String whereClause,
                                            String[] whereArgs) throws SQLException {
-        return dbSource.query(tableName, whereClause, whereArgs);
+        return dbSource.getListByTable(tableName, whereClause, whereArgs);
     }
 
     /**
@@ -208,7 +208,7 @@ public class MysqlFirst {
                                            String having,
                                            String orderBy,
                                            String limit) throws SQLException {
-        return dbSource.query(tableName, distinct, columns, selection, selectionArgs, groupBy, having, orderBy, limit);
+        return dbSource.getListByTable(tableName, distinct, columns, selection, selectionArgs, groupBy, having, orderBy, limit);
 
     }
 

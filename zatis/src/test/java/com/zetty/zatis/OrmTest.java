@@ -14,7 +14,7 @@ public class OrmTest {
     public static void main(String[] args) throws SQLException {
 
         Orm<User> a = new Orm<>(User.class);
-        List<User> userList = a.getList(poList());
+        List<User> userList = a.getEntityList(poList());
 
 
         System.out.println(JsonUtil.obj2Json(userList));

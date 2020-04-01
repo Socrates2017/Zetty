@@ -68,7 +68,7 @@ public class DbSource {
     /**
      * 阿里德鲁伊数据库连接池
      */
-    DruidDataSource dataSource;
+    private volatile DruidDataSource dataSource;
 
 
     private ThreadLocal<Connection> THREADLOCAL_CONNECTION = new ThreadLocal<>();
@@ -88,7 +88,6 @@ public class DbSource {
                 conn = DbConnect.getConnectionFromPool(this);
                 // 以当前线程对象作为key,以conn作为value放到一个HashMap里面
                 THREADLOCAL_CONNECTION.set(conn);
-
             }
         } catch (SQLException e) {
             log.error(e.getMessage(), e);
@@ -125,7 +124,8 @@ public class DbSource {
 
     /********************************************手动事务*****************************************/
     /**
-     * 开始一个事务,关闭事务自动提交;连接会放进线程，用完后必须要清理threadlocal。在commit方法和rollback方法中都有清理动作；所以不需要额外显示调用
+     * 开始一个事务,关闭事务自动提交;连接会放进线程，用完后必须要清理threadlocal。
+     * 在commit方法和rollback方法中都有清理动作；所以不需要额外显示调用
      *
      * @throws SQLException
      */
@@ -165,6 +165,13 @@ public class DbSource {
         return DbOperate.operate(this, dbSql);
     }
 
+    /**
+     * @param sql
+     * @param bindArgs
+     * @return
+     * @throws SQLException
+     * @throws SqlNotFormatException
+     */
     public int operate(String sql, Object[] bindArgs)
             throws SQLException, SqlNotFormatException {
         return DbOperate.operate(this, new DbSql(sql, bindArgs));
@@ -181,6 +188,11 @@ public class DbSource {
         return DbOperate.operateAutocommit(this, dbSql);
     }
 
+    /**
+     * @param sql
+     * @param bindArgs
+     * @return
+     */
     public int operateAutocommit(String sql, Object[] bindArgs) {
         return DbOperate.operateAutocommit(this, new DbSql(sql, bindArgs));
     }
@@ -197,6 +209,13 @@ public class DbSource {
         return DbOperate.insertAndGetKey(this, dbSql);
     }
 
+    /**
+     * @param sql
+     * @param bindArgs
+     * @return
+     * @throws SQLException
+     * @throws SqlNotFormatException
+     */
     public Integer insertAndGetKey(String sql, Object[] bindArgs)
             throws SQLException, SqlNotFormatException {
         return DbOperate.insertAndGetKey(this, new DbSql(sql, bindArgs));
@@ -211,6 +230,11 @@ public class DbSource {
         return DbOperate.insertAndGetKeyAutocommit(this, dbSql);
     }
 
+    /**
+     * @param sql
+     * @param bindArgs
+     * @return
+     */
     public Integer insertAndGetKeyAutocommit(String sql, Object[] bindArgs) {
         return DbOperate.insertAndGetKeyAutocommit(this, new DbSql(sql, bindArgs));
     }
@@ -229,12 +253,21 @@ public class DbSource {
         return DbOperate.insert(this, tableName, valueMap, commit);
     }
 
+    /**
+     * @param tableName
+     * @param valueMap
+     * @param commit
+     * @return
+     * @throws SQLException
+     * @throws SqlNotFormatException
+     */
     public int insertAndGetKey(String tableName, Map<String, Object> valueMap, boolean commit)
             throws SQLException, SqlNotFormatException {
         return DbOperate.insertAndGetKey(this, tableName, valueMap, commit);
     }
 
 
+    /*******************************包含表名、条件的操作*************************************/
     /**
      * @param tableName 表名
      * @param valueMap  要更改的值
@@ -264,6 +297,10 @@ public class DbSource {
 
     /***************************查询********************************/
 
+    /**
+     * @param dbSql
+     * @return
+     */
     public List<Map<String, Object>> getList(DbSql dbSql) {
         return DbSelect.query(this, dbSql);
     }
@@ -279,6 +316,10 @@ public class DbSource {
         return getList(new DbSql(sql, bindArgs));
     }
 
+    /**
+     * @param dbSql
+     * @return
+     */
     public Map<String, Object> getOne(DbSql dbSql) {
         List<Map<String, Object>> out = getList(dbSql);
         if (out != null && out.size() > 0) {
@@ -310,17 +351,23 @@ public class DbSource {
         return DbSelect.count(this, dbSql);
     }
 
+    /**
+     * @param sql
+     * @param bindArgs
+     * @return
+     */
     public int count(String sql, Object[] bindArgs) {
-        return DbSelect.count(this, new DbSql(sql, bindArgs));
+        return count(new DbSql(sql, bindArgs));
     }
 
+    /**************************根据表名、条件查询***************************/
     /**
      * @param tableName
      * @param whereMap
      * @return
      * @throws Exception
      */
-    public List<Map<String, Object>> query(String tableName, Map<String, Object> whereMap) {
+    public List<Map<String, Object>> getListByTable(String tableName, Map<String, Object> whereMap) {
         String whereClause = "";
         Object[] whereArgs = null;
         if (whereMap != null && whereMap.size() > 0) {
@@ -335,7 +382,7 @@ public class DbSource {
                 i++;
             }
         }
-        return query(tableName, false, null, whereClause, whereArgs, null,
+        return getListByTable(tableName, false, null, whereClause, whereArgs, null,
                 null, null, null);
     }
 
@@ -348,11 +395,11 @@ public class DbSource {
      * @return
      * @throws SQLException
      */
-    public List<Map<String, Object>> query(String tableName,
-                                           String whereClause,
-                                           String[] whereArgs)
+    public List<Map<String, Object>> getListByTable(String tableName,
+                                                    String whereClause,
+                                                    String[] whereArgs)
             throws SQLException {
-        return query(tableName, false, null, whereClause, whereArgs, null,
+        return getListByTable(tableName, false, null, whereClause, whereArgs, null,
                 null, null, null);
     }
 
@@ -369,15 +416,15 @@ public class DbSource {
      * @param orderBy   排序
      * @param limit     分页
      */
-    public List<Map<String, Object>> query(String tableName,
-                                           boolean distinct,
-                                           String[] columns,
-                                           String selection,
-                                           Object[] bindArgs,
-                                           String groupBy,
-                                           String having,
-                                           String orderBy,
-                                           String limit) {
+    public List<Map<String, Object>> getListByTable(String tableName,
+                                                    boolean distinct,
+                                                    String[] columns,
+                                                    String selection,
+                                                    Object[] bindArgs,
+                                                    String groupBy,
+                                                    String having,
+                                                    String orderBy,
+                                                    String limit) {
         String sql = DbConvert.buildQueryString(distinct, tableName, columns, selection, groupBy, having, orderBy, limit);
         return this.getList(sql, bindArgs);
 
@@ -440,12 +487,7 @@ public class DbSource {
         this.maxWait = maxWait;
     }
 
-    /**
-     * 获取数据源时加锁，避免创建多个同源数据源
-     *
-     * @return
-     */
-    public synchronized DruidDataSource getDataSource() {
+    public DruidDataSource getDataSource() {
         return dataSource;
     }
 
