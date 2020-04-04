@@ -27,6 +27,8 @@ public class DbOperate {
         String sql = dbSql.getSql();
         Object[] bindArgs = dbSql.getBindArgs();
 
+        long startTime = System.currentTimeMillis();
+
         Connection connection = DbConnect.getConnectionAndSetThread(db);
         connection.setAutoCommit(false);
 
@@ -52,12 +54,14 @@ public class DbOperate {
             operate = "修改";
         }
 
-        if (log.isDebugEnabled()) {
-            log.debug("成功{}了{}行,sql:\n{}", operate, affectRowCount, DbConvert.sqlStatement(sql, bindArgs));
-        }
 
         if (preparedStatement != null) {
             preparedStatement.close();
+        }
+
+        if (log.isDebugEnabled()) {
+            log.debug("成功{}了{}行,Sql cost time:{} ms.sql:\n{}",
+                    operate, affectRowCount, System.currentTimeMillis() - startTime, DbConvert.sqlStatement(sql, bindArgs));
         }
 
         return affectRowCount;
@@ -75,6 +79,7 @@ public class DbOperate {
     public static Integer operateAutocommit(DbSource db, DbSql dbSql) {
         String sql = dbSql.getSql();
         Object[] bindArgs = dbSql.getBindArgs();
+        long startTime = System.currentTimeMillis();
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         Integer affectRowCount = null;
@@ -107,7 +112,8 @@ public class DbOperate {
             }
 
             if (log.isDebugEnabled()) {
-                log.debug("成功{}了{}行,sql:\n{}", operate, affectRowCount, DbConvert.sqlStatement(sql, bindArgs));
+                log.debug("成功{}了{}行,Sql cost time:{} ms.sql:\n{}",
+                        operate, affectRowCount, System.currentTimeMillis() - startTime, DbConvert.sqlStatement(sql, bindArgs));
             }
         } catch (Exception e) {
             if (connection != null) {
@@ -142,6 +148,7 @@ public class DbOperate {
 
         String sql = dbSql.getSql();
         Object[] bindArgs = dbSql.getBindArgs();
+        long startTime = System.currentTimeMillis();
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         Integer result = null;
@@ -170,7 +177,7 @@ public class DbOperate {
             }
 
             if (log.isDebugEnabled()) {
-                log.debug("成功插入了{}行,自增id为：{};sql:\n{}", row, result, DbConvert.sqlStatement(sql, bindArgs));
+                log.debug("成功插入了{}行,自增id为：{};cost {} ms,sql:\n{}", row, result, System.currentTimeMillis() - startTime, DbConvert.sqlStatement(sql, bindArgs));
             }
         } catch (Exception e) {
             if (connection != null) {

@@ -29,7 +29,6 @@ public class DbSelect {
     }
 
 
-
     /**
      * 返回一个数量
      *
@@ -41,6 +40,8 @@ public class DbSelect {
 
         String sql = dbSql.getSql();
         Object[] bindArgs = dbSql.getBindArgs();
+
+        long startTime = System.currentTimeMillis();
 
         if (db.isUseConnectPool()) {
             Connection conn = DbConnect.getConnectionFromPool(db);
@@ -96,7 +97,6 @@ public class DbSelect {
                             preparedStatement.setObject(i + 1, bindArgs[i]);
                         }
                     }
-                    log.debug(DbConvert.sqlStatement(sql, bindArgs));
                     resultSet = preparedStatement.executeQuery();
 
                     if (resultSet.next()) {
@@ -127,6 +127,7 @@ public class DbSelect {
             }
         }
 
+        log.debug("Sql cost time:{} ms. sql:\n{}", System.currentTimeMillis() - startTime, DbConvert.sqlStatement(sql, bindArgs));
 
         return rowCount;
     }
@@ -211,6 +212,7 @@ public class DbSelect {
         List<Map<String, Object>> datas;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
+        long startTime = System.currentTimeMillis();
         try {
             preparedStatement = conn.prepareStatement(sql);
             if (bindArgs != null) {
@@ -218,7 +220,6 @@ public class DbSelect {
                     preparedStatement.setObject(i + 1, bindArgs[i]);
                 }
             }
-            log.debug("\n{}", DbConvert.sqlStatement(sql, bindArgs));
             resultSet = preparedStatement.executeQuery();
             datas = DbConvert.getDatas(resultSet);
         } catch (Exception e) {
@@ -239,6 +240,7 @@ public class DbSelect {
                 preparedStatement.close();
             }
         }
+        log.debug("Sql cost time:{} ms. sql:\n{}", System.currentTimeMillis() - startTime, DbConvert.sqlStatement(sql, bindArgs));
         return datas;
     }
 
