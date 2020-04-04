@@ -4,9 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
@@ -184,12 +182,22 @@ public class ProUtil {
      * @return
      */
     private static Properties loadInnerProperties(String filePath) {
+        InputStream is = null;
         try {
             Properties properties = new Properties();
-            properties.load(ProUtil.class.getClass().getResourceAsStream(filePath));
+            is = ProUtil.class.getClass().getResourceAsStream(filePath);
+            properties.load(is);
             return properties;
         } catch (Exception e) {
             return null;
+        } finally {
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (IOException e) {
+                    log.error(e.getMessage(), e);
+                }
+            }
         }
     }
 
@@ -200,12 +208,31 @@ public class ProUtil {
      * @return
      */
     private static Properties loadOutterProperties(String filePath) {
+        FileInputStream fis = null;
+        InputStreamReader isr = null;
         try {
             Properties properties = new Properties();
-            properties.load(new InputStreamReader(new FileInputStream(filePath), "UTF-8"));
+            fis = new FileInputStream(filePath);
+            isr = new InputStreamReader(fis, "UTF-8");
+            properties.load(isr);
             return properties;
         } catch (Exception e) {
             return null;
+        } finally {
+            if (fis != null) {
+                try {
+                    fis.close();
+                } catch (IOException e) {
+                    log.error(e.getMessage(), e);
+                }
+            }
+            if (isr != null) {
+                try {
+                    isr.close();
+                } catch (IOException e) {
+                    log.error(e.getMessage(), e);
+                }
+            }
         }
     }
 
