@@ -6,7 +6,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Iterator;
 import java.util.Map;
@@ -189,7 +188,7 @@ public class ProUtil {
             Properties properties = new Properties();
             properties.load(ProUtil.class.getClass().getResourceAsStream(filePath));
             return properties;
-        } catch (IOException e) {
+        } catch (Exception e) {
             return null;
         }
     }
@@ -205,7 +204,7 @@ public class ProUtil {
             Properties properties = new Properties();
             properties.load(new InputStreamReader(new FileInputStream(filePath), "UTF-8"));
             return properties;
-        } catch (IOException e) {
+        } catch (Exception e) {
             return null;
         }
     }
