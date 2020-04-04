@@ -6,8 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 后置拦截器
- * 注解在拦截器上，id值标识该拦截器，为空则默认为简单类名的小写
+ * 列注解
  *
  */
 @Retention(RetentionPolicy.RUNTIME)
