@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
@@ -132,6 +133,14 @@ public class SocketSession<T, O> {
 
             } catch (IOException e) {
                 log.error(e.getMessage(), e);
+            } finally {
+                if (inputStream != null) {
+                    try {
+                        inputStream.close();
+                    } catch (IOException e) {
+                        log.error(e.getMessage(), e);
+                    }
+                }
             }
 
 
@@ -149,14 +158,31 @@ public class SocketSession<T, O> {
         if (builder.socketType == SocketEnum.AIO) {
             socketChannel.write(writeBuffer, this, builder.writeHandler);
         } else {
+
+            byte[] bytes = buf2Bytes(writeBuffer, writeBuffer.limit());
+            OutputStream os = null;
             try {
-                byte[] bytes = buf2Bytes(writeBuffer, writeBuffer.limit());
-                socket.getOutputStream().write(bytes);
-                socket.getOutputStream().flush();
+                try {
+                    os = socket.getOutputStream();
+                    os.write(bytes);
+                    os.flush();//自动关闭流
+
+                } catch (IOException e) {
+                    log.error(e.getMessage(), e);
+                }
+
                 builder.writeHandler.completed(0, this);
-            } catch (IOException e) {
-                e.printStackTrace();
+            } finally {
+                if (os != null) {
+                    try {
+                        os.close();
+                    } catch (IOException e) {
+                        log.error(e.getMessage(), e);
+                    }
+                }
             }
+
+
         }
 
 
@@ -218,7 +244,7 @@ public class SocketSession<T, O> {
                 builder = null;
                 socketSessionStatus = SocketSessionStatus.DESTROYED;
             } catch (IOException e) {
-                e.printStackTrace();
+                log.error(e.getMessage(), e);
             }
         }
         Thread.currentThread().interrupt();

@@ -61,16 +61,18 @@ public class CaptchaUtil {
             graphics.drawOval(random.nextInt(80), random.nextInt(40), random.nextInt(5), random.nextInt(10));
         }
 
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        byte[] out = null;
         //format:图片格式，“gif"等；
         //out:目标；特别的，如果目标为byte数组，则将其预设为ByteArrayOutputStream即可传入此方法，执行完后，只要toByteArray()即可获得byte[]
-        try {
+        try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();) {
             ImageIO.write(image, "png", byteArrayOutputStream);
+            out = byteArrayOutputStream.toByteArray();
+
         } catch (IOException e) {
             log.error(e.getMessage(), e);
         }
 
-        return byteArrayOutputStream.toByteArray();
+        return out;
     }
 
     public static void main(String[] args) throws IOException {

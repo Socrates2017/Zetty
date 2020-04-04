@@ -33,16 +33,18 @@ public class FileUtil {
      */
     public static byte[] file2ByteByRelativePath(String path) {
 
+        InputStream in = null;
+        ByteArrayOutputStream out = null;
         try {
             /*去除开头的右斜线，以顺利读取文件*/
             while (path.startsWith("/")) {
                 path = path.substring(1);
             }
-            InputStream in = ClassLoader.getSystemResourceAsStream(path);
+            in = ClassLoader.getSystemResourceAsStream(path);
             if (null == in) {
                 return null;
             } else {
-                ByteArrayOutputStream out = new ByteArrayOutputStream();
+                out = new ByteArrayOutputStream();
                 byte[] buffer = new byte[in.available()];
                 int n = 0;
                 while ((n = in.read(buffer)) != -1) {
@@ -53,6 +55,22 @@ public class FileUtil {
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return null;
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException e) {
+                    log.error(e.getMessage(), e);
+                }
+            }
+            if (out != null) {
+                try {
+                    out.close();
+                } catch (IOException e) {
+                    log.error(e.getMessage(), e);
+                }
+                ;
+            }
         }
     }
 
@@ -80,9 +98,10 @@ public class FileUtil {
      */
     public static byte[] file2Byte(String path) {
         FileInputStream in = null;
+        ByteArrayOutputStream out = null;
         try {
             in = new FileInputStream(path);
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            out = new ByteArrayOutputStream();
             byte[] buffer = new byte[in.available()];
             int n = 0;
             while ((n = in.read(buffer)) != -1) {
@@ -100,7 +119,14 @@ public class FileUtil {
                 try {
                     in.close();
                 } catch (IOException e1) {
-                    e1.printStackTrace();
+                    log.error(e1.getMessage(), e1);
+                }
+            }
+            if (out != null) {
+                try {
+                    out.close();
+                } catch (IOException e) {
+                    log.error(e.getMessage(), e);
                 }
             }
         }
@@ -179,21 +205,50 @@ public class FileUtil {
     public static boolean copyFileUsingFileChannels(File source, File dest) {
         FileChannel inputChannel = null;
         FileChannel outputChannel = null;
+        FileInputStream fis = null;
+        FileOutputStream fos = null;
         try {
-            inputChannel = new FileInputStream(source).getChannel();
-            outputChannel = new FileOutputStream(dest).getChannel();
+            fis = new FileInputStream(source);
+            fos = new FileOutputStream(dest);
+            inputChannel = fis.getChannel();
+            outputChannel = fos.getChannel();
             outputChannel.transferFrom(inputChannel, 0, inputChannel.size());
             return true;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return false;
         } finally {
-            try {
-                inputChannel.close();
-                outputChannel.close();
-            } catch (IOException e) {
-                log.error(e.getMessage(), e);
+            if (fis != null) {
+                try {
+                    fis.close();
+                } catch (IOException e) {
+                    log.error(e.getMessage(), e);
+                }
             }
+            if (fos != null) {
+                try {
+                    fos.close();
+                } catch (IOException e) {
+                    log.error(e.getMessage(), e);
+                }
+            }
+
+            if (inputChannel != null) {
+                try {
+                    inputChannel.close();
+                } catch (IOException e) {
+                    log.error(e.getMessage(), e);
+                }
+            }
+
+            if (outputChannel != null) {
+                try {
+                    outputChannel.close();
+                } catch (IOException e) {
+                    log.error(e.getMessage(), e);
+                }
+            }
+
         }
     }
 
