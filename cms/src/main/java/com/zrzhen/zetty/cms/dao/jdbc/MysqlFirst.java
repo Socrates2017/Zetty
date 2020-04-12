@@ -102,6 +102,23 @@ public class MysqlFirst {
         return dbSource.insertAndGetKey(tableName, valueMap, commit);
     }
 
+    /**
+     * 插入操作
+     *
+     * @param tableName 要插入的数据库的表名
+     * @param datas     插入数据表中key为列名和value为列对应的值的Map对象的List集合
+     * @param commit    是否自动提交
+     * @return 影响的行数
+     * @throws SQLException
+     */
+    public int insertAll(String tableName, List<Map<String, Object>> datas, boolean commit) throws SQLException {
+        if (commit) {
+            return dbSource.insertAllAutocommit(tableName, datas);
+        } else {
+            return dbSource.insertAll(tableName, datas);
+        }
+    }
+
 
     /**
      * @param tableName 表名

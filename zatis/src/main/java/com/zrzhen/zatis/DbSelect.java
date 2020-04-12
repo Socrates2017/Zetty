@@ -126,10 +126,113 @@ public class DbSelect {
                 e.printStackTrace();
             }
         }
-
-        log.debug("Sql cost time:{} ms. sql:\n{}", System.currentTimeMillis() - startTime, DbConvert.sqlStatement(sql, bindArgs));
-
+        if (log.isDebugEnabled()) {
+            log.debug("Sql cost time:{} ms. sql:\n{}", System.currentTimeMillis() - startTime, DbConvert.sqlStatement(sql, bindArgs));
+        }
         return rowCount;
+    }
+
+    /**
+     * 结果为一个字符串的查询
+     *
+     * @param db
+     * @param dbSql
+     * @return
+     */
+    protected static String getString(DbSource db, DbSql dbSql) {
+        String result = null;
+
+        String sql = dbSql.getSql();
+        Object[] bindArgs = dbSql.getBindArgs();
+
+        long startTime = System.currentTimeMillis();
+
+        if (db.isUseConnectPool()) {
+            Connection conn = DbConnect.getConnectionFromPool(db);
+            PreparedStatement preparedStatement = null;
+            ResultSet resultSet = null;
+            try {
+                preparedStatement = conn.prepareStatement(sql);
+                if (bindArgs != null) {
+                    for (int i = 0; i < bindArgs.length; i++) {
+                        preparedStatement.setObject(i + 1, bindArgs[i]);
+                    }
+                }
+                resultSet = preparedStatement.executeQuery();
+                if (resultSet.next()) {
+                    result = resultSet.getString(1);
+                }
+            } catch (Exception e) {
+                log.error(e.getMessage(), e);
+            } finally {
+                if (conn != null) {
+                    try {
+                        conn.close();
+                    } catch (SQLException e) {
+                        log.error(e.getMessage(), e);
+                    }
+                }
+                if (resultSet != null) {
+                    try {
+                        resultSet.close();
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                }
+                if (preparedStatement != null) {
+                    try {
+                        preparedStatement.close();
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        } else {
+            try {
+                Class.forName(db.getDriver());
+                Connection conn = DriverManager.getConnection(db.getUrl(), db.getUser(), db.getPassword());
+                PreparedStatement preparedStatement = null;
+                ResultSet resultSet = null;
+                try {
+                    preparedStatement = conn.prepareStatement(sql);
+                    if (bindArgs != null) {
+                        for (int i = 0; i < bindArgs.length; i++) {
+                            preparedStatement.setObject(i + 1, bindArgs[i]);
+                        }
+                    }
+                    resultSet = preparedStatement.executeQuery();
+
+                    if (resultSet.next()) {
+                        result = resultSet.getString(1);
+                    }
+                } catch (Exception e) {
+                    log.error(e.getMessage(), e);
+                } finally {
+                    if (conn != null) {
+                        try {
+                            conn.close();
+                        } catch (SQLException e) {
+                            log.error(e.getMessage(), e);
+                        }
+                    }
+                    if (resultSet != null) {
+                        resultSet.close();
+                    }
+                    if (preparedStatement != null) {
+                        preparedStatement.close();
+                    }
+                }
+
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        if (log.isDebugEnabled()) {
+            log.debug("Sql cost time:{} ms. sql:\n{}", System.currentTimeMillis() - startTime, DbConvert.sqlStatement(sql, bindArgs));
+        }
+        return result;
     }
 
     /**
@@ -240,7 +343,9 @@ public class DbSelect {
                 preparedStatement.close();
             }
         }
-        log.debug("Sql cost time:{} ms. sql:\n{}", System.currentTimeMillis() - startTime, DbConvert.sqlStatement(sql, bindArgs));
+        if (log.isDebugEnabled()) {
+            log.debug("Sql cost time:{} ms. sql:\n{}", System.currentTimeMillis() - startTime, DbConvert.sqlStatement(sql, bindArgs));
+        }
         return datas;
     }
 

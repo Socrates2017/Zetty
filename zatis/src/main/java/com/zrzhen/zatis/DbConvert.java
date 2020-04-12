@@ -3,7 +3,10 @@ package com.zrzhen.zatis;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
@@ -26,15 +29,16 @@ public class DbConvert {
                 Object arg = bindArgs[i];
                 String arg1;
                 if (arg instanceof String) {
-                    arg1 = "'" + bindArgs[i] + "'";
+                    arg1 = "'" + arg + "'";
                 } else {
-                    arg1 = String.valueOf(bindArgs[i]);
+                    arg1 = String.valueOf(arg);
                 }
                 sb.replace(index, index + 1, arg1);
             }
         }
         return sb.toString();
     }
+
 
     /**
      * 将结果集对象封装成List<Map<String, Object>> 对象
@@ -58,10 +62,7 @@ public class DbConvert {
     }
 
 
-
-
     /**
-     *
      * @param distinct
      * @param tables
      * @param columns

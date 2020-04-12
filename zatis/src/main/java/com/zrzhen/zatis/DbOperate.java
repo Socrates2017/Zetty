@@ -210,6 +210,200 @@ public class DbOperate {
     }
 
     /**
+     * 批量插入
+     * @param db
+     * @param tableName
+     * @param datas
+     * @param commit
+     * @return
+     * @throws SQLException
+     */
+    public static int insertAll(DbSource db, String tableName, List<Map<String, Object>> datas, boolean commit) throws SQLException {
+
+        if (commit) {
+            return insertAllAutocommit(db, tableName, datas);
+        } else {
+            return insertAll(db, tableName, datas);
+        }
+    }
+
+
+    /**
+     * 插入操作
+     *
+     * @param tableName 要插入的数据库的表名
+     * @param datas     插入数据表中key为列名和value为列对应的值的Map对象的List集合
+     * @return 影响的行数
+     * @throws SQLException
+     */
+    protected static int insertAllAutocommit(DbSource db, String tableName, List<Map<String, Object>> datas) {
+        /**影响的行数**/
+        int affectRowCount = -1;
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        try {
+            /**从数据库连接池中获取数据库连接**/
+            connection = DbConnect.getConnectionFromPool(db);
+            connection.setAutoCommit(true);
+
+            Map<String, Object> valueMap = datas.get(0);
+            /**获取数据库插入的Map的键值对的值**/
+            Set<String> keySet = valueMap.keySet();
+            Iterator<String> iterator = keySet.iterator();
+            /**要插入的字段sql，其实就是用key拼起来的**/
+            StringBuilder columnSql = new StringBuilder();
+            /**要插入的字段值，其实就是？**/
+            StringBuilder unknownMarkSql = new StringBuilder();
+            Object[] keys = new Object[valueMap.size()];
+            int i = 0;
+            while (iterator.hasNext()) {
+                String key = iterator.next();
+                keys[i] = key;
+                columnSql.append(i == 0 ? "" : ",");
+                columnSql.append(key);
+
+                unknownMarkSql.append(i == 0 ? "" : ",");
+                unknownMarkSql.append("?");
+                i++;
+            }
+            /**开始拼插入的sql语句**/
+            StringBuilder sql = new StringBuilder();
+            sql.append("INSERT INTO ");
+            sql.append(tableName);
+            sql.append(" (");
+            sql.append(columnSql);
+            sql.append(" )  VALUES (");
+            sql.append(unknownMarkSql);
+            sql.append(" )");
+
+            /**执行SQL预编译**/
+
+            String sqlStr = sql.toString();
+            preparedStatement = connection.prepareStatement(sqlStr);
+
+            for (int j = 0; j < datas.size(); j++) {
+                for (int k = 0; k < keys.length; k++) {
+                    preparedStatement.setObject(k + 1, datas.get(j).get(keys[k]));
+                }
+                preparedStatement.addBatch();
+            }
+            int[] arr = preparedStatement.executeBatch();
+
+            affectRowCount = arr.length;
+
+            if (log.isDebugEnabled()) {
+                log.debug("成功插入了{}行;sql:\n{};\n parameters:{}", affectRowCount, sql, datas);
+            }
+
+        } catch (Exception e) {
+            if (connection != null) {
+                try {
+                    connection.rollback();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
+            log.error(e.getMessage(), e);
+        } finally {
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (preparedStatement != null) {
+                try {
+                    preparedStatement.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return affectRowCount;
+    }
+
+    /**
+     * 插入操作
+     *
+     * @param tableName 要插入的数据库的表名
+     * @param datas     插入数据表中key为列名和value为列对应的值的Map对象的List集合
+     * @return 影响的行数
+     * @throws SQLException
+     */
+    protected static int insertAll(DbSource db, String tableName, List<Map<String, Object>> datas) throws SQLException {
+        /**影响的行数**/
+        int affectRowCount = -1;
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+
+        /**从数据库连接池中获取数据库连接**/
+        connection = DbConnect.getConnectionAndSetThread(db);
+
+        Map<String, Object> valueMap = datas.get(0);
+        /**获取数据库插入的Map的键值对的值**/
+        Set<String> keySet = valueMap.keySet();
+        Iterator<String> iterator = keySet.iterator();
+        /**要插入的字段sql，其实就是用key拼起来的**/
+        StringBuilder columnSql = new StringBuilder();
+        /**要插入的字段值，其实就是？**/
+        StringBuilder unknownMarkSql = new StringBuilder();
+        Object[] keys = new Object[valueMap.size()];
+        int i = 0;
+        while (iterator.hasNext()) {
+            String key = iterator.next();
+            keys[i] = key;
+            columnSql.append(i == 0 ? "" : ",");
+            columnSql.append(key);
+
+            unknownMarkSql.append(i == 0 ? "" : ",");
+            unknownMarkSql.append("?");
+            i++;
+        }
+        /**开始拼插入的sql语句**/
+        StringBuilder sql = new StringBuilder();
+        sql.append("INSERT INTO ");
+        sql.append(tableName);
+        sql.append(" (");
+        sql.append(columnSql);
+        sql.append(" )  VALUES (");
+        sql.append(unknownMarkSql);
+        sql.append(" )");
+
+        /**执行SQL预编译**/
+
+        String sqlStr = sql.toString();
+        preparedStatement = connection.prepareStatement(sqlStr);
+        /**设置不自动提交，以便于在出现异常的时候数据库回滚**/
+        connection.setAutoCommit(false);
+
+
+        for (int j = 0; j < datas.size(); j++) {
+            for (int k = 0; k < keys.length; k++) {
+                preparedStatement.setObject(k + 1, datas.get(j).get(keys[k]));
+            }
+            preparedStatement.addBatch();
+        }
+        int[] arr = preparedStatement.executeBatch();
+
+        affectRowCount = arr.length;
+
+        if (log.isDebugEnabled()) {
+            log.debug("成功插入了{}行;sql:\n{};\n parameters:{}", affectRowCount, sql, datas);
+        }
+
+        if (preparedStatement != null) {
+            try {
+                preparedStatement.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return affectRowCount;
+    }
+
+    /**
      * 可以执行新增，修改，删除
      * 手动提交，操作完成后需要执行commit，或rollback
      *

@@ -266,6 +266,22 @@ public class DbSource {
         return DbOperate.insertAndGetKey(this, tableName, valueMap, commit);
     }
 
+    /**
+     * 插入操作
+     *
+     * @param tableName 要插入的数据库的表名
+     * @param datas     插入数据表中key为列名和value为列对应的值的Map对象的List集合
+     * @return 影响的行数
+     * @throws SQLException
+     */
+    public int insertAll(String tableName, List<Map<String, Object>> datas) throws SQLException {
+        return DbOperate.insertAll(this, tableName, datas);
+    }
+
+    public int insertAllAutocommit(String tableName, List<Map<String, Object>> datas) {
+        return DbOperate.insertAllAutocommit(this, tableName, datas);
+    }
+
 
     /*******************************包含表名、条件的操作*************************************/
     /**
@@ -358,6 +374,21 @@ public class DbSource {
      */
     public int count(String sql, Object[] bindArgs) {
         return count(new DbSql(sql, bindArgs));
+    }
+
+
+    /**
+     * 结果仅为一个字符串的查询
+     *
+     * @param dbSql
+     * @return
+     */
+    public String getString(DbSql dbSql) {
+        return DbSelect.getString(this, dbSql);
+    }
+
+    public String getString(String sql, Object[] bindArgs) {
+        return getString(new DbSql(sql, bindArgs));
     }
 
     /**************************根据表名、条件查询***************************/
