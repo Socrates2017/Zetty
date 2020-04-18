@@ -33,6 +33,7 @@ public class IdMeta {
      */
     private long maxVersion = -1L ^ (-1L << versionBits);
 
+
     /**
      * 支持的最大数据标识id，结果是31
      */
@@ -58,7 +59,9 @@ public class IdMeta {
      */
     private long sequenceMask = -1L ^ (-1L << sequenceBits);
 
-    public IdMeta() {
+
+
+    protected IdMeta() {
         init();
     }
 
@@ -69,7 +72,7 @@ public class IdMeta {
      * @param versionBits      时间版本位数
      * @param sequenceBits     时间序列位数
      */
-    public IdMeta(long epoch, long datacenterId, long datacenterIdBits, long versionBits, long sequenceBits) {
+    protected IdMeta(long epoch, long datacenterId, long datacenterIdBits, long versionBits, long sequenceBits) {
         this.epoch = epoch;
         this.datacenterId = datacenterId;
         this.datacenterIdBits = datacenterIdBits;
@@ -80,6 +83,10 @@ public class IdMeta {
 
 
     private void init() {
+
+        /** 生成序列的掩码，这里为4095 (0b111111111111=0xfff=4095) */
+        sequenceMask = -1L ^ (-1L << sequenceBits);
+
         /** 支持的最大机器id，结果是31 (这个移位算法可以很快的计算出几位二进制数所能表示的最大十进制数) */
         maxVersion = -1L ^ (-1L << versionBits);
 
@@ -95,8 +102,11 @@ public class IdMeta {
         /** 时间截向左移22位(5+5+12) */
         timestampLeftShift = sequenceBits + versionBits + datacenterIdBits;
 
-        /** 生成序列的掩码，这里为4095 (0b111111111111=0xfff=4095) */
-        sequenceMask = -1L ^ (-1L << sequenceBits);
+
+    }
+
+    public long getTimeBitsMask() {
+        return -1L ^ -1L << 30L;
     }
 
 

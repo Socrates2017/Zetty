@@ -42,7 +42,7 @@ public class IdMaker {
     private long version = 0L;
 
 
-    public IdMaker(IdMeta idMeta) {
+    protected IdMaker(IdMeta idMeta) {
         this.idMeta = idMeta;
         this.datacenterId = idMeta.getDatacenterId();
         if (this.datacenterId > idMeta.getMaxDatacenterId() || this.datacenterId < 0) {
@@ -112,6 +112,14 @@ public class IdMaker {
         return System.currentTimeMillis();
     }
 
+
+    public IdMeta getIdMeta() {
+        return idMeta;
+    }
+
+    public void setIdMeta(IdMeta idMeta) {
+        this.idMeta = idMeta;
+    }
 
     /**
      * 测试
