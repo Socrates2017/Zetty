@@ -5,7 +5,7 @@ public class IdUtil {
     private static IdMaker idWorker = new IdMaker(new IdMeta());
 
     /**
-     * 生成一个id
+     * 生成一个id，存储到数据库的话建议采用64位长度
      *
      * @return
      */
