@@ -15,7 +15,11 @@ package com.zrzhen.idmaker;
  */
 public class IdMaker {
 
-    private IdMeta idMeta = new IdMeta();
+    /**
+     * id元数据设置
+     */
+    private IdMeta idMeta;
+
 
     /**
      * 数据中心ID(0~31)
@@ -37,16 +41,13 @@ public class IdMaker {
      */
     private long version = 0L;
 
-    /**
-     * 构造函数
-     *
-     * @param datacenterId 数据中心ID (0~31)
-     */
-    public IdMaker(long datacenterId) {
-        if (datacenterId > idMeta.getMaxDatacenterId() || datacenterId < 0) {
+
+    public IdMaker(IdMeta idMeta) {
+        this.idMeta = idMeta;
+        this.datacenterId = idMeta.getDatacenterId();
+        if (this.datacenterId > idMeta.getMaxDatacenterId() || this.datacenterId < 0) {
             throw new IllegalArgumentException(String.format("datacenter Id can't be greater than %d or less than 0", idMeta.getMaxDatacenterId()));
         }
-        this.datacenterId = datacenterId;
     }
 
     /**
@@ -116,7 +117,7 @@ public class IdMaker {
      * 测试
      */
     public static void main(String[] args) {
-        IdMaker idWorker = new IdMaker(0);
+        IdMaker idWorker = new IdMaker(new IdMeta());
         for (int i = 0; i < 1000; i++) {
             long id = idWorker.nextId();
             System.out.println(Long.toBinaryString(id));

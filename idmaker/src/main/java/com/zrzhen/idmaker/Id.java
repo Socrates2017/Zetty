@@ -2,24 +2,34 @@ package com.zrzhen.idmaker;
 
 public class Id {
 
-    /** 工作机器ID(0~31) */
-    private long workerId;
 
-    /** 数据中心ID(0~31) */
+    /**
+     * 时间截
+     */
+    private long timestamp = -1L;
+
+    /**
+     * 数据中心ID(0~31)
+     */
     private long datacenterId;
 
-    /** 毫秒内序列(0~4095) */
+    /**
+     * 时间回拨协调(0~1)
+     */
+    private long version = 0L;
+
+    /**
+     * 毫秒内序列(0~4095)
+     */
     private long sequence = 0L;
 
-    /** 上次生成ID的时间截 */
-    private long lastTimestamp = -1L;
 
-    public long getWorkerId() {
-        return workerId;
+    public long getTimestamp() {
+        return timestamp;
     }
 
-    public void setWorkerId(long workerId) {
-        this.workerId = workerId;
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
     }
 
     public long getDatacenterId() {
@@ -30,19 +40,19 @@ public class Id {
         this.datacenterId = datacenterId;
     }
 
+    public long getVersion() {
+        return version;
+    }
+
+    public void setVersion(long version) {
+        this.version = version;
+    }
+
     public long getSequence() {
         return sequence;
     }
 
     public void setSequence(long sequence) {
         this.sequence = sequence;
-    }
-
-    public long getLastTimestamp() {
-        return lastTimestamp;
-    }
-
-    public void setLastTimestamp(long lastTimestamp) {
-        this.lastTimestamp = lastTimestamp;
     }
 }
