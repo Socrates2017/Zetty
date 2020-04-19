@@ -18,6 +18,7 @@
         <module>sqlgraph</module>
         <module>cms</module>
         <module>zeproxy</module>
+        <module>idmaker</module>
 
     </modules>
 
