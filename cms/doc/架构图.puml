@@ -1,0 +1,60 @@
+@startuml
+
+sprite $bProcess jar:archimate/business-process
+sprite $aService jar:archimate/application-service
+sprite $aComponent jar:archimate/application-component
+sprite $bEvent jar:archimate/business-event
+
+archimate #Business "Declaration service"  as BDS
+archimate #Business "Payment service"  as BPS <<business-process>>
+archimate #Business "Damage notification" as BDN <<business-event>>
+archimate #Business "Accept and register claim" as BAAR <<business-process>>
+archimate #Business "Assess claim" as BAC <<business-process>>
+archimate #Business "Pay claim" as BPC <<business-process>>
+
+BDS <.. BAAR
+BPS <.. BPC
+BDN -right-> BAAR
+BAAR -right-> BAC
+BAC -right-> BPC
+
+
+archimate #APPLICATION "Acceptance service" as AATS
+archimate #APPLICATION "Assessment service" as AAMS
+archimate #APPLICATION "Customer administration ACA" as HAPA
+archimate #APPLICATION "Payment system" as APS <<application-component>>
+archimate #APPLICATION "Acceptance system" as AAPS <<application-component>>
+archimate #APPLICATION "Assessment system" as AAMSM <<application-component>>
+archimate #APPLICATION "Customer administration system" as ACAS <<application-component>>
+
+AATS -up-> BAAR
+AAMS -up-> BAC
+HAPA -up-> BPC
+APS -left->AAPS
+AATS <.. AAPS
+AAMS <.. AAMSM
+HAPA <.. ACAS
+
+
+
+
+
+archimate #TECHNOLOGY "Messaging service" as TMS
+archimate #TECHNOLOGY "Claim files service" as TCFS
+archimate #TECHNOLOGY "Customer file service" as TCMFS
+
+node  "Mainframe" #TECHNOLOGY{
+archimate #TECHNOLOGY "Message queueing" as TMQ
+archimate #TECHNOLOGY "DBMS"
+archimate #TECHNOLOGY "CICS"
+}
+
+TMS -up-> AAPS
+TCFS -up-> AAPS
+TCFS -up-> AAMSM
+TCMFS -up-> ACAS
+TMQ .up.> TMS
+DBMS .up.> TCFS
+DBMS .up.> TCMFS
+@enduml
+
