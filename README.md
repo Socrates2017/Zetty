@@ -4,14 +4,16 @@
 
 ## 项目结构
 
-  common：通用工具  
-  net：AIO网络通信封装  
-  http：轻量级web服务开发框架  
-  zatis：jdbc封装及轻量级ORM框架   
-  cms：基于http模块开发的一个网站  
-  im：即时通信服务开发示例(TODO)  
-  p2p：p2p网络示例(TODO)  
-  zeproxy：http正向代理服务器(TODO)  
+    ├─common  通用工具
+    ├─idmaker 通用id生成，Snowflake算法的实现
+    ├─net  网络通信封装，包含AIO和BIO两种可选模式
+    ├─zatis 对jdbc操作的封装及轻量级ORM框架 
+    ├─http  轻量级web服务开发框架，包含了http报文的解码编码，以及一个基于注解进行编程的MVC路由框架
+    ├─cms  基于http模块开发的一个网站
+    ├─im  即时通信服务开发示例(TODO)
+    ├─p2p  p2p网络示例(TODO) 
+    └─zeproxy  http正向代理服务器(TODO) 
+     
   
 ## 网络通信模块（net）使用说明
 

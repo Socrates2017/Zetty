@@ -1,6 +1,6 @@
 @startuml
 
-package "Some Group" {
+package "net" {
 HTTP - [First Component]
 [Another Component]
 }
