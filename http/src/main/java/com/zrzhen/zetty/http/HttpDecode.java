@@ -17,11 +17,21 @@ import java.util.Map;
 
 /**
  * @author chenanlian
+ * <p>
+ * Http请求消息解析，二进制转Request实体类
  */
 public class HttpDecode implements Decode<Request> {
 
     private static Logger log = LoggerFactory.getLogger(HttpDecode.class);
 
+    /**
+     * 重写解析方法
+     *
+     * @param socketSession socket会话
+     * @param readLength    读取的长度
+     * @param request       解析完毕后传给处理类的消息类
+     * @return 如果已解析完毕，返回true；未解析完毕，返回true，将继续读取socket中数据进行解析。
+     */
     @Override
     public boolean decode(SocketSession socketSession, Integer readLength, Request request) {
         if (request == null) {
@@ -617,14 +627,46 @@ public class HttpDecode implements Decode<Request> {
         /**
          * 如果中间层有HTTP代理需要从client-ip或则x-forwarded-for中取客户端IP
          */
-        String clientIp = request.getHeaders().get("Client-IP");
-        if (clientIp == null) {
-            clientIp = request.getHeaders().get("X-Forwarded-For");
-            if (clientIp == null) {
-                clientIp = socketSession.getRemoteAddress();
-            }
+        String clientIp = getIpAddress(request);
+        if (StringUtils.isBlank(clientIp)) {
+            clientIp = socketSession.getRemoteAddress();
         }
         request.setHost(clientIp);
+    }
+
+    public static String getIpAddress(Request request) {
+        String Xip = request.getHeaders().get("X-Real-IP");
+        String XFor = request.getHeaders().get("X-Forwarded-For");
+
+        if (StringUtils.isNotBlank(XFor) && !"unKnown".equalsIgnoreCase(XFor)) {
+            //多次反向代理后会有多个ip值，第一个ip才是真实ip
+            int index = XFor.indexOf(",");
+            if (index != -1) {
+                return XFor.substring(0, index);
+            } else {
+                return XFor;
+            }
+        }
+        XFor = Xip;
+        if (StringUtils.isNotBlank(XFor) && !"unKnown".equalsIgnoreCase(XFor)) {
+            return XFor;
+        }
+        if ("unknown".equalsIgnoreCase(XFor)) {
+            XFor = request.getHeaders().get("Proxy-Client-IP");
+        }
+        if ("unknown".equalsIgnoreCase(XFor)) {
+            XFor = request.getHeaders().get("WL-Proxy-Client-IP");
+        }
+        if ("unknown".equalsIgnoreCase(XFor)) {
+            XFor = request.getHeaders().get("HTTP_CLIENT_IP");
+        }
+        if ("unknown".equalsIgnoreCase(XFor)) {
+            XFor = request.getHeaders().get("HTTP_X_FORWARDED_FOR");
+        }
+        if ("unknown".equalsIgnoreCase(XFor)) {
+            XFor = null;
+        }
+        return XFor;
     }
 
 

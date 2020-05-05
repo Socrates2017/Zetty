@@ -1,6 +1,5 @@
 package com.zrzhen.zetty.net;
 
-import com.zrzhen.zetty.net.aio.SocketReadHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,8 +29,6 @@ public class SocketSession<T, O> {
     private ByteBuffer readBuffer;
 
     private ByteBuffer writeBuffer;
-
-    private SocketReadHandler socketReadHandler;
 
     private byte[] contextBytes;
 
@@ -223,7 +220,6 @@ public class SocketSession<T, O> {
 
             writeBuffer = null;
             socketChannel = null;
-            socketReadHandler = null;
             builder = null;
             socketSessionStatus = SocketSessionStatus.DESTROYED;
         } else {
@@ -282,13 +278,6 @@ public class SocketSession<T, O> {
         this.socketSessionStatus = socketSessionStatus;
     }
 
-    public SocketReadHandler getSocketReadHandler() {
-        return socketReadHandler;
-    }
-
-    public void setSocketReadHandler(SocketReadHandler socketReadHandler) {
-        this.socketReadHandler = socketReadHandler;
-    }
 
     public String getRemoteAddress() {
         return remoteAddress;

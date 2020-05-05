@@ -9,8 +9,19 @@ package com.zrzhen.zetty.net;
 
 public enum SocketEnum {
 
+    /**
+     * BIO，同步阻塞
+     */
     BIO(0),
+
+    /**
+     * 同步非阻塞，多路复用
+     */
     NIO(1),
+
+    /**
+     * 异步
+     */
     AIO(2),
 
     ;

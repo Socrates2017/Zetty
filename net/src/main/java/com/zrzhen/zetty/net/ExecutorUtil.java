@@ -9,6 +9,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author chenanlian
+ * 线程池工具类
  */
 public class ExecutorUtil {
 

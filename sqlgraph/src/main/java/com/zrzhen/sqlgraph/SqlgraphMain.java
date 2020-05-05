@@ -2,11 +2,9 @@ package com.zrzhen.sqlgraph;
 
 import com.zrzhen.sqlgraph.util.quartz.MyScheduler;
 import com.zrzhen.zetty.http.Constant;
-import com.zrzhen.zetty.http.ReadHandler;
 import com.zrzhen.zetty.http.mvc.ServerContext;
 import com.zrzhen.zetty.http.util.ProUtil;
 import com.zrzhen.zetty.http.util.ServerUtil;
-import com.zrzhen.zetty.net.ZettyServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,11 +49,7 @@ public class SqlgraphMain {
             /*启动定时任务*/
             MyScheduler.start();
 
-            ZettyServer.config()
-                    .port(port)
-                    .readHandlerClass(ReadHandler.class)
-                    .buildServer()
-                    .start();
+
 
             CountDownLatch countDownLatch = new CountDownLatch(1);
             countDownLatch.await();

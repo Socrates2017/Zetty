@@ -1,7 +1,6 @@
 package com.zrzhen.zetty.net;
 
 import com.zrzhen.zetty.net.aio.ReadHandler;
-import com.zrzhen.zetty.net.aio.SocketReadHandler;
 import com.zrzhen.zetty.net.aio.WriteHandler;
 
 import java.net.SocketOption;
@@ -26,8 +25,6 @@ public class Builder {
 
     public long socketReadTimeout = 30;
 
-    public Class<? extends SocketReadHandler> readHandlerClass;
-
     public Map<SocketOption<Object>, Object> socketOptions;
 
     public ReadHandler readHandler;
@@ -46,34 +43,28 @@ public class Builder {
     }
 
     public ZettyServer buildServer() {
-
-        if (socketType == null) {
-            socketType = SocketEnum.BIO;
-        }
-
-        if (readHandler == null) {
-            readHandler = new ReadHandler();
-        }
-
-        if (writeBuffer == null) {
-            writeBuffer = ByteBuffer.allocateDirect(readBufSize);
-        }
+        init();
         return new ZettyServer(this);
     }
 
     public ZettyClient buildClient() {
+        init();
+        return new ZettyClient(this);
+    }
+
+    private void init() {
         if (socketType == null) {
-            socketType = SocketEnum.BIO;
+            socketType = SocketEnum.AIO;
         }
 
         if (readHandler == null) {
-            readHandler = new ReadHandler();
+            readHandler = new ReadHandler();//默认短连接，响应结束则断开TCP连接
         }
 
         if (writeBuffer == null) {
-            writeBuffer = ByteBuffer.allocateDirect(readBufSize);
+            //writeBuffer = ByteBuffer.allocateDirect(readBufSize);
+            writeBuffer = ByteBuffer.allocate(readBufSize);
         }
-        return new ZettyClient(this);
     }
 
     public Builder host(String host) {
@@ -93,11 +84,6 @@ public class Builder {
 
     public Builder socketReadTimeout(long socketReadTimeout) {
         this.socketReadTimeout = socketReadTimeout;
-        return this;
-    }
-
-    public Builder readHandlerClass(Class<? extends SocketReadHandler> readHandlerClass) {
-        this.readHandlerClass = readHandlerClass;
         return this;
     }
 

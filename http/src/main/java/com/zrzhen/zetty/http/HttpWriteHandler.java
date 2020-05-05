@@ -11,6 +11,8 @@ import java.nio.channels.AsynchronousSocketChannel;
 
 /**
  * @author chenanlian
+ *
+ * 消息响应的回调
  */
 public class HttpWriteHandler extends WriteHandler<Integer, SocketSession> {
 

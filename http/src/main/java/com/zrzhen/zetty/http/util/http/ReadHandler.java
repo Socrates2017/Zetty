@@ -124,7 +124,7 @@ public class ReadHandler implements CompletionHandler<Integer, ByteBuffer> {
                  * 至此，http请求消息已经解析完毕，可以进行业务逻辑处理
                  */
                 callback.setResponse(response);
-                ExecutorUtil.businessExecutor.submit(callback);
+                ExecutorUtil.readExecutor.submit(callback);
                 return;
             } else {
                 throw new HttpException(HttpResponseStatus.INTERNAL_SERVER_ERROR, "Unknown error!");

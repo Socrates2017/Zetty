@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.net.URLDecoder;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Objects;
 
 /**
  * @author chenanlian
@@ -40,16 +41,22 @@ public class UeditorController {
                          @RequestParam(name = "action", required = true) String action,
                          @RequestParam(name = "sp", defaultValue = "false") Boolean sp,
                          @RequestParam(name = "callback") String callback) {
+
+        String domain = ProUtil.getString("cookie.domain").endsWith("com") ? "www." + ProUtil.getString("cookie.domain") : ProUtil.getString("cookie.domain");
+        String port = Objects.equals(ProUtil.getInteger("server.port"), 80) ? "" : ProUtil.getString("server.port");
+
+        String path = "http://" + domain + ":" + port + ProUtil.getString("ueditor.upload.domain");
+
         if (action.equalsIgnoreCase("config")) {
             return actionConfig();
         } else if (action.equalsIgnoreCase("uploadimage")) {
             Multipart multipart = request.getMultipart();
             return uploadFile("image", ProUtil.getString("ueditor.upload.dir"),
-                    ProUtil.getString("ueditor.upload.domain"), multipart, callback);
+                    path, multipart, callback);
         } else if (action.equalsIgnoreCase("uploadfile")) {
             Multipart multipart = request.getMultipart();
             return uploadFile("file", ProUtil.getString("ueditor.upload.dir"),
-                    ProUtil.getString("ueditor.upload.domain"), multipart, callback);
+                    path, multipart, callback);
         }
         return actionConfig();
     }

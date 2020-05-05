@@ -1,0 +1,137 @@
+@startuml
+
+class SocketSession<T, O> {
+    - SocketSessionStatus socketSessionStatus;
+    - AsynchronousSocketChannel socketChannel;
+    - ByteBuffer readBuffer;
+    - ByteBuffer writeBuffer;
+    - byte[] contextBytes;
+    - Builder builder;
+    - String remoteAddress;
+    - String localAddress;
+    - Decode decode;
+    - Encode encode;
+    - Processor processor;
+    - T message;
+    - Socket socket;
+
+    + SocketSession(AsynchronousSocketChannel socketChannel, Builder builder);
+    + SocketSession(Socket socket, Builder builder);
+    - void init();
+    + void decode(Integer readLength);
+    + void read();
+    + void write(O out);
+    + static byte[] buf2Bytes(ByteBuffer buffer, int length);
+    + void writeRemaining(ByteBuffer buffer);
+    + void destroy();
+    + AsynchronousSocketChannel getSocketChannel() ;
+    + void setSocketChannel(AsynchronousSocketChannel socketChannel);
+    + ByteBuffer getReadBuffer();
+    + void setReadBuffer(ByteBuffer readBuffer);
+    + ByteBuffer getWriteBuffer();
+    + void setWriteBuffer(ByteBuffer writeBuffer);
+    + SocketSessionStatus getSocketSessionStatus() ;
+    + void setSocketSessionStatus(SocketSessionStatus socketSessionStatus);
+    + String getRemoteAddress() ;
+    + void setRemoteAddress(String remoteAddress) ;
+    + String getLocalAddress() ;
+    + void setLocalAddress(String localAddress);
+    + T getMessage() ;
+    + void setMessage(T message) ;
+    + byte[] getContextBytes();
+    + void setContextBytes(byte[] contextBytes);
+    + Builder getBuilder() ;
+    + void setBuilder(Builder builder) ;
+    + Decode getDecode() ;
+    + void setDecode(Decode decode) ;
+    + Encode getEncode() ;
+    + void setEncode(Encode encode);
+    + Processor getProcessor();
+    + void setProcessor(Processor processor) ;
+    + Socket getSocket() ;
+    + void setSocket(Socket socket);
+    + String toString();
+}
+
+enum SocketSessionStatus {
+	NEW
+	CONNECTED
+	DESTROYED
+}
+SocketSession *-- SocketSessionStatus:socket状态
+
+interface Decode<T>{
+# boolean decode(SocketSession session, Integer readLength, T t);
+}
+note bottom of Decode : 对socket接收到的字节码进行解码。\n运行完毕后会进行判断：本次完整的消息是否读取完毕.\n是则返回true；否则返回否，socket将继续读取。
+SocketSession o-- Decode : 解码
+
+interface Encode<O> {
+    ByteBuffer encode(SocketSession session, O out);
+}
+note bottom of Encode : socket发送消息前，将数据进行编码。\n例如添加头信息、添加消息长度。
+SocketSession o-- Encode : 编码
+
+interface Processor<T> {
+    boolean process(SocketSession session, T message);
+}
+note bottom of Processor : 解码后封装好的消息（例如httpRequest）传给此处理类，\n进行业务逻辑处理
+SocketSession o-- Processor : 业务处理
+
+
+
+class Builder {
+    + SocketEnum socketType;
+    + String host = "localhost";
+    + int port = 80;
+    + int readBufSize = 1024 * 8;
+    + long socketReadTimeout = 30;
+    + Map<SocketOption<Object>, Object> socketOptions;
+    + ReadHandler readHandler;
+    + WriteHandler writeHandler;
+    + ByteBuffer writeBuffer;
+    + Decode decode;
+    + Encode encode;
+    + Processor processor;
+    + Builder();
+    + ZettyServer buildServer();
+    + ZettyClient buildClient();
+    - void init();
+    + Builder host(String host);
+    + Builder port(int port);
+    + Builder readBufSize(int readBufSize);
+    + Builder socketReadTimeout(long socketReadTimeout);
+    + Builder readHandlerClass(Class<? extends SocketReadHandler> readHandlerClass);
+    + Builder setOption(SocketOption socketOption, Object f) ;
+    + Builder decode(Decode decode) ;
+    + Builder encode(Encode encode) ;
+    + Builder processor(Processor processor) ;
+    + Builder writeHandler(WriteHandler writeHandler);
+    + Builder socketType(SocketEnum socketType);
+}
+
+SocketSession o-- Builder : 构建传参
+
+interface CompletionHandler<V,A> {
+}
+interface SocketReadHandler<Integer, SocketSession> {
+}
+class ReadHandler {
+    + void completed(Integer result, SocketSession session);
+    + void failed(Throwable exc, SocketSession session);   
+}
+SocketReadHandler <|-- CompletionHandler : 继承
+ReadHandler <|.. SocketReadHandler : 实现
+SocketSession <.. ReadHandler : 依赖
+Builder <.. ReadHandler : 创建
+
+abstract class WriteHandler<Integer, SocketSession> {
+}
+WriteHandler <|.. CompletionHandler : 实现
+Builder <.. WriteHandler : 创建
+SocketSession <.. WriteHandler : 依赖
+
+
+
+
+@enduml
