@@ -1,0 +1,160 @@
+@startuml
+
+class DbConnect {
+    # {static} void begin(DbSource db);
+    # {static} void commit(DbSource db);
+    # {static} void rollback(DbSource db);
+    # {static} void closeConnectionInThread(DbSource db);
+    # {static} Connection getConnectionInThread(DbSource db);
+    # {static} Connection getConnectionAndSetThread(DbSource db);
+    # {static} Connection getConnectionFromPool(DbSource db) ;
+    # {static} DruidDataSource getDataSource(DbSource db) ;
+    # {static} DruidDataSource getDataSource(String driver, String url, String user, String password,
+                                                   int initialSize, int maxActive, int minIdle, int maxWait,
+                                                   boolean keepAlive);
+}
+
+class DbSource {
+    String driver;
+    String url;
+    String user;
+    String password;
+    boolean useConnectPool = true;
+    Integer initialSize;
+    Integer maxActive;
+    Integer minIdle;
+    Integer maxWait;
+    - volatile DruidDataSource dataSource;
+    - ThreadLocal<Connection> THREADLOCAL_CONNECTION = new ThreadLocal<>();
+    + /*synchronized*/ Connection getConnectionAndSetThread();
+    + Connection getConnectionInThread();
+    + void closeConnectionInThread();
+    + void begin() throws SQLException;
+    + void commit() throws SQLException;
+    + void rollback();
+    + int operate(DbSql dbSql);
+    + int operate(String sql, Object[] bindArgs);
+    + int operateAutocommit(DbSql dbSql);
+    + int operateAutocommit(String sql, Object[] bindArgs);
+    + Integer insertAndGetKey(DbSql dbSql);
+    + Integer insertAndGetKey(String sql, Object[] bindArgs);
+    + Integer insertAndGetKeyAutocommit(DbSql dbSql);
+    + Integer insertAndGetKeyAutocommit(String sql, Object[] bindArgs);
+    + int insert(String tableName, Map<String, Object> valueMap, boolean commit);
+    + int insertAndGetKey(String tableName, Map<String, Object> valueMap, boolean commit);
+    + int insertAll(String tableName, List<Map<String, Object>> datas) ;
+    + int insertAllAutocommit(String tableName, List<Map<String, Object>> datas);
+    + int update(String tableName, Map<String, Object> valueMap, Map<String, Object> whereMap, boolean commit);
+    + int delete(String tableName, Map<String, Object> whereMap, boolean commit);
+    + List<Map<String, Object>> getList(DbSql dbSql);
+    + List<Map<String, Object>> getList(String sql, Object[] bindArgs) ;
+    + Map<String, Object> getOne(DbSql dbSql) ;
+    + Map<String, Object> getOne(String sql, Object[] bindArgs) ;
+    + int count(DbSql dbSql);
+    + int count(String sql, Object[] bindArgs) ;
+    + String getString(DbSql dbSql);
+    + String getString(String sql, Object[] bindArgs);
+    + List<Map<String, Object>> getListByTable(String tableName, Map<String, Object> whereMap);
+    + List<Map<String, Object>> getListByTable(String tableName, String whereClause, String[] whereArgs);
+    + List<Map<String, Object>> getListByTable(String tableName,
+                                                    boolean distinct,
+                                                    String[] columns,
+                                                    String selection,
+                                                    Object[] bindArgs,
+                                                    String groupBy,
+                                                    String having,
+                                                    String orderBy,
+                                                    String limit);
+    + DbSource(String driver, String url, String user, String password,
+                    boolean useConnectPool, Integer initialSize, Integer maxActive,
+                    Integer minIdle, Integer maxWait);
+    + DbSource(String driver, String url, String user, String password);
+    + Integer getInitialSize();
+    + void setInitialSize(Integer initialSize);
+    + Integer getMaxActive() ;
+    + void setMaxActive(Integer maxActive) ;
+    + Integer getMinIdle() ;
+    + void setMinIdle(Integer minIdle);
+    + Integer getMaxWait();
+    + void setMaxWait(Integer maxWait);
+    + DruidDataSource getDataSource();
+    + void setDataSource(DruidDataSource dataSource);
+    + boolean isUseConnectPool() ;
+    + void setUseConnectPool(boolean useConnectPool) ;
+    + String getDriver() ;
+    + void setDriver(String driver);
+    + String getUrl();
+    + void setUrl(String url);
+    + String getUser() ;
+    + void setUser(String user) ;
+    + String getPassword() ;
+    + void setPassword(String password) ;
+}
+
+DbSource <.. DbConnect : 使用
+
+class DbSql {
+    Object[] bindArgs;
+    + DbSql(String sql);
+    + DbSql(String sql, Object[] bindArgs);
+    + String getSql() ;
+    + void setSql(String sql);
+    + Object[] getBindArgs() ;
+    + void setBindArgs(Object[] bindArgs);
+}
+
+DbSource <.. DbSql : 使用
+
+
+class DbConvert {
+    # {static} String sqlStatement(String sql, Object[] bindArgs) ;
+    # {static} List<Map<String, Object>> getDatas(ResultSet resultSet);
+    + {static} String buildQueryString( boolean distinct, String tables, String[] columns, String where,
+            String groupBy, String having, String orderBy, String limit) ;
+    - {static} void appendColumns(StringBuilder s, String[] columns);
+    - {static} void appendClause(StringBuilder s, String name, String clause);
+    - {static} boolean isEmpty(CharSequence str) ;
+}
+DbSource <.. DbConvert : 使用
+
+
+class DbOperate {
+    + {static} int operate(DbSource db, DbSql dbSql);
+    + {static} Integer operateAutocommit(DbSource db, DbSql dbSql);
+    # {static} Integer insertAndGetKeyAutocommit(DbSource db, DbSql dbSql);
+    + {static} int insertAll(DbSource db, String tableName, List<Map<String, Object>> datas, boolean commit);
+    # {static} int insertAllAutocommit(DbSource db, String tableName, List<Map<String, Object>> datas) ;
+    # {static} int insertAll(DbSource db, String tableName, List<Map<String, Object>> datas);
+    # {static} Integer insertAndGetKey(DbSource db, DbSql dbSql);
+    + {static} int insert(DbSource db, String tableName, Map<String, Object> valueMap, boolean commit);
+    + {static} int insertAndGetKey(DbSource db, String tableName, Map<String, Object> valueMap, boolean commit);
+    + {static} int update(DbSource db, String tableName, Map<String, Object> valueMap, Map<String, Object> whereMap, boolean commit);
+    + {static} int delete(DbSource db, String tableName, Map<String, Object> whereMap, boolean commit);
+}
+DbOperate <.. DbConvert : 使用
+DbSource <.. DbOperate : 使用
+
+class DbSelect {
+    # {static} List<Map<String, Object>> query(DbSource db, DbSql dbSql);
+    # {static} Integer count(DbSource db, DbSql dbSql);
+    # {static} String getString(DbSource db, DbSql dbSql) ;
+    - {static} List<Map<String, Object>> queryWithPool(DbSource db, DbSql dbSql) ;
+    - {static} List<Map<String, Object>> queryWithOutPool(DbSource db, DbSql dbSql) ;
+    - {static} List<Map<String, Object>> query(Connection conn, String sql) ;
+    - {static} List<Map<String, Object>> queryByConnection(Connection conn, String sql, Object[] bindArgs);
+    - {static} List<Map<String, Object>> executeQuery(Connection conn, String sql, Object[] bindArgs) ;
+}
+DbSelect <.. DbConvert : 使用
+DbSource <.. DbSelect : 使用
+
+class Orm<T> {
+    - Class<T> joClass;
+    + Orm(Class<T> joClass);
+    + List<T> getEntityList(List<Map<String, Object>> poList);
+}
+
+
+
+
+
+@enduml

@@ -2,6 +2,7 @@ package com.zrzhen.zetty.net;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sun.nio.ch.DirectBuffer;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -66,7 +67,8 @@ public class SocketSession<T, O> {
         this.decode = builder.decode;
         this.encode = builder.encode;
         this.processor = builder.processor;
-        this.readBuffer = ByteBuffer.allocate(builder.readBufSize);
+        //this.readBuffer = ByteBuffer.allocate(builder.readBufSize);
+        this.readBuffer = ByteBuffer.allocateDirect(builder.readBufSize);
 
         if (builder.socketType == SocketEnum.AIO) {
             try {
@@ -218,7 +220,10 @@ public class SocketSession<T, O> {
                 }
             }
 
+            clean(writeBuffer);
+            clean(readBuffer);
             writeBuffer = null;
+            readBuffer = null;
             socketChannel = null;
             builder = null;
             socketSessionStatus = SocketSessionStatus.DESTROYED;
@@ -243,7 +248,13 @@ public class SocketSession<T, O> {
                 log.error(e.getMessage(), e);
             }
         }
-        Thread.currentThread().interrupt();
+        //Thread.currentThread().interrupt();
+    }
+
+    public static void clean(final ByteBuffer byteBuffer) {
+        if (byteBuffer.isDirect()) {
+            ((DirectBuffer) byteBuffer).cleaner().clean();
+        }
     }
 
     public AsynchronousSocketChannel getSocketChannel() {

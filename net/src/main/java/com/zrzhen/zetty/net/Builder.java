@@ -4,7 +4,6 @@ import com.zrzhen.zetty.net.aio.ReadHandler;
 import com.zrzhen.zetty.net.aio.WriteHandler;
 
 import java.net.SocketOption;
-import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,8 +30,6 @@ public class Builder {
 
     public WriteHandler writeHandler;
 
-    public ByteBuffer writeBuffer;
-
     public Decode decode;
 
     public Encode encode;
@@ -58,13 +55,9 @@ public class Builder {
         }
 
         if (readHandler == null) {
-            readHandler = new ReadHandler();//默认短连接，响应结束则断开TCP连接
+            readHandler = new ReadHandler();
         }
 
-        if (writeBuffer == null) {
-            //writeBuffer = ByteBuffer.allocateDirect(readBufSize);
-            writeBuffer = ByteBuffer.allocate(readBufSize);
-        }
     }
 
     public Builder host(String host) {

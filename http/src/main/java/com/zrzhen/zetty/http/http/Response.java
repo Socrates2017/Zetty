@@ -135,7 +135,7 @@ public class Response {
         }
         int lenght = responseLine.length() + HttpConstants.CRLF.length + headers.length() + HttpConstants.CRLF.length + content.length;
 
-        ByteBuffer buf = ByteBuffer.allocate(lenght);
+        ByteBuffer buf = ByteBuffer.allocateDirect(lenght);
         buf.put(FileUtil.str2Byte(responseLine));
         buf.put(HttpConstants.CRLF);
         buf.put(FileUtil.str2Byte(headers));
@@ -162,7 +162,7 @@ public class Response {
         }
         int lenght = responseLine.length() + HttpConstants.CRLF.length + headers.length() + HttpConstants.CRLF.length + bytes.length;
 
-        ByteBuffer buf = ByteBuffer.allocate(lenght);
+        ByteBuffer buf = ByteBuffer.allocateDirect(lenght);
         buf.put(FileUtil.str2Byte(responseLine));
         buf.put(HttpConstants.CRLF);
         buf.put(FileUtil.str2Byte(headers));
@@ -183,7 +183,7 @@ public class Response {
         }
         int lenght = responseLine.length() + HttpConstants.CRLF.length + headers.length() + HttpConstants.CRLF.length;
 
-        ByteBuffer buf = ByteBuffer.allocate(lenght);
+        ByteBuffer buf = ByteBuffer.allocateDirect(lenght);
         buf.put(FileUtil.str2Byte(responseLine));
         buf.put(HttpConstants.CRLF);
         buf.put(FileUtil.str2Byte(headers));
