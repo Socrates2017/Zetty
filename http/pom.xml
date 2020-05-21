@@ -27,11 +27,13 @@
                     <artifactId>logback-classic</artifactId>
                 </exclusion>
             </exclusions>
+            <version>2.0.0</version>
         </dependency>
 
         <dependency>
             <groupId>com.zrzhen</groupId>
             <artifactId>common</artifactId>
+            <version>2.0.0</version>
         </dependency>
 
 
@@ -40,17 +42,20 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
+            <version>3.8.1</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/commons-io/commons-io -->
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
+            <version>2.6</version>
         </dependency>
 
         <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
+            <version>1.10</version>
         </dependency>
 
     </dependencies>

@@ -197,29 +197,6 @@ public class DbSource {
         return DbOperate.operateAutocommit(this, new DbSql(sql, bindArgs));
     }
 
-    /**
-     * 插入并返回主键
-     *
-     * @return
-     * @throws SQLException
-     * @throws SqlNotFormatException
-     */
-    public Integer insertAndGetKey(DbSql dbSql)
-            throws SQLException, SqlNotFormatException {
-        return DbOperate.insertAndGetKey(this, dbSql);
-    }
-
-    /**
-     * @param sql
-     * @param bindArgs
-     * @return
-     * @throws SQLException
-     * @throws SqlNotFormatException
-     */
-    public Integer insertAndGetKey(String sql, Object[] bindArgs)
-            throws SQLException, SqlNotFormatException {
-        return DbOperate.insertAndGetKey(this, new DbSql(sql, bindArgs));
-    }
 
     /**
      * 插入并返回主键，自动提交事务
@@ -253,6 +230,47 @@ public class DbSource {
         return DbOperate.insert(this, tableName, valueMap, commit);
     }
 
+    public int insert(String tableName, Map<String, Object> valueMap)
+            throws SQLException, SqlNotFormatException {
+        return DbOperate.insert(this, tableName, valueMap, false);
+    }
+
+    public int insertAutocommit(String tableName, Map<String, Object> valueMap) {
+        try {
+            return DbOperate.insert(this, tableName, valueMap, true);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (SqlNotFormatException e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
+
+    /**
+     * 插入并返回主键
+     *
+     * @return
+     * @throws SQLException
+     * @throws SqlNotFormatException
+     */
+    public Integer insertAndGetKey(DbSql dbSql)
+            throws SQLException, SqlNotFormatException {
+        return DbOperate.insertAndGetKey(this, dbSql);
+    }
+
+    /**
+     * @param sql
+     * @param bindArgs
+     * @return
+     * @throws SQLException
+     * @throws SqlNotFormatException
+     */
+    public Integer insertAndGetKey(String sql, Object[] bindArgs)
+            throws SQLException, SqlNotFormatException {
+        return DbOperate.insertAndGetKey(this, new DbSql(sql, bindArgs));
+    }
+
     /**
      * @param tableName
      * @param valueMap
@@ -264,6 +282,16 @@ public class DbSource {
     public int insertAndGetKey(String tableName, Map<String, Object> valueMap, boolean commit)
             throws SQLException, SqlNotFormatException {
         return DbOperate.insertAndGetKey(this, tableName, valueMap, commit);
+    }
+
+    public int insertAndGetKey(String tableName, Map<String, Object> valueMap)
+            throws SQLException, SqlNotFormatException {
+        return DbOperate.insertAndGetKey(this, tableName, valueMap, false);
+    }
+
+    public int insertAndGetKeyAutocommit(String tableName, Map<String, Object> valueMap)
+            throws SQLException, SqlNotFormatException {
+        return DbOperate.insertAndGetKey(this, tableName, valueMap, true);
     }
 
     /**

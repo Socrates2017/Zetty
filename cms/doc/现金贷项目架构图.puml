@@ -5,16 +5,19 @@ sprite $aService jar:archimate/application-service
 sprite $aComponent jar:archimate/application-component
 sprite $bEvent jar:archimate/business-event
 
+node  "客户端" #TECHNOLOGY{
 archimate #Business "H5"  as H5
 archimate #Business "安卓"  as 安卓
 archimate #Business "IOS"  as IOS
+}
 
 archimate #Business "nginx"  as nginx
 
-
+node  "网关与鉴权" #TECHNOLOGY{
+archimate #Business "用户API网关"  as 用户API网关
+archimate #Business "管理后台API网关"  as 管理后台API网关
+}
 node  "微服务" #TECHNOLOGY{
-archimate #Business "注册中心"  as 注册中心
-archimate #Business "API网关"  as API网关
 archimate #Business "用户中心"  as 用户中心
 archimate #Business "订单中心"  as 订单中心
 archimate #Business "支付中心"  as 支付中心
@@ -22,25 +25,6 @@ archimate #Business "风控系统"  as 风控系统
 archimate #Business "管理后台"  as 管理后台
 archimate #Business "报表系统"  as 报表系统
 }
-H5 -down-> nginx
-安卓 -down-> nginx
-IOS -down-> nginx
-nginx -down-> API网关
-
-API网关 ..left-> 注册中心
-用户中心 ..down-> 注册中心
-订单中心 ..down-> 注册中心
-支付中心 ..down-> 注册中心
-风控系统 ..down-> 注册中心
-管理后台 ..down-> 注册中心
-报表系统 ..down-> 注册中心
-
-API网关 -down-> 用户中心
-API网关 -down-> 订单中心
-API网关 -down-> 支付中心
-API网关 -down-> 风控系统
-API网关 -down-> 管理后台
-API网关 -down-> 报表系统
 
 node  "存储层" #TECHNOLOGY{
 archimate #Business "用户库"  as 用户库
@@ -51,24 +35,27 @@ archimate #Business "管理后台库"  as 管理后台库
 archimate #Business "报表库"  as 报表库
 archimate #Business "redis"  as redis
 archimate #Business "elastisearch"  as elastisearch
+}
+
+node  "离线数仓" #TECHNOLOGY{
 archimate #Business "hive"  as hive
 }
 
 archimate #Business "etl系统"  as etl系统
 
-用户中心 -down-> 用户库
-订单中心 -down-> 订单库
-支付中心 -down-> 支付库
-风控系统 -down-> 风控库
-管理后台 -down-> 管理后台库
-报表系统 -down-> 报表库
+H5 -down-> nginx
+安卓 -down-> nginx
+IOS -down-> nginx
+nginx -down-> 网关与鉴权
 
-用户库 -down-> etl系统
-订单库 -down-> etl系统
-支付库 -down-> etl系统
-风控库 -down-> etl系统
-管理后台库 -down-> etl系统
-etl系统 -up-> hive
+网关与鉴权 -down-> 微服务
+网关与鉴权 -down-> 存储层
+
+
+微服务 -down-> 存储层
+
+存储层 -down-> etl系统
+etl系统 -down-> hive
 hive --> 报表库
 @enduml
 

@@ -2,11 +2,9 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <parent>
-        <artifactId>zetty</artifactId>
-        <groupId>com.zrzhen</groupId>
-        <version>2.0.0</version>
-    </parent>
+
+    <groupId>com.zrzhen</groupId>
+    <version>2.0.0</version>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>cms</artifactId>
@@ -17,11 +15,13 @@
         <dependency>
             <groupId>com.zrzhen</groupId>
             <artifactId>zatis</artifactId>
+            <version>2.0.0</version>
         </dependency>
 
         <dependency>
             <groupId>com.zrzhen</groupId>
             <artifactId>http</artifactId>
+            <version>2.0.0</version>
         </dependency>
 
 
@@ -29,23 +29,27 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
+            <version>3.8.1</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/commons-io/commons-io -->
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
+            <version>2.6</version>
         </dependency>
 
         <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
+            <version>1.10</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-pool2 -->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-pool2</artifactId>
+            <version>2.7.0</version>
         </dependency>
 
 
@@ -53,24 +57,29 @@
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>druid</artifactId>
+            <version>1.1.20</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
+            <version>8.0.17</version>
         </dependency>
 
         <!--发邮件 -->
         <dependency>
             <groupId>com.sun.mail</groupId>
             <artifactId>javax.mail</artifactId>
+            <version>1.6.2</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/org.quartz-scheduler/quartz -->
         <dependency>
             <groupId>org.quartz-scheduler</groupId>
             <artifactId>quartz</artifactId>
+            <version>2.3.1</version>
         </dependency>
+
 
     </dependencies>
     <build>

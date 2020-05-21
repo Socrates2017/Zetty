@@ -1,0 +1,16 @@
+@startuml
+
+actor h5
+participant 订单系统
+participant 用户系统
+
+h5 -> 用户系统: 登录
+h5 -> 订单系统: 获取产品列表
+alt 普通用户
+  订单系统 --> h5:返回原有产品;
+else 特殊用户
+  订单系统 --> h5:返回特殊产品;
+end
+
+
+@enduml

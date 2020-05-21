@@ -1,8 +1,6 @@
 package com.zetty.zatis;
 
 import com.zrzhen.zatis.Orm;
-import com.zrzhen.zetty.common.JsonUtil;
-
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,7 +15,6 @@ public class OrmTest {
         List<User> userList = a.getEntityList(poList());
 
 
-        System.out.println(JsonUtil.obj2Json(userList));
     }
 
     public static List<Map<String, Object>> poList() {

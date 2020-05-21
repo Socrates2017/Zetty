@@ -1,27 +1,29 @@
 package com.zrzhen.zetty.cms.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.zrzhen.zetty.common.ShiftLeft;
-import com.zrzhen.zetty.common.TimeUtil;
 import com.zrzhen.zetty.cms.constant.UserStatusEnum;
 import com.zrzhen.zetty.cms.dao.OpenidDao;
 import com.zrzhen.zetty.cms.dao.UserDao;
 import com.zrzhen.zetty.cms.dao.UserExtDao;
 import com.zrzhen.zetty.cms.dao.UserOpenidDao;
 import com.zrzhen.zetty.cms.dao.jdbc.MysqlFirst;
-import com.zrzhen.zetty.common.JsonUtil;
 import com.zrzhen.zetty.cms.pojo.result.Result;
 import com.zrzhen.zetty.cms.pojo.result.ResultCode;
 import com.zrzhen.zetty.cms.pojo.result.ResultGen;
 import com.zrzhen.zetty.cms.thread.ThreadPoolUtil;
 import com.zrzhen.zetty.cms.thread.UserLoginThread;
-import com.zrzhen.zetty.cms.util.*;
+import com.zrzhen.zetty.cms.util.EmailUtil;
+import com.zrzhen.zetty.cms.util.HeaderUtil;
+import com.zrzhen.zetty.cms.util.SessionUtil;
+import com.zrzhen.zetty.cms.util.UserUtil;
+import com.zrzhen.zetty.common.JsonUtil;
+import com.zrzhen.zetty.common.ShiftLeft;
+import com.zrzhen.zetty.common.TimeUtil;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.math.BigInteger;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
@@ -97,7 +99,7 @@ public class UserService {
         } else {
             Map<String, Object> user = UserDao.idByEmailAndPwd(email, password);
             if (user != null) {
-                Long id = ((BigInteger) user.get("id")).longValue();
+                Long id = (Long) user.get("id");
                 /*获得openid*/
                 Long openid = UserOpenidDao.selectOpenidByKey(HeaderUtil.SYSCODE, String.valueOf(id));
                 if (openid != null) {

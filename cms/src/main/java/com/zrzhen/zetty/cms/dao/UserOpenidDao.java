@@ -3,7 +3,6 @@ package com.zrzhen.zetty.cms.dao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.math.BigInteger;
 import java.util.Map;
 
 /**
@@ -19,8 +18,8 @@ public class UserOpenidDao extends MysqlFirstBaseDao {
 
     public static String selectUserid(Integer sysCode, Long openid) {
         String sql = "select userid from `user_openid` where sys_code = ? and openid = ? limit 1";
-        Object[] args = new Object[]{sysCode,openid};
-        Map<String, Object> out = getOne(sql,args);
+        Object[] args = new Object[]{sysCode, openid};
+        Map<String, Object> out = getOne(sql, args);
         if (out != null) {
             return (String) out.get("userid");
         } else {
@@ -30,11 +29,11 @@ public class UserOpenidDao extends MysqlFirstBaseDao {
 
     public static Long selectOpenidByKey(Integer sysCode, String userid) {
         String sql = "select openid from `user_openid` where sys_code = ? and userid = ? limit 1";
-        Object[] args = new Object[]{sysCode,userid};
+        Object[] args = new Object[]{sysCode, userid};
 
-        Map<String, Object> out = getOne(sql,args);
+        Map<String, Object> out = getOne(sql, args);
         if (out != null) {
-            return ((BigInteger)out.get("openid")).longValue();
+            return (Long) out.get("openid");
         } else {
             return null;
         }

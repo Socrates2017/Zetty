@@ -1,0 +1,18 @@
+@startuml
+
+actor h5
+participant 管理后台
+participant 订单系统
+database 订单库
+
+h5 -> 订单系统: 提交反馈
+订单系统 -> 订单库: 入库
+管理后台 ->订单系统: 查看反馈
+管理后台 ->订单系统: 处理反馈
+订单系统 -> 订单库: 更改反馈表状态
+
+
+
+
+
+@enduml

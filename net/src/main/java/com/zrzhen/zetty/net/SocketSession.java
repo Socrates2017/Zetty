@@ -252,7 +252,7 @@ public class SocketSession<T, O> {
     }
 
     public static void clean(final ByteBuffer byteBuffer) {
-        if (byteBuffer != null && byteBuffer.isDirect()) {
+        if (byteBuffer.isDirect()) {
             ((DirectBuffer) byteBuffer).cleaner().clean();
         }
     }

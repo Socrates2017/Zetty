@@ -1,0 +1,49 @@
+@startuml
+
+actor h5
+
+
+participant 阿里云存储服务
+participant 订单系统
+participant 风控系统
+participant 第三方
+database 风控库
+database 订单库
+
+activate h5
+activate h5
+h5 -> 阿里云存储服务: 上传身份证
+阿里云存储服务 -->> h5: 身份证地址
+h5 ->订单系统: 保存身份证图片地址，进行OCR
+订单系统 -> 风控系统: OCR身份证
+风控系统 -> 第三方: OCR身份证
+第三方 -->> 风控系统 : 身份证解析结果
+风控系统 -> 风控库 : 保存调用记录以及解析结果
+风控系统 -->> 订单系统 : 身份证解析结果
+订单系统 -> 订单库: 保存身份证OCR解析结果，t_user_baseinfo
+订单系统 -->> h5 : 身份证解析结果
+
+h5 -> 订单系统:用户提交姓名和身份证号信息，t_user_baseinfo
+h5 -> h5: 前端显示OCR结果，允许用户修改
+h5 -> 订单系统: 提交个人信息，姓名、身份证号
+订单系统 -> 订单库: 保存个人信息，t_user_baseinfo
+订单系统 -->> h5 : 保存成功
+activate h5
+deactivate h5
+
+h5 -> 订单系统:用户提交银行卡信息，银行卡号，银行名
+订单系统 -> 订单库: 保存银行卡信息
+订单系统 -->> h5 : 保存成功
+deactivate h5
+deactivate h5
+
+h5 -> 订单系统: 人审时，查看身份信息是否被改动过
+订单系统 -> 订单库: 比较用户提交的身份证号、姓名与ocr解析结果是否一致，t_user_baseinfo
+
+
+
+
+
+
+
+@enduml

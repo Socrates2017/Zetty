@@ -2,36 +2,24 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <parent>
-        <artifactId>zetty</artifactId>
-        <groupId>com.zrzhen</groupId>
-        <version>2.0.0</version>
-    </parent>
+
+    <groupId>com.zrzhen</groupId>
+    <version>2.0.0</version>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>net</artifactId>
     <packaging>jar</packaging>
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>7</source>
-                    <target>7</target>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
 
     <dependencies>
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-core</artifactId>
+            <version>1.1.7</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
+            <version>1.1.7</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -43,6 +31,50 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-pool2</artifactId>
+            <version>2.7.0</version>
         </dependency>
     </dependencies>
+
+    <!-- 设定主仓库，按设定顺序进行查找。 -->
+    <repositories>
+        <!-- 阿里maven仓库 -->
+        <!-- 		<repository>
+                    <id>aliyun</id>
+                    <name>ali nexus</name>
+                    <url>http://maven.aliyun.com/nexus/content/groups/public</url>
+                </repository> -->
+        <repository>
+            <id>nexus-release</id>
+            <name>nexus Release</name>
+            <url>http://192.168.148.68:8081/nexus/content/groups/public</url>
+        </repository>
+    </repositories>
+
+    <distributionManagement>
+        <repository>
+            <id>nexus-releases</id>
+            <name>corp nexus-releases</name>
+            <url>http://192.168.148.68:8081/nexus/content/repositories/releases</url>
+        </repository>
+        <snapshotRepository>
+            <id>nexus-snapshot</id>
+            <name>corp nexus-snapshot</name>
+            <url>http://192.168.148.68:8081/nexus/content/repositories/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+
 </project>

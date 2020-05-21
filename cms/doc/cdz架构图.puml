@@ -1,0 +1,70 @@
+@startuml
+
+sprite $bProcess jar:archimate/business-process
+sprite $aService jar:archimate/application-service
+sprite $aComponent jar:archimate/application-component
+sprite $bEvent jar:archimate/business-event
+
+node  "充电桩" #TECHNOLOGY{
+    archimate #Business "充电枪1"  as 充电枪1
+    archimate #Business "充电枪2"  as 充电枪2
+    archimate #Business "..."  as ...
+}
+
+
+node  "充电桩服务平台nginx集群" #TECHNOLOGY{
+archimate #Business "充电桩服务平台nginx"  as 充电桩服务平台nginx
+}
+
+node  "充电桩平台集群" #TECHNOLOGY{
+archimate #Business "充电桩平台，同时支持联行协议和http协议"  as 充电桩平台
+}
+
+node  "充电桩服务地址发现中心集群" #TECHNOLOGY{
+archimate #Business "充电桩服务地址发现服务"  as 充电桩服务地址发现服务
+}
+
+node  "用户客户端" #TECHNOLOGY{
+archimate #Business "H5"  as H5
+archimate #Business "微信小程序"  as 微信小程序
+}
+
+node  "商户客户端" #TECHNOLOGY{
+archimate #Business "web"  as web
+}
+node  "http服务nginx集群" #TECHNOLOGY{
+archimate #Business "http服务nginx"  as http服务nginx
+}
+node  "用户中心服务集群" #TECHNOLOGY{
+archimate #Business "用户中心"  as 用户中心
+}
+
+node  "商户中心服务集群" #TECHNOLOGY{
+archimate #Business "商户中心"  as 商户中心
+}
+
+
+充电桩 -down-> 充电桩服务平台nginx集群:充电桩主动建立tcp连接，推送数据
+充电桩服务平台nginx集群 -down-> 充电桩平台集群:转发
+充电桩平台集群 -down-> 充电桩:下发指令
+
+
+
+用户客户端 -down-> http服务nginx集群:http
+商户客户端 -down-> http服务nginx集群:http
+
+http服务nginx集群 -down-> 用户中心服务集群
+http服务nginx集群 -down-> 商户中心服务集群
+
+
+
+用户中心服务集群 -down-> 充电桩服务地址发现中心集群:发现socket连接所在的充电桩服务地址
+商户中心服务集群 -down-> 充电桩服务地址发现中心集群
+
+用户中心服务集群 -down-> 充电桩平台集群:http
+商户中心服务集群 -down-> 充电桩平台集群:http
+
+
+
+@enduml
+

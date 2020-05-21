@@ -1,5 +1,6 @@
 package com.zrzhen.zatis;
 
+import java.math.BigInteger;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -54,7 +55,13 @@ public class DbConvert {
         while (resultSet.next()) {
             Map<String, Object> rowMap = new LinkedHashMap<>();//LinkedHashMap能保证顺序
             for (int i = 1; i <= metaData.getColumnCount(); i++) {
-                rowMap.put(metaData.getColumnName(i), resultSet.getObject(i));
+                Object value =resultSet.getObject(i);
+                if (value instanceof BigInteger){
+                    rowMap.put(metaData.getColumnName(i), ((BigInteger) value).longValue());
+                }else {
+                    rowMap.put(metaData.getColumnName(i), value);
+                }
+
             }
             datas.add(rowMap);
         }
