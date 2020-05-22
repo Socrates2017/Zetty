@@ -162,7 +162,7 @@ CenterTable(charge_pile, "充电桩表\n(标识一个充电桩)"){
     `name` varchar(256) DEFAULT '' COMMENT '名称',
     `service_object` tinyint(4) DEFAULT NULL COMMENT '服务对象',
     `service_status` tinyint(4) DEFAULT NULL COMMENT '运营状态',
-    `register_time` timestamp DEFAULT NULL COMMENT '登记时间，统一使用时间戳格式，精确到秒',
+    `register_time` int(32) unsigned DEFAULT NULL COMMENT '登记时间，统一使用时间戳格式，精确到秒',
 
     `version` int(8) DEFAULT '0' COMMENT '版本',
     `creator` bigint(64) unsigned DEFAULT NULL COMMENT '创建者',
@@ -183,7 +183,7 @@ CenterTable(charge_station, "充电站表\n(标识一个充电站)"){
     `service_type` tinyint(4) DEFAULT NULL COMMENT '运营类型',
     `service_status` tinyint(4) DEFAULT NULL COMMENT '运营状态',
     `station_type` tinyint(4) DEFAULT NULL COMMENT '站点类型',
-    `register_time` timestamp DEFAULT NULL COMMENT '投运时间',
+    `register_time` int(32) unsigned DEFAULT NULL COMMENT '投运时间',
 
     `version` int(8) DEFAULT '0' COMMENT '版本',
     `creator` bigint(64) unsigned DEFAULT NULL COMMENT '创建者',
