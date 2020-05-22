@@ -128,7 +128,7 @@ BehaviourTable(cu_status, "充电枪状态记录表\n(标识一次充电枪状�
     `cu_temperature` tinyint(4) DEFAULT NULL COMMENT '枪头温度',
     `input_start_quantity` smallint(6) unsigned DEFAULT NULL COMMENT '充电开始时电表读数',
     `input_now_quantity` smallint(6) unsigned DEFAULT NULL COMMENT '当前电表读数',
-    `now_soc` tinyint(4)) DEFAULT NULL COMMENT '当前 SOC',
+    `now_soc` tinyint(4) DEFAULT NULL COMMENT '当前 SOC',
     `cell_highest_temperature` tinyint(4) DEFAULT NULL COMMENT '单体电池最高温度',
     `cell_highest_voltage` smallint(6) unsigned DEFAULT NULL COMMENT '单体电池最高电压',
     `fee_id` bigint(64) unsigned DEFAULT NULL COMMENT '计费模型 id',
