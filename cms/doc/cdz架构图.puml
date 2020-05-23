@@ -4,9 +4,10 @@ sprite $bProcess jar:archimate/business-process
 sprite $aService jar:archimate/application-service
 sprite $aComponent jar:archimate/application-component
 sprite $bEvent jar:archimate/business-event
+sprite $aEquipment jar:archimate/physical-equipment
 
 node  "充电桩" #TECHNOLOGY{
-    archimate #Business "充电枪"  as 充电枪
+    archimate #Business "充电枪"  as 充电枪 <<physical-equipment>>
 }
 
 archimate #Business "nginx for tcp"  as 充电桩平台nginx
@@ -15,11 +16,9 @@ node  "充电桩平台集群" #TECHNOLOGY{
 archimate #Business "充电桩平台，同时支持联行协议和http协议"  as 充电桩平台
 }
 
-archimate #Business "nginx for http"  as 充电桩平台内部nginx
-
 
 node  "充电桩平台服务集群" #TECHNOLOGY{
-archimate #Business "充电桩平台服务，支持http协议"  as 充电桩平台服务
+archimate #Business "充电桩平台服务（含订单模块等公共模块），支持http协议"  as 充电桩平台服务
 }
 
 node  "充电桩平台地址发现服务集群" #TECHNOLOGY{
@@ -27,16 +26,16 @@ archimate #Business "充电桩平台地址发现服务"  as 充电桩平台地�
 }
 
 node  "用户客户端" #TECHNOLOGY{
-archimate #Business "H5"  as H5
-archimate #Business "微信小程序"  as 微信小程序
+actor #Business "H5"  as H5
+actor #Business "微信小程序"  as 微信小程序
 }
 
 node  "商户客户端" #TECHNOLOGY{
-archimate #Business "H5"  as 商户客户端H5
+actor #Business "H5"  as 商户客户端H5
 }
 
 node  "管理后台客户端" #TECHNOLOGY{
-archimate #Business "H5"  as 管理后台客户端H5
+actor #Business "H5"  as 管理后台客户端H5
 }
 
 archimate #Business "nginx for http"  as http服务nginx
@@ -67,8 +66,7 @@ http服务nginx -down-> 管理后台服务集群
 
 充电桩平台服务集群 -down-> 充电桩平台地址发现服务集群:发现socket连接所在的充电桩平台节点地址
 
-充电桩平台服务集群 -down-> 充电桩平台内部nginx:http下发指令
-充电桩平台内部nginx -down-> 充电桩平台集群:http
+充电桩平台服务集群 -down-> 充电桩平台集群:http下发指令
 充电桩平台集群 -up-> 充电桩平台地址发现服务集群:注册地址
 充电桩平台集群 -down-> 充电桩:下发指令
 
