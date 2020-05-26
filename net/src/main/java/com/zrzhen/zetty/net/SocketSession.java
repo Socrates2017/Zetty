@@ -12,6 +12,7 @@ import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.util.Arrays;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -31,6 +32,13 @@ public class SocketSession<T, O> {
 
     private ByteBuffer writeBuffer;
 
+    private ByteBuffer writeBufferAll;
+
+    /**
+     * 输出信号量,防止并发write导致异常
+     */
+    private final Semaphore semaphore = new Semaphore(1);
+
     private byte[] contextBytes;
 
     private Builder builder;
@@ -48,6 +56,13 @@ public class SocketSession<T, O> {
     private T message;
 
     private Socket socket;
+
+    private Boolean isWriteEnd;
+
+    private int writeMaxSize = 1024 * 1024;
+    private int writeNum;
+    private int writeTotalNum;
+    private byte[] writeBytes;
 
     public SocketSession(AsynchronousSocketChannel socketChannel, Builder builder) {
         this.socketChannel = socketChannel;
@@ -149,13 +164,38 @@ public class SocketSession<T, O> {
 
     public void write(O out) {
         if (this.encode != null) {
-            this.writeBuffer = this.encode.encode(this, out);
+            this.writeBufferAll = this.encode.encode(this, out);
         } else {
-            this.writeBuffer = (ByteBuffer) out;
+            this.writeBufferAll = (ByteBuffer) out;
         }
 
         if (builder.socketType == SocketEnum.AIO) {
-            socketChannel.write(writeBuffer, this, builder.writeHandler);
+
+            writeBytes = buf2Bytes(writeBufferAll, writeBufferAll.limit());
+
+            int length = writeBytes.length;
+
+            if (length > writeMaxSize) {
+                isWriteEnd = false;
+                writeNum = 0;
+                writeTotalNum = (int) Math.ceil(length / writeMaxSize);//需要写多少次
+                int count = writeMaxSize;
+                byte[] bytes1 = Arrays.copyOfRange(writeBytes, 0, writeMaxSize);
+                clean(writeBuffer);
+                writeBuffer = null;
+                writeBuffer = ByteBuffer.allocateDirect(count);
+                log.info("xx count:{}", count);
+                writeBuffer.put(bytes1);
+                writeBuffer.flip();
+                socketChannel.write(writeBuffer, this, builder.writeHandler);
+
+            } else {
+                isWriteEnd = true;
+                clean(writeBuffer);
+                writeBuffer = writeBufferAll;
+                writeBuffer.flip();
+                socketChannel.write(writeBuffer, this, builder.writeHandler);
+            }
         } else {
 
             byte[] bytes = buf2Bytes(writeBuffer, writeBuffer.limit());
@@ -187,6 +227,12 @@ public class SocketSession<T, O> {
 
     }
 
+    public static byte[] subBytes(byte[] src, int begin, int count) {
+        byte[] bs = new byte[count];
+        System.arraycopy(src, begin, bs, 0, count);
+        return bs;
+    }
+
     public static byte[] buf2Bytes(ByteBuffer buffer, int length) {
         byte[] bytes = new byte[length];
         buffer.get(bytes);
@@ -202,7 +248,7 @@ public class SocketSession<T, O> {
      * 销毁
      */
     public void destroy() {
-        log.debug("The socket will close.");
+        log.debug("The socket will close.socketSessionStatus:{}", socketSessionStatus);
 
         if (socketSessionStatus == SocketSessionStatus.DESTROYED) {
             return;
@@ -221,6 +267,7 @@ public class SocketSession<T, O> {
             }
 
             clean(writeBuffer);
+            clean(writeBufferAll);
             clean(readBuffer);
             writeBuffer = null;
             readBuffer = null;
@@ -252,7 +299,7 @@ public class SocketSession<T, O> {
     }
 
     public static void clean(final ByteBuffer byteBuffer) {
-        if (byteBuffer.isDirect()) {
+        if (byteBuffer != null && byteBuffer.isDirect()) {
             ((DirectBuffer) byteBuffer).cleaner().clean();
         }
     }
@@ -360,6 +407,54 @@ public class SocketSession<T, O> {
 
     public void setSocket(Socket socket) {
         this.socket = socket;
+    }
+
+    public Boolean getWriteEnd() {
+        return isWriteEnd;
+    }
+
+    public void setWriteEnd(Boolean writeEnd) {
+        isWriteEnd = writeEnd;
+    }
+
+    public ByteBuffer getWriteBufferAll() {
+        return writeBufferAll;
+    }
+
+    public void setWriteBufferAll(ByteBuffer writeBufferAll) {
+        this.writeBufferAll = writeBufferAll;
+    }
+
+    public int getWriteMaxSize() {
+        return writeMaxSize;
+    }
+
+    public void setWriteMaxSize(int writeMaxSize) {
+        this.writeMaxSize = writeMaxSize;
+    }
+
+    public int getWriteNum() {
+        return writeNum;
+    }
+
+    public void setWriteNum(int writeNum) {
+        this.writeNum = writeNum;
+    }
+
+    public int getWriteTotalNum() {
+        return writeTotalNum;
+    }
+
+    public void setWriteTotalNum(int writeTotalNum) {
+        this.writeTotalNum = writeTotalNum;
+    }
+
+    public byte[] getWriteBytes() {
+        return writeBytes;
+    }
+
+    public void setWriteBytes(byte[] writeBytes) {
+        this.writeBytes = writeBytes;
     }
 
     @Override

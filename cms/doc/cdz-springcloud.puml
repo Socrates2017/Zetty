@@ -42,12 +42,12 @@ node  "充电桩" #TECHNOLOGY{
 
 archimate #Business "nginx for tcp"  as 充电桩平台nginx
 
-node  "充电桩网关路由服务" #TECHNOLOGY{
-    archimate #Business "zookeeper实现\n用来注册及发现指定充电枪所连接的充电桩网关服务地址"  as 充电桩网关路由服务
+node  "充电桩平台路由服务" #TECHNOLOGY{
+    archimate #Business "zookeeper实现\n用来注册及发现指定充电枪所连接的充电桩平台服务地址"  as 充电桩平台路由服务
 }
 
-node  "充电桩网关集群" #TECHNOLOGY{
-    archimate #Business "充电桩网关服务\n同时支持联行协议(与充电桩保持长连接)和http协议"  as 充电桩网关服务
+node  "充电桩平台服务集群" #TECHNOLOGY{
+    archimate #Business "充电桩平台服务\n同时支持联行协议(与充电桩保持长连接)和http协议"  as 充电桩平台服务
 }
 
 
@@ -59,13 +59,13 @@ http服务nginx -down-> API网关
 http服务nginx -down-> 管理后台服务:客户端访问
 管理后台服务 -down-> http服务nginx:通过nginx访问微服务
 
-充电桩模块 -down-> 充电桩网关路由服务:发现socket连接所在的充电桩网关节点地址
+充电桩模块 -down-> 充电桩平台路由服务:发现socket连接所在的充电桩平台节点地址
 
-充电桩模块 -down-> 充电桩网关集群:http下发指令
-充电桩网关集群 -up-> 充电桩网关路由服务:注册地址
-充电桩网关集群 -down-> 充电桩:下发指令
+充电桩模块 -down-> 充电桩平台服务集群:http下发指令
+充电桩平台服务集群 -up-> 充电桩平台路由服务:注册地址
+充电桩平台服务集群 -down-> 充电桩:下发指令
 
-充电桩平台nginx -up-> 充电桩网关集群:转发
+充电桩平台nginx -up-> 充电桩平台服务集群:转发
 充电桩 -up-> 充电桩平台nginx:充电桩主动建立tcp连接，推送数据
 
 

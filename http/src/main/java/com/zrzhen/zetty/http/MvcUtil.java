@@ -82,7 +82,7 @@ public class MvcUtil {
                 }
 
                 ByteBuffer byteBuffer = out.toByteBuffer();
-                socketSession.setWriteBuffer(byteBuffer);
+                //socketSession.setWriteBufferAll(byteBuffer);
                 byteBuffer.flip();
                 socketSession.write(byteBuffer);
             }

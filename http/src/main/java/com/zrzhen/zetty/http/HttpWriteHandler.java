@@ -8,10 +8,11 @@ import org.slf4j.LoggerFactory;
 
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousSocketChannel;
+import java.util.Arrays;
 
 /**
  * @author chenanlian
- *
+ * <p>
  * 消息响应的回调
  */
 public class HttpWriteHandler extends WriteHandler<Integer, SocketSession> {
@@ -34,7 +35,52 @@ public class HttpWriteHandler extends WriteHandler<Integer, SocketSession> {
                 AsynchronousSocketChannel channel = socketSession.getSocketChannel();
                 channel.write(buffer, socketSession, this);
             } else {
-                socketSession.destroy();
+                boolean isWriteEnd = socketSession.getWriteEnd();
+                log.info("isWriteEnd: {}", isWriteEnd);
+                if (isWriteEnd) {
+                    socketSession.destroy();
+                } else {
+                    int writeNum = socketSession.getWriteNum();
+                    int writeTotalNum = socketSession.getWriteTotalNum();
+                    int writeMaxSize = socketSession.getWriteMaxSize();
+
+                    int count = writeMaxSize;
+                    byte[] writeBytes = socketSession.getWriteBytes();
+                    byte[] bytes1 = null;
+                    int length = writeBytes.length;
+
+                    writeNum++;
+                    socketSession.setWriteNum(writeNum);
+                    if (writeNum == writeTotalNum) {
+                        socketSession.setWriteEnd(true);
+                        count = length - writeNum * writeMaxSize;
+
+                        bytes1 = Arrays.copyOfRange(writeBytes, writeNum * writeMaxSize, writeNum * writeMaxSize + count);
+
+                        ByteBuffer writeBuffer = socketSession.getWriteBuffer();
+                        SocketSession.clean(writeBuffer);
+
+                        writeBuffer = ByteBuffer.allocateDirect(count);
+                        log.info("xx count,will end:{}", count);
+
+                        writeBuffer.put(bytes1);
+                        writeBuffer.flip();
+
+                        AsynchronousSocketChannel socketChannel = socketSession.getSocketChannel();
+                        socketChannel.write(writeBuffer, socketSession, this);
+                    } else {
+                        bytes1 = Arrays.copyOfRange(writeBytes, writeNum * writeMaxSize, writeNum * writeMaxSize + writeMaxSize);
+                        ByteBuffer writeBuffer = socketSession.getWriteBuffer();
+                        writeBuffer.clear();
+                        writeBuffer.put(bytes1);
+                        writeBuffer.flip();
+                        log.info("xx count:{}", count);
+                        AsynchronousSocketChannel socketChannel = socketSession.getSocketChannel();
+                        socketChannel.write(writeBuffer, socketSession, this);
+                    }
+
+
+                }
 //            if (!isKeepAlive) {
 //                socketSession.destroy();
 //            } else if (br != null) {
