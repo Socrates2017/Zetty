@@ -1,15 +1,26 @@
 @startuml
 
 /'中心表'/
-!define CenterTable(name,desc) class name as "desc" << (C,#FF4500) >>
-/'详情表'/
-!define DetailTable(name,desc) class name as "desc" << (D,#FFE4E1) >>
-/'卫星表'/
-!define SatelliteTable(name,desc) class name as "desc" << (S,#FFDEAD) >>
+!define CenterTable(name,desc) class name as "desc" << (C,#FF3030) >>
+/'子集表'/
+!define SubsetTable(name,desc) class name as "desc" << (S,#FFDEAD) >>
+/'子集-中心表'/
+!define SubsetCenterTable(name,desc) class name as "desc" << (S,#FF3030) >>
+/'功能表'/
+!define FunctionTable(name,desc) class name as "desc" << (F,#FFF0F5) >>
 /'关系表'/
-!define RelationTable(name,desc) class name as "desc" << (R,#87CEFA) >>
+!define RelationTable(name,desc) class name as "desc" << (R,#FAFAD2) >>
+
+/'业务流程-中心表'/
+!define BusinessCenterTable(name,desc) class name as "desc" << (B,#FF3030) >>
+/'业务流程表'/
+!define BusinessTable(name,desc) class name as "desc" << (B,#AB82FF) >>
 /'行为表'/
-!define BehaviourTable(name,desc) class name as "desc" << (B,#7FFFD4) >>
+!define BehaviourRecordTable(name,desc) class name as "desc" << (H,#8DB6CD) >>
+/'验证表'/
+!define VerificationTable(name,desc) class name as "desc" << (V,#B5B5B5) >>
+
+
 
 !define varchar(x) varchar x
 !define tinyint(x) tinyint x
@@ -36,7 +47,7 @@ package 充电桩模块 <<Frame>> {
         PRIMARY KEY (`id`)
     }
 
-    CenterTable(fee_rule, "计费规则表\n(标识一个计费规则)"){
+    FunctionTable(fee_rule, "计费规则表\n(标识一个计费规则)"){
         `id` bigint(64) unsigned NOT NULL COMMENT '主键',
         `cp_id` bigint(64) unsigned DEFAULT NULL COMMENT '充电桩id',
         `name` varchar(256) DEFAULT '' COMMENT '名称',
@@ -52,7 +63,7 @@ package 充电桩模块 <<Frame>> {
         PRIMARY KEY (`id`)
     }
 
-    BehaviourTable(cu_event_record, "充电桩事件发送记录表\n(标识一次事件)"){
+    BehaviourRecordTable(cg_event_record, "充电桩事件发送记录表\n(标识一次事件)"){
         `id` bigint(64) unsigned NOT NULL COMMENT '主键',
         `cg_id` bigint(64) unsigned DEFAULT NULL COMMENT '充电枪id',
         `event_type` tinyint(4) DEFAULT '-1' COMMENT '事件类型',
@@ -66,7 +77,7 @@ package 充电桩模块 <<Frame>> {
         PRIMARY KEY (`id`)
     }
 
-    BehaviourTable(cu_server_event_record, "平台回复事件记录表\n(标识一次平台指令事件)"){
+    BehaviourRecordTable(cg_server_event_record, "平台回复事件记录表\n(标识一次平台指令事件)"){
         `id` bigint(64) unsigned NOT NULL COMMENT '主键',
         `cg_id` bigint(64) unsigned DEFAULT NULL COMMENT '充电枪id',
         `event_type` tinyint(4) DEFAULT '-1' COMMENT '事件类型',
@@ -80,10 +91,10 @@ package 充电桩模块 <<Frame>> {
         PRIMARY KEY (`id`)
     }
 
-    BehaviourTable(cu_status, "充电枪状态记录表\n(标识一次充电枪状态上报行为)"){
+    BehaviourRecordTable(cg_status, "充电枪状态记录表\n(标识一次充电枪状态上报行为)"){
         `id` bigint(64) unsigned NOT NULL COMMENT '主键',
         `cg_id` bigint(64) unsigned DEFAULT NULL COMMENT '充电枪id',
-        `sn` bigint(64) unsigned DEFAULT NULL COMMENT '订单编号',
+        `sn` bigint(32) unsigned DEFAULT NULL COMMENT '订单编号',
         `work_status` tinyint(4) DEFAULT NULL COMMENT '工作状态',
         `connect_status` tinyint(4) DEFAULT NULL COMMENT '连接状态',
         `output_contactor_status` tinyint(4) DEFAULT NULL COMMENT '输出接触器状态',
@@ -105,7 +116,7 @@ package 充电桩模块 <<Frame>> {
         `input_duration` int(8) DEFAULT NULL COMMENT '已充时长，分钟',
         `left_duration` int(8) DEFAULT NULL COMMENT '剩余充电时间预估，分钟',
         `cp_temperature` tinyint(4) DEFAULT NULL COMMENT '充电桩内部温度',
-        `cu_temperature` tinyint(4) DEFAULT NULL COMMENT '枪头温度',
+        `cg_temperature` tinyint(4) DEFAULT NULL COMMENT '枪头温度',
         `input_start_quantity` smallint(6) unsigned DEFAULT NULL COMMENT '充电开始时电表读数',
         `input_now_quantity` smallint(6) unsigned DEFAULT NULL COMMENT '当前电表读数',
         `now_soc` tinyint(4) DEFAULT NULL COMMENT '当前 SOC',
@@ -181,6 +192,7 @@ package 商户模块 <<Frame>> {
         `id` bigint(64) unsigned NOT NULL COMMENT '主键',
         `phone` varchar(256) DEFAULT '' COMMENT '手机',
         `password` varchar(256) DEFAULT '' COMMENT '密码',
+        `token` varchar(256) DEFAULT '' COMMENT '鉴权token',
 
         `version` int(8) DEFAULT '0' COMMENT '版本',
         `creator` bigint(64) unsigned DEFAULT NULL COMMENT '创建者',
@@ -190,7 +202,7 @@ package 商户模块 <<Frame>> {
         PRIMARY KEY (`id`)
     }
 
-    DetailTable(merchant_detail, "商家详情表\n(标识一个商家)"){
+    SubsetTable(merchant_detail, "商家详情表\n(标识一个商家)"){
         `merchant_id` bigint(64) unsigned NOT NULL COMMENT '主键',
         `name` varchar(256) DEFAULT '' COMMENT '名称',
         `address` varchar(256) DEFAULT '' COMMENT '地址',
@@ -203,7 +215,7 @@ package 商户模块 <<Frame>> {
         PRIMARY KEY (`merchant_id`)
     }
 
-    BehaviourTable(merchant_login_record, "商家登陆记录表\n(标识一次商家登陆行为)"){
+    BehaviourRecordTable(merchant_login_record, "商家登陆记录表\n(标识一次商家登陆行为)"){
         `id` bigint(64) unsigned NOT NULL COMMENT '主键',
         `merchant_id` bigint(64) unsigned DEFAULT NULL COMMENT '用户id',
         `phone_models` varchar(256) DEFAULT '' COMMENT '手机型号',
@@ -221,7 +233,7 @@ package 商户模块 <<Frame>> {
         PRIMARY KEY (`id`)
     }
 
-    SatelliteTable(merchant_third, "第三方登录商户表\n(标识一个第三方账户，关联商户)"){
+    FunctionTable(merchant_third, "第三方登录商户表\n(标识一个第三方账户，关联商户)"){
         `type` tinyint(4) NOT NULL COMMENT '类型，1：支付宝；2：微信',
         `third_id` varchar(256) NOT NULL COMMENT '第三方账户标识',
         `user_id` bigint(64) unsigned DEFAULT NULL COMMENT '用户id',
@@ -243,6 +255,7 @@ package 用户模块 <<Frame>> {
         `phone` varchar(256) DEFAULT '' COMMENT '手机',
         `password` varchar(256) DEFAULT '' COMMENT '密码',
         `status` tinyint(4) DEFAULT NULL COMMENT '状态',
+        `token` varchar(256) DEFAULT '' COMMENT '鉴权token',
 
         `version` int(8) DEFAULT '0' COMMENT '版本',
         `creator` bigint(64) unsigned DEFAULT NULL COMMENT '创建者',
@@ -252,7 +265,7 @@ package 用户模块 <<Frame>> {
         PRIMARY KEY (`id`)
     }
 
-    DetailTable(user_detail, "用户详情表\n(标识一个用户)"){
+    SubsetTable(user_detail, "用户详情表\n(标识一个用户)"){
         `user_id` bigint(64) unsigned NOT NULL COMMENT '主键，等同于user表的id',
         `group_id` bigint(64) unsigned DEFAULT NULL COMMENT '团体所属',
         `name` varchar(256) DEFAULT '' COMMENT '姓名、企业名',
@@ -268,7 +281,7 @@ package 用户模块 <<Frame>> {
         PRIMARY KEY (`user_id`)
     }
 
-    SatelliteTable(user_third, "第三方登录用户表\n(标识一个第三方账户，关联用户)"){
+    FunctionTable(user_third, "第三方登录用户表\n(标识一个第三方账户，关联用户)"){
         `type` tinyint(4) NOT NULL COMMENT '类型，1：支付宝；2：微信',
         `third_id` varchar(256) NOT NULL COMMENT '第三方账户标识',
         `user_id` bigint(64) unsigned DEFAULT NULL COMMENT '用户id',
@@ -282,7 +295,7 @@ package 用户模块 <<Frame>> {
         PRIMARY KEY (`type`,`third_id`)
     }
 
-    BehaviourTable(user_login_record, "用户登陆记录表\n(标识一次用户登陆行为)"){
+    BehaviourRecordTable(user_login_record, "用户登陆记录表\n(标识一次用户登陆行为)"){
         `id` bigint(64) unsigned NOT NULL COMMENT '主键',
         `user_id` bigint(64) unsigned DEFAULT NULL COMMENT '用户id',
         `phone_models` varchar(256) DEFAULT '' COMMENT '手机型号',
@@ -319,9 +332,18 @@ package 用户模块 <<Frame>> {
 }
 
 package 订单模块 <<Frame>> {
-    CenterTable(order, "订单表\n(标识一个订单)"){
+    BusinessCenterTable(order, "订单表\n(标识一个订单)"){
         `id` bigint(64) unsigned NOT NULL COMMENT '主键',
-        `status` tinyint(4) DEFAULT '-1' COMMENT '状态，-1：创建，未确认；0：已确认；1：已支付；2：已完成；-2：已取消',
+        `status` tinyint(4) DEFAULT '-1' COMMENT ' 0：创建，如果创建即确认，此状态则作为保留状态；
+                                                    10：订单已确认，平台将会激活充电枪；
+                                                    11：订单已作废，订单创建后，用户在进行充电前主动取消，如果创建即确认，此状态则作为保留状态；
+                                                    12：订单已完成，成功的订单完结状态。
+                                                    13：订单失败完成，充电失败、没有成功支付或其他原因而需要完结的订单；
+                                                    20：充电中，如果不显示此状态，此状态可作为保留状态；
+                                                    21：充电成功，充电已完成，尚未支付；
+                                                    22：充电失败；
+                                                    30：已支付；
+                                                    31：支付失败； ',
         `sn` bigint(32) unsigned DEFAULT NULL COMMENT '订单编号',
         `user_id` bigint(64) unsigned DEFAULT NULL COMMENT '用户id',
         `merchant_id` bigint(64) unsigned DEFAULT NULL COMMENT '商户id',
@@ -336,7 +358,7 @@ package 订单模块 <<Frame>> {
          PRIMARY KEY (`id`)
     }
 
-    DetailTable(order_detail, "订单详情表\n(标识一个订单)"){
+    SubsetTable(order_detail, "订单详情表\n(标识一个订单)"){
          `order_id` bigint(64) unsigned NOT NULL COMMENT '主键',
          `cp_id` bigint(64) unsigned DEFAULT NULL COMMENT '充电桩id',
          `car_id` bigint(64) unsigned DEFAULT NULL COMMENT '车辆id',
@@ -353,7 +375,7 @@ package 订单模块 <<Frame>> {
 
 package 支付模块 <<Frame>> {
 
-    BehaviourTable(pay_record, "支付记录表\n(标识一次支付行为)"){
+    BehaviourRecordTable(pay_record, "支付记录表\n(标识一次支付行为)"){
          `id` bigint(64) unsigned NOT NULL COMMENT '主键',
          `user_id` bigint(64) unsigned DEFAULT NULL COMMENT '用户id',
          `order_id` bigint(64) unsigned DEFAULT NULL COMMENT '订单id',
@@ -370,7 +392,7 @@ package 支付模块 <<Frame>> {
          PRIMARY KEY (`id`)
     }
 
-    CenterTable(wallet, "用户钱包表\n(标识一个用户钱包)"){
+    SubsetCenterTable(wallet, "用户钱包表\n(标识一个用户钱包)"){
         `user_id` bigint(64) unsigned NOT NULL COMMENT '主键，用户id',
         `money` decimal(10,2) DEFAULT NULL COMMENT '账户余额',
         `status` tinyint(4) DEFAULT NULL COMMENT '状态',
@@ -383,7 +405,7 @@ package 支付模块 <<Frame>> {
         PRIMARY KEY (`user_id`)
     }
 
-    BehaviourTable(deposit_record, "充值记录表\n(标识一次充值行为)"){
+    BehaviourRecordTable(deposit_record, "充值记录表\n(标识一次充值行为)"){
         `id` bigint(64) unsigned NOT NULL COMMENT '主键',
         `user_id` bigint(64) unsigned DEFAULT NULL COMMENT '用户id,钱包id',
         `money` decimal(10,2) DEFAULT NULL COMMENT '金额',
@@ -399,7 +421,7 @@ package 支付模块 <<Frame>> {
         PRIMARY KEY (`id`)
     }
 
-    BehaviourTable(balance_pay_record, "余额支付记录表\n(标识一次通过余额支付的行为)"){
+    BehaviourRecordTable(balance_pay_record, "余额支付记录表\n(标识一次通过余额支付的行为)"){
         `id` bigint(64) unsigned NOT NULL COMMENT '主键',
         `user_id` bigint(64) unsigned DEFAULT NULL COMMENT '用户id,钱包id',
         `money` decimal(10,2) DEFAULT NULL COMMENT '金额',
@@ -414,7 +436,7 @@ package 支付模块 <<Frame>> {
         PRIMARY KEY (`id`)
     }
 
-  BehaviourTable(withdraw_record, "提现记录表\n(标识一次商家提现行为)"){
+  BehaviourRecordTable(withdraw_record, "提现记录表\n(标识一次商家提现行为)"){
       `id` bigint(64) unsigned NOT NULL COMMENT '主键',
       `merchant_id` bigint(64) unsigned DEFAULT NULL COMMENT '商户id,钱包id',
       `money` decimal(10,2) DEFAULT NULL COMMENT '金额',
@@ -430,7 +452,7 @@ package 支付模块 <<Frame>> {
       PRIMARY KEY (`id`)
   }
 
-  CenterTable(merchant_wallet, "商户钱包表\n(标识一个商户钱包，用来记录商户的账户余额)"){
+  SubsetCenterTable(merchant_wallet, "商户钱包表\n(标识一个商户钱包，用来记录商户的账户余额)"){
       `merchant_id` bigint(64) unsigned NOT NULL COMMENT '主键，商户id',
       `money` decimal(10,2) DEFAULT NULL COMMENT '账户余额',
       `status` tinyint(4) DEFAULT NULL COMMENT '状态',
@@ -496,14 +518,69 @@ charge_pile }-- merchant : 1:n
 
 /'充电枪'/
 charge_gun }-- charge_pile : 1:n
-cu_status }-- charge_gun : 1:n
-cu_event_record }-- charge_gun : 1:n
-cu_server_event_record }-- charge_gun : 1:n
+cg_status }-- charge_gun : 1:n
+cg_event_record }-- charge_gun : 1:n
+cg_server_event_record }-- charge_gun : 1:n
 
 /'车辆'/
 car }-- user : 1:n
 
 /'计费规则'/
 fee_rule }-- charge_pile : 1:n
+
+
+
+
+/'
+
+用户注册改动的表
+user
+user_detail
+如果是第三方注册：
+    user_third
+
+用户登陆改动的表
+user
+user_login_record
+
+用户扫码充电改动的表
+order
+order_detail
+
+
+用户支付改动的表
+order
+pay_record
+如果是余额支付：
+    balance_pay_record
+    wallet
+
+用户支充值改动的表
+deposit_record
+wallet
+
+用户创建订单改动的表
+order
+
+订单状态：
+0：创建，如果创建即确认，此状态则作为保留状态；
+10：订单已确认，平台将会激活充电枪；
+11：订单已作废，订单创建后，用户在进行充电前主动取消，如果创建即确认，此状态则作为保留状态；
+12：订单已完成，成功的订单完结状态。
+13：订单失败完成，充电失败、没有成功支付或其他原因而需要完结的订单；
+20：充电中，如果不显示此状态，此状态可作为保留状态；
+21：充电成功，充电已完成，尚未支付；
+22：充电失败；
+30：已支付；
+31：支付失败；
+
+
+
+
+'/
+
+
+
+
 
 @enduml
