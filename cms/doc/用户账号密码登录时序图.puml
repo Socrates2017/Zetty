@@ -1,0 +1,41 @@
+@startuml
+
+actor h5
+
+participant 用户中心
+participant 短信平台
+database 用户库
+database redis
+
+== 获取图形验证码 ==
+h5 -> 用户中心:请求获取图形验证码。\n地址：/public/chart/verifyCode
+用户中心 -> 用户中心:生成六位随机数code，并生成该code的图片。生成一款个会话id：verifyCodeSession(返回给前端，以识别会话)
+用户中心 -> redis:verifyCodeSession为key，code为value放入redis
+用户中心 --> h5:verifyCodeSession和验证码图片返回
+== 校验 ==
+h5 -> 用户中心:登录。\n地址：/user/public/login/username \n参数：用户名，密码，验证码code，verifyCodeSession，clientType
+用户中心 -> 用户中心:校验验证码是否正确、手机号是否未注册
+alt 验证码失效
+    用户中心 --> h5:验证码已失效
+else 验证码错误
+     用户中心 --> h5:验证码错误
+else 用户不存在
+    用户中心 -> h5:用户不存在
+else 密码错误
+    用户中心 -> h5:密码错误
+else 此客户端是否已经登录
+    用户中心 -> h5:无需重复登录
+else 已在移动端登录，且此处登录客户端为移动端
+    用户中心 -> h5:禁止在移动端多端登录
+== 登录 ==
+else 登录
+    用户中心 -> redis:如果未移动端登录，在redis中标记为移动端登录
+    用户中心 -> redis:生成token，存入redis
+    用户中心 -> 用户库:保存登录记录
+    用户中心 --> h5:在响应头中返回token
+end
+
+
+
+
+@enduml

@@ -1,0 +1,36 @@
+@startuml
+start
+
+
+if (登录鉴权：有NotAuth注解，或者开头为/charge/p
+与鉴权模块不在同一个进程的资源，不能使用注解，则采用前缀来标识) then (yes)
+  :无需登录;
+  :进入controller;
+else (no)
+    if (请求头有Token?) then (yes)
+      if (Token是否有效?) then (yes)
+          :从token中获得userid并放入header中;
+          if (商家鉴权：有MerchantAuth注解，或者开头为/charge/m) then (yes)
+              if (请求头有商家id?) then (yes)
+                    if (校验到该用户对该商家的该接口有权限?) then (yes)
+                      :进入controller;
+                    else (no)
+                      :返回无权限;
+                    endif
+              else (no)
+                :需要指定商家，请求失败;
+              endif
+
+          else (no)
+            :进入controller;
+          endif
+      else (no)
+            :请重新登录;
+          endif
+    else (no)
+      :尚未登录;
+    endif
+endif
+
+stop
+@enduml

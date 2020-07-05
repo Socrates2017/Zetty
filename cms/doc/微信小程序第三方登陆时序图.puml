@@ -1,0 +1,49 @@
+@startuml
+
+actor 小程序客户端
+
+participant 用户中心
+participant 微信服务端
+database db
+
+小程序客户端 -> 微信服务端: 获取code
+小程序客户端 --> 用户中心: 利用code登录
+     note right of 用户中心
+     POST /wechat/login
+     end note
+
+用户中心 --> 微信服务端: 获取openid
+alt 微信账号已在库且已有手机号
+    alt 手机号未注册
+      用户中心 -> db:用手机号注册新用户
+    end
+    alt 未绑定
+        用户中心 -> db:绑定
+    end
+
+    用户中心 -> 小程序客户端:进行登陆，返回用户token
+else 微信账号不在库或没有手机号
+    用户中心 -> 小程序客户端:返回openid,sessionKey
+== 获取手机号进行绑定 ==
+    小程序客户端 -> 微信服务端:获取加密的手机号
+    小程序客户端 -> 用户中心:带手机号秘串登录
+         note right of 用户中心
+         POST /wechat/setPhoneAndLogin
+         end note
+    用户中心 -> 用户中心:解密获得手机号
+
+    alt 未注册
+    用户中心 -> db:用手机号注册新用户
+    end
+    alt 不在库
+    用户中心 -> db:新增微信账号入库，并且绑定
+    else 在库
+    用户中心 -> db:绑定
+    end
+
+    用户中心 -> 小程序客户端:进行登陆，返回用户token
+
+end
+
+
+@enduml

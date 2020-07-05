@@ -1,0 +1,41 @@
+@startuml
+start
+
+
+partition 设备id管理 {
+    fork
+        :生成设备id;
+            note left
+                 地址：/v1/CpNo/generate
+                 表：biz_cp_no
+
+                 status，0为未使用；1为已使用
+
+            end note
+    fork again
+       :更新设备id;
+            note right
+                 地址：POST /v1/CpNo/update
+                 表：biz_cp_no
+
+                 根据主键更新
+
+            end note
+    fork again
+       :分页查询设备id;
+            note right
+                 地址：/v1/CpNo/page
+                 表：biz_cp_no
+
+                 可传入商家id或状态
+
+            end note
+    end fork
+
+
+}
+
+
+
+stop
+@enduml

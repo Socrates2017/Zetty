@@ -1,0 +1,31 @@
+@startuml
+start
+
+
+
+
+:获取模板 ID;
+    note left
+        在微信公众平台手动配置获取模板 ID：
+        登录 https://mp.weixin.qq.com 获取模板，如果没有合适的模板，可以申请添加新模板，审核通过后可使用。
+
+    end note
+
+:获取下发权限;
+    note left
+        详见小程序端消息订阅接口
+        https://developers.weixin.qq.com/miniprogram/dev/api/open-api/subscribe-message/wx.requestSubscribeMessage.html
+    end note
+
+:调用接口下发订阅消息;
+    note left
+        详见小程序端消息订阅接口
+        https://developers.weixin.qq.com/miniprogram/dev/api-backend/open-api/subscribe-message/subscribeMessage.send.html
+    end note
+
+
+
+
+
+stop
+@enduml

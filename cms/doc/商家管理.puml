@@ -1,0 +1,206 @@
+@startuml
+start
+
+
+partition 平台添加资源 {
+    fork
+        :平台添加资源;
+            note left
+                 地址：/v1/MerchantResource/add
+                 表：merchant_resource
+
+                 校验菜单是否存在递归关系
+                 校验type和code的组合不能重复
+                 分平台资源和商家资源两种，type;0为平台；1为商家。
+                 建立两颗菜单树：商家资源树、平台资源树。临时查询接口：/v1/MerchantResource/all。type,0代表平台；1代表商家。
+
+            end note
+    fork again
+       :平台删除资源;
+            note right
+                 地址：/v1/MerchantResource/delete/{id}
+                 表：merchant_resource
+
+                 递归删除所有子资源：merchant_resource
+                 删除所有该资源相关的所有角色资源关系：merchant_role_resource
+
+            end note
+    end fork
+
+
+}
+
+partition 商家初始化 {
+    fork
+        :新增商家;
+            note left
+                 地址：/v1/Merchant/add
+                 必填参数：超级管理员手机号（已在平台注册成为用户）
+                 表：merchant
+
+                 校验管理员手机是否已注册，未注册，拒绝添加
+                 新增超级管理员角色：merchant_role
+                 给超级管理员角色添加用户，用户即为注册该手机号的用户，merchant_role_user
+            end note
+    fork again
+        :删除商家;
+            note right
+                 地址：/v1/Merchant/delete/{id}
+
+                 表：merchant
+
+                 逻辑删除，status更新为-1
+            end note
+    end fork
+
+}
+
+partition 商家超级管理员进行权限管理 {
+
+    fork
+       :根据手机号查询用户信息;
+            note right
+                 地址：/v1/User/info/phone
+                 表：user、user_detail
+
+            end note
+
+    fork again
+        :添加商家客户;
+            note right
+                地址：/v1/MerchantUser/add
+                表：merchant_user
+
+                将客户添加到商家-用户列表，如果已在列表则报错
+            end note
+    fork again
+       :删除某商家的制定用户关联;
+            note right
+                 地址：/v1/MerchantUser/delete/{id}
+                 表：merchant_user、merchant_role_user
+
+                 如果该用户是该商家的默认超级管理员，不能删除
+                 同时删除该用户与该商家的角色关联
+            end note
+    fork again
+       :查询商家客户列表;
+            note right
+                 地址：/v1/MerchantUser/page
+                 表：merchant_user、user、user_detail
+            end note
+    end fork
+
+    fork
+        :添加其他角色;
+            note left
+                地址：/v1/MerchantRole/add
+                可选参数： resources 首次添加的资源列表
+                         userId 默认添加用户id
+                表：merchant_role;
+
+                校验是否为超级管理员
+            end note
+    fork again
+       :删除其他角色;
+            note right
+                 地址：/v1/MerchantRole/delete/{id}
+                 表：merchant_resource
+
+                 校验是否为超级管理员
+
+                 删除所有该角色相关的所有角用户关系：merchant_role_user
+                 删除所有该角色相关的所有角资源关系：merchant_role_resource
+            end note
+    end fork
+
+    fork
+        :给角色添加资源;
+            note right
+                地址：/v1/MerchantRoleResource/add
+                表：merchant_role_resource
+
+                校验资源是否存在
+
+                添加子资源，递归添加父资源权限,(添加之前校验是否已具备该权限)
+            end note
+    fork again
+       :删除指定角色的资源权限;
+            note right
+                 地址：/v1/MerchantRoleResource/delete/{roleId}/{id}
+                 表：merchant_role_resource
+
+                 删除父资源，递归删除所有子资源权限
+            end note
+    fork again
+       :更新角色（全量更新该角色的资源关系）;
+            note right
+                 地址：/v1/MerchantRole/update/{id}
+                 表：merchant_role、merchant_role_resource
+
+                 如果资源数组参数不为空，将删除原有资源关系，添加新的资源关系
+            end note
+    fork again
+       :查询角色的资源列表;
+            note right
+                 地址：/v1/MerchantRole/resource/{id}
+                 表：merchant_role_resource
+
+                 返回资源id数组
+            end note
+    fork again
+       :查询角色的资源树;
+            note right
+                 地址：/v1/MerchantRole/resourceTree/{id}
+                 表：merchant_role_resource
+
+                 返回角色拥有的资源树
+            end note
+    end fork
+
+    fork
+        :给角色添加用户;
+            note right
+                地址：/v1/MerchantRoleUser/add
+                表：merchant_role_user
+            end note
+    fork again
+       :删除指定角色的用户关联;
+            note right
+                 地址：/v1/MerchantRoleUser/delete/{roleId}/{id}
+                 表：merchant_role_user
+            end note
+    fork again
+       :查询角色的用户列表;
+            note right
+                 地址：/v1/MerchantRole/resource/{id}
+                 表：merchant_role_resource
+
+                 返回资源id数组
+            end note
+    end fork
+
+}
+
+partition 用户资源访问权限控制 {
+
+    fork
+        :用户访问资源时，只能访问被分配的资源;
+            note left
+                获取用户的资源树：/v1/Merchant/Auth/user/resource
+                header中带上merchantId
+                可选参数：refresh，是则跳过缓存强制刷新。
+
+                后端也会进行权限控制，禁止用户访问没有被分配的资源；
+            end note
+    fork again
+       :查询一个用户在哪些商户有管理员角色;
+            note right
+                 地址：/v1/MerchantUser/adminList
+            end note
+    end fork
+
+}
+
+
+stop
+@enduml
